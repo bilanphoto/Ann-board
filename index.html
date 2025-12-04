@@ -294,9 +294,21 @@
             display: block;
         }
 
+        .youtube-slide {
+            display: none !important;
+        }
+
+        .youtube-slide.active {
+            display: flex !important;
+        }
+
         /* Effect 1: Zoom Fade */
-        .slide.active.effect-zoom-fade {
+        .slide.active.effect-zoom-fade:not(.youtube-slide) {
             animation: zoomFade 1s ease-out;
+        }
+
+        .youtube-slide.active.effect-zoom-fade {
+            animation: zoomFadeYouTube 1s ease-out;
         }
 
         @keyframes zoomFade {
@@ -310,9 +322,24 @@
             }
         }
 
+        @keyframes zoomFadeYouTube {
+            from { 
+                opacity: 0; 
+                transform: scale(0.8); 
+            }
+            to { 
+                opacity: 1; 
+                transform: scale(1); 
+            }
+        }
+
         /* Effect 2: Slide & Fade */
-        .slide.active.effect-slide-fade {
+        .slide.active.effect-slide-fade:not(.youtube-slide) {
             animation: slideFade 0.8s ease-out;
+        }
+
+        .youtube-slide.active.effect-slide-fade {
+            animation: slideFadeYouTube 0.8s ease-out;
         }
 
         @keyframes slideFade {
@@ -326,9 +353,24 @@
             }
         }
 
+        @keyframes slideFadeYouTube {
+            from { 
+                opacity: 0; 
+                transform: translateX(100px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateX(0); 
+            }
+        }
+
         /* Effect 3: Ken Burns (Zoom In Slow) */
-        .slide.active.effect-ken-burns {
+        .slide.active.effect-ken-burns:not(.youtube-slide) {
             animation: kenBurns 5s ease-out;
+        }
+
+        .youtube-slide.active.effect-ken-burns {
+            animation: kenBurnsYouTube 5s ease-out;
         }
 
         @keyframes kenBurns {
@@ -345,9 +387,28 @@
             }
         }
 
+        @keyframes kenBurnsYouTube {
+            from { 
+                opacity: 0;
+                transform: scale(1); 
+            }
+            50% {
+                opacity: 1;
+            }
+            to { 
+                opacity: 1;
+                transform: scale(1.05); 
+            }
+        }
+
         /* Effect 4: 3D Flip */
-        .slide.active.effect-3d-flip {
+        .slide.active.effect-3d-flip:not(.youtube-slide) {
             animation: flip3D 0.8s ease-out;
+            transform-style: preserve-3d;
+        }
+
+        .youtube-slide.active.effect-3d-flip {
+            animation: flip3DYouTube 0.8s ease-out;
             transform-style: preserve-3d;
         }
 
@@ -362,9 +423,24 @@
             }
         }
 
+        @keyframes flip3DYouTube {
+            from { 
+                opacity: 0;
+                transform: perspective(1000px) rotateY(-90deg); 
+            }
+            to { 
+                opacity: 1;
+                transform: perspective(1000px) rotateY(0deg); 
+            }
+        }
+
         /* Effect 5: Blur Transition */
-        .slide.active.effect-blur {
+        .slide.active.effect-blur:not(.youtube-slide) {
             animation: blurTransition 0.8s ease-out;
+        }
+
+        .youtube-slide.active.effect-blur {
+            animation: blurTransitionYouTube 0.8s ease-out;
         }
 
         @keyframes blurTransition {
@@ -377,6 +453,19 @@
                 opacity: 1;
                 filter: blur(0px); 
                 transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        @keyframes blurTransitionYouTube {
+            0% { 
+                opacity: 0;
+                filter: blur(20px); 
+                transform: scale(1.1);
+            }
+            100% { 
+                opacity: 1;
+                filter: blur(0px); 
+                transform: scale(1);
             }
         }
 
@@ -783,28 +872,182 @@
             totalSlidesSpan.textContent = images.length;
             
             images.forEach((imgObj, index) => {
-                const slideImg = document.createElement('img');
-                slideImg.className = 'slide';
-                // รองรับทั้งข้อมูลแบบเก่า (string) และแบบใหม่ (object)
-                slideImg.src = typeof imgObj === 'string' ? imgObj : imgObj.data;
-                slidesWrapper.appendChild(slideImg);
+                const imgData = typeof imgObj === 'string' ? imgObj : imgObj.data;
+                const isYouTube = typeof imgObj === 'object' && imgObj.type === 'youtube';
+                
+                if (isYouTube) {
+                    // สร้าง container สำหรับ YouTube
+                    const youtubeContainer = document.createElement('div');
+                    youtubeContainer.className = 'slide youtube-slide';
+                    youtubeContainer.style.cssText = `
+                        position: relative;
+                        width: 90vw;
+                        height: 90vh;
+                        max-width: 1920px;
+                        max-height: 1080px;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        cursor: pointer;
+                    `;
+                    
+                    // สร้างภาพ thumbnail
+                    const thumbnailImg = document.createElement('img');
+                    thumbnailImg.src = imgData;
+                    thumbnailImg.style.cssText = `
+                        width: 100%;
+                        height: 100%;
+                        object-fit: contain;
+                        border-radius: 10px;
+                    `;
+                    
+                    // สร้างปุ่ม Play
+                    const playButton = document.createElement('div');
+                    playButton.className = 'youtube-play-button';
+                    playButton.innerHTML = '▶';
+                    playButton.style.cssText = `
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        width: 100px;
+                        height: 100px;
+                        background: rgba(255, 0, 0, 0.9);
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 40px;
+                        color: white;
+                        transition: all 0.3s;
+                        pointer-events: none;
+                    `;
+                    
+                    // เมื่อคลิกให้แสดง YouTube iframe
+                    youtubeContainer.addEventListener('click', function() {
+                        const iframe = document.createElement('iframe');
+                        iframe.style.cssText = `
+                            width: 100%;
+                            height: 100%;
+                            border: none;
+                            border-radius: 10px;
+                        `;
+                        iframe.src = `https://www.youtube.com/embed/${imgObj.videoId}?autoplay=1`;
+                        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+                        iframe.allowFullscreen = true;
+                        
+                        youtubeContainer.innerHTML = '';
+                        youtubeContainer.appendChild(iframe);
+                        youtubeContainer.style.cursor = 'default';
+                        
+                        // หยุด slideshow ชั่วคราวเมื่อเล่นวิดีโอ
+                        stopSlideshow();
+                    });
+                    
+                    // Hover effect
+                    youtubeContainer.addEventListener('mouseenter', function() {
+                        playButton.style.transform = 'translate(-50%, -50%) scale(1.1)';
+                        playButton.style.background = 'rgba(255, 0, 0, 1)';
+                    });
+                    
+                    youtubeContainer.addEventListener('mouseleave', function() {
+                        playButton.style.transform = 'translate(-50%, -50%) scale(1)';
+                        playButton.style.background = 'rgba(255, 0, 0, 0.9)';
+                    });
+                    
+                    youtubeContainer.appendChild(thumbnailImg);
+                    youtubeContainer.appendChild(playButton);
+                    slidesWrapper.appendChild(youtubeContainer);
+                } else {
+                    // รูปภาพทั่วไป
+                    const slideImg = document.createElement('img');
+                    slideImg.className = 'slide';
+                    slideImg.src = imgData;
+                    slidesWrapper.appendChild(slideImg);
+                }
             });
         }
 
         // แสดง slide
         function showSlide(index) {
             const slides = document.querySelectorAll('.slide');
-            slides.forEach(slide => {
+            slides.forEach((slide, i) => {
                 slide.classList.remove('active');
                 // ลบ effect classes ทั้งหมด
                 slide.classList.remove('effect-zoom-fade', 'effect-slide-fade', 'effect-ken-burns', 'effect-3d-flip', 'effect-blur');
+                
+                // ถ้าเป็น YouTube slide และมี iframe อยู่ ให้รีเซ็ตกลับเป็น thumbnail
+                if (slide.classList.contains('youtube-slide') && slide.querySelector('iframe')) {
+                    const imgObj = images[i];
+                    if (typeof imgObj === 'object' && imgObj.type === 'youtube') {
+                        // สร้าง thumbnail และปุ่ม play ใหม่
+                        slide.innerHTML = '';
+                        slide.style.cursor = 'pointer';
+                        
+                        const thumbnailImg = document.createElement('img');
+                        thumbnailImg.src = imgObj.data;
+                        thumbnailImg.style.cssText = `
+                            width: 100%;
+                            height: 100%;
+                            object-fit: contain;
+                            border-radius: 10px;
+                        `;
+                        
+                        const playButton = document.createElement('div');
+                        playButton.className = 'youtube-play-button';
+                        playButton.innerHTML = '▶';
+                        playButton.style.cssText = `
+                            position: absolute;
+                            top: 50%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                            width: 100px;
+                            height: 100px;
+                            background: rgba(255, 0, 0, 0.9);
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 40px;
+                            color: white;
+                            transition: all 0.3s;
+                            pointer-events: none;
+                        `;
+                        
+                        slide.appendChild(thumbnailImg);
+                        slide.appendChild(playButton);
+                        
+                        // ใส่ event listener ใหม่
+                        slide.addEventListener('click', function() {
+                            const iframe = document.createElement('iframe');
+                            iframe.style.cssText = `
+                                width: 100%;
+                                height: 100%;
+                                border: none;
+                                border-radius: 10px;
+                            `;
+                            iframe.src = `https://www.youtube.com/embed/${imgObj.videoId}?autoplay=1`;
+                            iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+                            iframe.allowFullscreen = true;
+                            
+                            slide.innerHTML = '';
+                            slide.appendChild(iframe);
+                            slide.style.cursor = 'default';
+                            stopSlideshow();
+                        });
+                    }
+                }
             });
             
             if (slides.length > 0) {
                 const currentSlide = slides[index];
                 currentSlide.classList.add('active');
-                // เพิ่ม effect class ตามที่เลือก
-                currentSlide.classList.add('effect-' + currentEffect);
+                
+                // เพิ่ม effect class ตามที่เลือก (ยกเว้น YouTube ที่กำลังเล่นอยู่)
+                if (!currentSlide.classList.contains('youtube-slide') || !currentSlide.querySelector('iframe')) {
+                    currentSlide.classList.add('effect-' + currentEffect);
+                }
+                
                 currentSlideSpan.textContent = index + 1;
             }
         }
