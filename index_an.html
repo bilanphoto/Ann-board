@@ -47,6 +47,41 @@
             margin-bottom: 20px;
         }
 
+        .effect-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .effect-selector label {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .effect-selector select {
+            padding: 8px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            background: white;
+            transition: all 0.3s;
+        }
+
+        .effect-selector select:hover {
+            border-color: #667eea;
+        }
+
+        .effect-selector select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
         .file-input-wrapper {
             position: relative;
             overflow: hidden;
@@ -188,8 +223,17 @@
 
         .slideshow-content {
             position: relative;
-            max-width: 90%;
-            max-height: 90%;
+            width: 90vw;
+            height: 90vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #slidesWrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -198,20 +242,104 @@
         .slide {
             display: none;
             max-width: 100%;
-            max-height: 90vh;
+            max-height: 100%;
             object-fit: contain;
             border-radius: 10px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
 
         .slide.active {
             display: block;
-            animation: fadeIn 0.5s;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
+        /* Effect 1: Zoom Fade */
+        .slide.active.effect-zoom-fade {
+            animation: zoomFade 1s ease-out;
+        }
+
+        @keyframes zoomFade {
+            from { 
+                opacity: 0; 
+                transform: translate(-50%, -50%) scale(0.8); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translate(-50%, -50%) scale(1); 
+            }
+        }
+
+        /* Effect 2: Slide & Fade */
+        .slide.active.effect-slide-fade {
+            animation: slideFade 0.8s ease-out;
+        }
+
+        @keyframes slideFade {
+            from { 
+                opacity: 0; 
+                transform: translate(calc(-50% + 100px), -50%); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translate(-50%, -50%); 
+            }
+        }
+
+        /* Effect 3: Ken Burns (Zoom In Slow) */
+        .slide.active.effect-ken-burns {
+            animation: kenBurns 5s ease-out;
+        }
+
+        @keyframes kenBurns {
+            from { 
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1); 
+            }
+            50% {
+                opacity: 1;
+            }
+            to { 
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.1); 
+            }
+        }
+
+        /* Effect 4: 3D Flip */
+        .slide.active.effect-3d-flip {
+            animation: flip3D 0.8s ease-out;
+            transform-style: preserve-3d;
+        }
+
+        @keyframes flip3D {
+            from { 
+                opacity: 0;
+                transform: translate(-50%, -50%) perspective(1000px) rotateY(-90deg); 
+            }
+            to { 
+                opacity: 1;
+                transform: translate(-50%, -50%) perspective(1000px) rotateY(0deg); 
+            }
+        }
+
+        /* Effect 5: Blur Transition */
+        .slide.active.effect-blur {
+            animation: blurTransition 0.8s ease-out;
+        }
+
+        @keyframes blurTransition {
+            0% { 
+                opacity: 0;
+                filter: blur(20px); 
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+            100% { 
+                opacity: 1;
+                filter: blur(0px); 
+                transform: translate(-50%, -50%) scale(1);
+            }
         }
 
         .close-btn {
@@ -294,6 +422,17 @@
                 </div>
             </div>
 
+            <div class="effect-selector">
+                <label for="effectSelect">🎨 เอฟเฟกต์การเปลี่ยนภาพ:</label>
+                <select id="effectSelect">
+                    <option value="zoom-fade">Zoom Fade - ซูมเข้าพร้อมเฟด</option>
+                    <option value="slide-fade">Slide & Fade - เลื่อนข้างพร้อมเฟด</option>
+                    <option value="ken-burns">Ken Burns - ซูมช้าๆ แบบสารคดี</option>
+                    <option value="3d-flip">3D Flip - พลิกแบบ 3 มิติ</option>
+                    <option value="blur">Blur Transition - เบลอแล้วชัดขึ้น</option>
+                </select>
+            </div>
+
             <div class="thumbnail-grid" id="thumbnailGrid"></div>
         </div>
     </div>
@@ -315,6 +454,7 @@
         let slideInterval;
         let progressInterval;
         const SLIDE_DURATION = 5000; // 5 วินาที
+        let currentEffect = 'zoom-fade'; // เอฟเฟกต์เริ่มต้น
 
         const imageInput = document.getElementById('imageInput');
         const showBtn = document.getElementById('showBtn');
@@ -327,6 +467,12 @@
         const currentSlideSpan = document.getElementById('currentSlide');
         const totalSlidesSpan = document.getElementById('totalSlides');
         const progressBar = document.getElementById('progressBar');
+        const effectSelect = document.getElementById('effectSelect');
+
+        // เปลี่ยนเอฟเฟกต์
+        effectSelect.addEventListener('change', function() {
+            currentEffect = this.value;
+        });
 
         // อัพโหลดรูปภาพ
         imageInput.addEventListener('change', function(e) {
@@ -425,10 +571,17 @@
         // แสดง slide
         function showSlide(index) {
             const slides = document.querySelectorAll('.slide');
-            slides.forEach(slide => slide.classList.remove('active'));
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+                // ลบ effect classes ทั้งหมด
+                slide.classList.remove('effect-zoom-fade', 'effect-slide-fade', 'effect-ken-burns', 'effect-3d-flip', 'effect-blur');
+            });
             
             if (slides.length > 0) {
-                slides[index].classList.add('active');
+                const currentSlide = slides[index];
+                currentSlide.classList.add('active');
+                // เพิ่ม effect class ตามที่เลือก
+                currentSlide.classList.add('effect-' + currentEffect);
                 currentSlideSpan.textContent = index + 1;
             }
         }
