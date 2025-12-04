@@ -47,6 +47,44 @@
             margin-bottom: 20px;
         }
 
+        .url-input-section {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .url-input {
+            flex: 1;
+            min-width: 300px;
+            padding: 12px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .url-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .btn-add-url {
+            background: #8b5cf6;
+        }
+
+        .btn-add-url:hover {
+            background: #7c3aed;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+        }
+
         .effect-selector {
             display: flex;
             gap: 10px;
@@ -389,6 +427,15 @@
                 align-items: stretch;
             }
 
+            .url-input-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .url-input {
+                min-width: 100%;
+            }
+
             .btn {
                 width: 100%;
             }
@@ -423,6 +470,11 @@
                 <div class="image-count">
                     จำนวนภาพ: <span id="imageCount">0</span> ภาพ
                 </div>
+            </div>
+
+            <div class="url-input-section">
+                <input type="text" id="urlInput" placeholder="🔗 ใส่ลิงก์ภาพหรือ YouTube (เช่น https://example.com/image.jpg)" class="url-input">
+                <button class="btn btn-add-url" id="addUrlBtn">➕ เพิ่มจากลิงก์</button>
             </div>
 
             <div class="effect-selector">
@@ -476,6 +528,8 @@
         const totalSlidesSpan = document.getElementById('totalSlides');
         const progressBar = document.getElementById('progressBar');
         const effectSelect = document.getElementById('effectSelect');
+        const urlInput = document.getElementById('urlInput');
+        const addUrlBtn = document.getElementById('addUrlBtn');
 
         // โหลดข้อมูลจาก localStorage เมื่อเปิดหน้าเว็บ
         function loadImagesFromStorage() {
@@ -511,6 +565,112 @@
             currentEffect = this.value;
         });
 
+        // เพิ่มรูปภาพหรือ YouTube จาก URL
+        addUrlBtn.addEventListener('click', function() {
+            const url = urlInput.value.trim();
+            if (!url) {
+                alert('กรุณาใส่ลิงก์');
+                return;
+            }
+
+            // ตรวจสอบว่าเป็น YouTube URL หรือไม่
+            if (isYouTubeUrl(url)) {
+                const videoId = getYouTubeVideoId(url);
+                if (videoId) {
+                    // ใช้ YouTube thumbnail
+                    const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+                    addImageFromUrl(thumbnailUrl, true, videoId);
+                } else {
+                    alert('ลิงก์ YouTube ไม่ถูกต้อง');
+                }
+            } else {
+                // เป็นรูปภาพทั่วไป
+                addImageFromUrl(url, false);
+            }
+        });
+
+        // กด Enter ในช่อง URL ก็เพิ่มได้
+        urlInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addUrlBtn.click();
+            }
+        });
+
+        // ฟังก์ชันตรวจสอบว่าเป็น YouTube URL หรือไม่
+        function isYouTubeUrl(url) {
+            return url.includes('youtube.com') || url.includes('youtu.be');
+        }
+
+        // ฟังก์ชันดึง Video ID จาก YouTube URL
+        function getYouTubeVideoId(url) {
+            const patterns = [
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/,
+                /youtube\.com\/embed\/([^&\n?#]+)/,
+                /youtube\.com\/v\/([^&\n?#]+)/
+            ];
+            
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match && match[1]) {
+                    return match[1];
+                }
+            }
+            return null;
+        }
+
+        // ฟังก์ชันเพิ่มรูปภาพจาก URL
+        function addImageFromUrl(url, isYouTube = false, videoId = null) {
+            const img = new Image();
+            img.crossOrigin = 'Anonymous';
+            
+            img.onload = function() {
+                // แปลงรูปภาพเป็น Base64
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                
+                try {
+                    const base64 = canvas.toDataURL('image/jpeg', 0.9);
+                    
+                    // เก็บข้อมูล YouTube ด้วยถ้ามี
+                    if (isYouTube && videoId) {
+                        images.push({
+                            data: base64,
+                            type: 'youtube',
+                            videoId: videoId
+                        });
+                    } else {
+                        images.push({
+                            data: base64,
+                            type: 'image'
+                        });
+                    }
+                    
+                    updateThumbnails();
+                    updateControls();
+                    saveImagesToStorage();
+                    urlInput.value = ''; // ล้างช่อง input
+                    
+                    if (isYouTube) {
+                        alert('✅ เพิ่ม YouTube Video สำเร็จ!');
+                    } else {
+                        alert('✅ เพิ่มรูปภาพสำเร็จ!');
+                    }
+                } catch (error) {
+                    alert('❌ ไม่สามารถโหลดรูปภาพได้ อาจเป็นเพราะ CORS policy\nลองใช้ภาพจากแหล่งอื่น หรืออัพโหลดไฟล์แทน');
+                    console.error('Error:', error);
+                }
+            };
+            
+            img.onerror = function() {
+                alert('❌ ไม่สามารถโหลดรูปภาพจาก URL นี้ได้\nกรุณาตรวจสอบลิงก์อีกครั้ง');
+            };
+            
+            img.src = url;
+        }
+
         // อัพโหลดรูปภาพ
         imageInput.addEventListener('change', function(e) {
             const files = Array.from(e.target.files);
@@ -519,7 +679,10 @@
                 if (file.type.startsWith('image/')) {
                     const reader = new FileReader();
                     reader.onload = function(event) {
-                        images.push(event.target.result);
+                        images.push({
+                            data: event.target.result,
+                            type: 'image'
+                        });
                         updateThumbnails();
                         updateControls();
                         saveImagesToStorage(); // บันทึกลง localStorage ทันที
@@ -535,17 +698,36 @@
         // อัพเดท thumbnails
         function updateThumbnails() {
             thumbnailGrid.innerHTML = '';
-            images.forEach((img, index) => {
+            images.forEach((imgObj, index) => {
                 const thumbnailItem = document.createElement('div');
                 thumbnailItem.className = 'thumbnail-item';
                 
                 const imgElement = document.createElement('img');
-                imgElement.src = img;
+                // รองรับทั้งข้อมูลแบบเก่า (string) และแบบใหม่ (object)
+                imgElement.src = typeof imgObj === 'string' ? imgObj : imgObj.data;
                 
                 const removeBtn = document.createElement('button');
                 removeBtn.className = 'thumbnail-remove';
                 removeBtn.innerHTML = '&times;';
                 removeBtn.onclick = () => removeImage(index);
+                
+                // เพิ่มไอคอน YouTube ถ้าเป็นวิดีโอ
+                if (typeof imgObj === 'object' && imgObj.type === 'youtube') {
+                    const youtubeIcon = document.createElement('div');
+                    youtubeIcon.style.cssText = `
+                        position: absolute;
+                        bottom: 5px;
+                        left: 5px;
+                        background: rgba(255, 0, 0, 0.9);
+                        color: white;
+                        padding: 3px 8px;
+                        border-radius: 3px;
+                        font-size: 10px;
+                        font-weight: bold;
+                    `;
+                    youtubeIcon.textContent = '▶ YouTube';
+                    thumbnailItem.appendChild(youtubeIcon);
+                }
                 
                 thumbnailItem.appendChild(imgElement);
                 thumbnailItem.appendChild(removeBtn);
@@ -600,10 +782,11 @@
             slidesWrapper.innerHTML = '';
             totalSlidesSpan.textContent = images.length;
             
-            images.forEach((img, index) => {
+            images.forEach((imgObj, index) => {
                 const slideImg = document.createElement('img');
                 slideImg.className = 'slide';
-                slideImg.src = img;
+                // รองรับทั้งข้อมูลแบบเก่า (string) และแบบใหม่ (object)
+                slideImg.src = typeof imgObj === 'string' ? imgObj : imgObj.data;
                 slidesWrapper.appendChild(slideImg);
             });
         }
