@@ -75,51 +75,6 @@
             color: #9ca3af;
         }
 
-        .btn-add-url {
-            background: #8b5cf6;
-        }
-
-        .btn-add-url:hover {
-            background: #7c3aed;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
-        }
-
-        .effect-selector {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            padding: 15px;
-            background: #f9fafb;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .effect-selector label {
-            font-weight: 600;
-            color: #374151;
-        }
-
-        .effect-selector select {
-            padding: 8px 15px;
-            border: 2px solid #e5e7eb;
-            border-radius: 6px;
-            font-size: 14px;
-            cursor: pointer;
-            background: white;
-            transition: all 0.3s;
-        }
-
-        .effect-selector select:hover {
-            border-color: #667eea;
-        }
-
-        .effect-selector select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
         .file-input-wrapper {
             position: relative;
             overflow: hidden;
@@ -179,6 +134,16 @@
             box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
         }
 
+        .btn-add-url {
+            background: #8b5cf6;
+        }
+
+        .btn-add-url:hover {
+            background: #7c3aed;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+        }
+
         .btn:disabled {
             background: #9ca3af;
             cursor: not-allowed;
@@ -191,6 +156,41 @@
             padding: 10px 15px;
             background: #f3f4f6;
             border-radius: 8px;
+        }
+
+        .effect-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .effect-selector label {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .effect-selector select {
+            padding: 8px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            background: white;
+            transition: all 0.3s;
+        }
+
+        .effect-selector select:hover {
+            border-color: #667eea;
+        }
+
+        .effect-selector select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .thumbnail-grid {
@@ -296,6 +296,7 @@
 
         .youtube-slide {
             display: none !important;
+            background: black;
         }
 
         .youtube-slide.active {
@@ -305,10 +306,6 @@
         /* Effect 1: Zoom Fade */
         .slide.active.effect-zoom-fade:not(.youtube-slide) {
             animation: zoomFade 1s ease-out;
-        }
-
-        .youtube-slide.active.effect-zoom-fade {
-            animation: zoomFadeYouTube 1s ease-out;
         }
 
         @keyframes zoomFade {
@@ -322,24 +319,9 @@
             }
         }
 
-        @keyframes zoomFadeYouTube {
-            from { 
-                opacity: 0; 
-                transform: scale(0.8); 
-            }
-            to { 
-                opacity: 1; 
-                transform: scale(1); 
-            }
-        }
-
         /* Effect 2: Slide & Fade */
         .slide.active.effect-slide-fade:not(.youtube-slide) {
             animation: slideFade 0.8s ease-out;
-        }
-
-        .youtube-slide.active.effect-slide-fade {
-            animation: slideFadeYouTube 0.8s ease-out;
         }
 
         @keyframes slideFade {
@@ -353,24 +335,9 @@
             }
         }
 
-        @keyframes slideFadeYouTube {
-            from { 
-                opacity: 0; 
-                transform: translateX(100px); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateX(0); 
-            }
-        }
-
-        /* Effect 3: Ken Burns (Zoom In Slow) */
+        /* Effect 3: Ken Burns */
         .slide.active.effect-ken-burns:not(.youtube-slide) {
             animation: kenBurns 5s ease-out;
-        }
-
-        .youtube-slide.active.effect-ken-burns {
-            animation: kenBurnsYouTube 5s ease-out;
         }
 
         @keyframes kenBurns {
@@ -387,28 +354,9 @@
             }
         }
 
-        @keyframes kenBurnsYouTube {
-            from { 
-                opacity: 0;
-                transform: scale(1); 
-            }
-            50% {
-                opacity: 1;
-            }
-            to { 
-                opacity: 1;
-                transform: scale(1.05); 
-            }
-        }
-
         /* Effect 4: 3D Flip */
         .slide.active.effect-3d-flip:not(.youtube-slide) {
             animation: flip3D 0.8s ease-out;
-            transform-style: preserve-3d;
-        }
-
-        .youtube-slide.active.effect-3d-flip {
-            animation: flip3DYouTube 0.8s ease-out;
             transform-style: preserve-3d;
         }
 
@@ -423,24 +371,9 @@
             }
         }
 
-        @keyframes flip3DYouTube {
-            from { 
-                opacity: 0;
-                transform: perspective(1000px) rotateY(-90deg); 
-            }
-            to { 
-                opacity: 1;
-                transform: perspective(1000px) rotateY(0deg); 
-            }
-        }
-
         /* Effect 5: Blur Transition */
         .slide.active.effect-blur:not(.youtube-slide) {
             animation: blurTransition 0.8s ease-out;
-        }
-
-        .youtube-slide.active.effect-blur {
-            animation: blurTransitionYouTube 0.8s ease-out;
         }
 
         @keyframes blurTransition {
@@ -454,23 +387,6 @@
                 filter: blur(0px); 
                 transform: translate(-50%, -50%) scale(1);
             }
-        }
-
-        @keyframes blurTransitionYouTube {
-            0% { 
-                opacity: 0;
-                filter: blur(20px); 
-                transform: scale(1.1);
-            }
-            100% { 
-                opacity: 1;
-                filter: blur(0px); 
-                transform: scale(1);
-            }
-        }
-
-        .slide-counter {
-            display: none;
         }
 
         .progress-bar {
@@ -531,7 +447,7 @@
             </div>
 
             <div class="url-input-section">
-                <input type="text" id="urlInput" placeholder="🔗 ใส่ลิงก์ภาพหรือ YouTube (เช่น https://example.com/image.jpg)" class="url-input">
+                <input type="text" id="urlInput" placeholder="🔗 ใส่ลิงก์ภาพหรือ YouTube (เช่น https://youtube.com/watch?v=...)" class="url-input">
                 <button class="btn btn-add-url" id="addUrlBtn">➕ เพิ่มจากลิงก์</button>
             </div>
 
@@ -557,24 +473,24 @@
     <div class="slideshow-container" id="slideshowContainer">
         <div class="slideshow-content">
             <div id="slidesWrapper"></div>
-            <div class="slide-counter">
-                <span id="currentSlide">1</span> / <span id="totalSlides">0</span>
-            </div>
         </div>
         <div class="progress-bar" id="progressBar"></div>
     </div>
 
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script>
+        // ตัวแปรหลัก
         let images = [];
         let currentSlideIndex = 0;
         let slideInterval;
         let progressInterval;
-        const SLIDE_DURATION = 5000; // 5 วินาที
-        let currentEffect = 'zoom-fade'; // เอฟเฟกต์เริ่มต้น
-        const STORAGE_KEY = 'announcement_board_images'; // key สำหรับเก็บข้อมูล
-        let youtubePlayer = null; // YouTube player instance
-        let isYouTubePlaying = false; // สถานะการเล่น YouTube
+        const SLIDE_DURATION = 5000;
+        let currentEffect = 'zoom-fade';
+        const STORAGE_KEY = 'announcement_board_images';
+        let youtubePlayer = null;
+        let isYouTubePlaying = false;
 
+        // ดึง DOM elements
         const imageInput = document.getElementById('imageInput');
         const showBtn = document.getElementById('showBtn');
         const clearBtn = document.getElementById('clearBtn');
@@ -582,25 +498,17 @@
         const slideshowContainer = document.getElementById('slideshowContainer');
         const slidesWrapper = document.getElementById('slidesWrapper');
         const imageCount = document.getElementById('imageCount');
-        const currentSlideSpan = document.getElementById('currentSlide');
-        const totalSlidesSpan = document.getElementById('totalSlides');
         const progressBar = document.getElementById('progressBar');
         const effectSelect = document.getElementById('effectSelect');
         const urlInput = document.getElementById('urlInput');
         const addUrlBtn = document.getElementById('addUrlBtn');
 
-        // โหลด YouTube IFrame API
-        const tag = document.createElement('script');
-        tag.src = 'https://www.youtube.com/iframe_api';
-        const firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-        // Callback เมื่อ YouTube API พร้อมใช้งาน
+        // Callback เมื่อ YouTube API พร้อม
         window.onYouTubeIframeAPIReady = function() {
-            console.log('YouTube IFrame API Ready');
+            console.log('YouTube API Ready');
         };
 
-        // โหลดข้อมูลจาก localStorage เมื่อเปิดหน้าเว็บ
+        // โหลดรูปภาพจาก localStorage
         function loadImagesFromStorage() {
             try {
                 const savedImages = localStorage.getItem(STORAGE_KEY);
@@ -608,23 +516,21 @@
                     images = JSON.parse(savedImages);
                     updateThumbnails();
                     updateControls();
-                    console.log('โหลดรูปภาพสำเร็จ:', images.length, 'ภาพ');
+                    console.log('โหลดรูปภาพ:', images.length, 'ภาพ');
                 }
             } catch (error) {
-                console.error('เกิดข้อผิดพลาดในการโหลดรูปภาพ:', error);
+                console.error('Error loading:', error);
             }
         }
 
-        // บันทึกข้อมูลลง localStorage
+        // บันทึกรูปภาพ
         function saveImagesToStorage() {
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(images));
-                console.log('บันทึกรูปภาพสำเร็จ:', images.length, 'ภาพ');
             } catch (error) {
-                console.error('เกิดข้อผิดพลาดในการบันทึกรูปภาพ:', error);
-                // ถ้า localStorage เต็ม
+                console.error('Error saving:', error);
                 if (error.name === 'QuotaExceededError') {
-                    alert('พื้นที่จัดเก็บข้อมูลเต็ม! กรุณาลบรูปภาพบางส่วนออก');
+                    alert('พื้นที่เต็ม! กรุณาลบรูปภาพบางส่วน');
                 }
             }
         }
@@ -634,123 +540,91 @@
             currentEffect = this.value;
         });
 
-        // เพิ่มรูปภาพหรือ YouTube จาก URL
+        // เพิ่ม URL
         addUrlBtn.addEventListener('click', function() {
-            console.log('กดปุ่มเพิ่มลิงก์');
             const url = urlInput.value.trim();
-            console.log('URL ที่ใส่:', url);
-            
             if (!url) {
                 alert('กรุณาใส่ลิงก์');
                 return;
             }
 
-            // ตรวจสอบว่าเป็น YouTube URL หรือไม่
             if (isYouTubeUrl(url)) {
-                console.log('ตรวจพบ YouTube URL');
                 const videoId = getYouTubeVideoId(url);
-                console.log('Video ID:', videoId);
-                
                 if (videoId) {
-                    // เพิ่ม YouTube โดยไม่ต้องโหลดภาพ thumbnail ก่อน
                     images.push({
                         data: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
                         type: 'youtube',
                         videoId: videoId
                     });
-                    
                     updateThumbnails();
                     updateControls();
                     saveImagesToStorage();
-                    urlInput.value = ''; // ล้างช่อง input
-                    alert('✅ เพิ่ม YouTube Video สำเร็จ!');
+                    urlInput.value = '';
+                    alert('✅ เพิ่ม YouTube สำเร็จ!');
                 } else {
                     alert('❌ ลิงก์ YouTube ไม่ถูกต้อง');
                 }
             } else {
-                console.log('เป็นลิงก์รูปภาพ');
-                // เป็นรูปภาพทั่วไป
-                addImageFromUrl(url, false);
+                addImageFromUrl(url);
             }
         });
 
-        // กด Enter ในช่อง URL ก็เพิ่มได้
         urlInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 addUrlBtn.click();
             }
         });
 
-        // ฟังก์ชันตรวจสอบว่าเป็น YouTube URL หรือไม่
         function isYouTubeUrl(url) {
             return url.includes('youtube.com') || url.includes('youtu.be');
         }
 
-        // ฟังก์ชันดึง Video ID จาก YouTube URL
         function getYouTubeVideoId(url) {
             const patterns = [
                 /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/,
-                /youtube\.com\/embed\/([^&\n?#]+)/,
-                /youtube\.com\/v\/([^&\n?#]+)/
+                /youtube\.com\/embed\/([^&\n?#]+)/
             ];
             
             for (const pattern of patterns) {
                 const match = url.match(pattern);
-                if (match && match[1]) {
-                    return match[1];
-                }
+                if (match && match[1]) return match[1];
             }
             return null;
         }
 
-        // ฟังก์ชันเพิ่มรูปภาพจาก URL
-        function addImageFromUrl(url, isYouTube = false, videoId = null) {
-            console.log('กำลังโหลดรูปภาพจาก URL:', url);
-            
+        function addImageFromUrl(url) {
             const img = new Image();
             img.crossOrigin = 'Anonymous';
             
             img.onload = function() {
-                console.log('โหลดรูปภาพสำเร็จ');
                 try {
-                    // แปลงรูปภาพเป็น Base64
                     const canvas = document.createElement('canvas');
                     canvas.width = img.width;
                     canvas.height = img.height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0);
-                    
-                    const base64 = canvas.toDataURL('image/jpeg', 0.9);
+                    canvas.getContext('2d').drawImage(img, 0, 0);
                     
                     images.push({
-                        data: base64,
+                        data: canvas.toDataURL('image/jpeg', 0.9),
                         type: 'image'
                     });
                     
                     updateThumbnails();
                     updateControls();
                     saveImagesToStorage();
-                    urlInput.value = ''; // ล้างช่อง input
+                    urlInput.value = '';
                     alert('✅ เพิ่มรูปภาพสำเร็จ!');
                 } catch (error) {
-                    console.error('Error converting image:', error);
-                    alert('❌ ไม่สามารถโหลดรูปภาพได้ อาจเป็นเพราะ CORS policy\nลองใช้ภาพจากแหล่งอื่น หรืออัพโหลดไฟล์แทน');
+                    alert('❌ ไม่สามารถโหลดรูปได้ (CORS policy)');
                 }
             };
             
-            img.onerror = function() {
-                console.error('โหลดรูปภาพล้มเหลว');
-                alert('❌ ไม่สามารถโหลดรูปภาพจาก URL นี้ได้\nกรุณาตรวจสอบลิงก์อีกครั้ง');
-            };
-            
+            img.onerror = () => alert('❌ ไม่สามารถโหลด URL นี้');
             img.src = url;
         }
 
         // อัพโหลดรูปภาพ
         imageInput.addEventListener('change', function(e) {
-            const files = Array.from(e.target.files);
-            
-            files.forEach(file => {
+            Array.from(e.target.files).forEach(file => {
                 if (file.type.startsWith('image/')) {
                     const reader = new FileReader();
                     reader.onload = function(event) {
@@ -760,13 +634,11 @@
                         });
                         updateThumbnails();
                         updateControls();
-                        saveImagesToStorage(); // บันทึกลง localStorage ทันที
+                        saveImagesToStorage();
                     };
                     reader.readAsDataURL(file);
                 }
             });
-            
-            // รีเซ็ต input เพื่อให้สามารถเลือกไฟล์เดิมได้อีก
             e.target.value = '';
         });
 
@@ -774,68 +646,52 @@
         function updateThumbnails() {
             thumbnailGrid.innerHTML = '';
             images.forEach((imgObj, index) => {
-                const thumbnailItem = document.createElement('div');
-                thumbnailItem.className = 'thumbnail-item';
+                const item = document.createElement('div');
+                item.className = 'thumbnail-item';
                 
-                const imgElement = document.createElement('img');
-                // รองรับทั้งข้อมูลแบบเก่า (string) และแบบใหม่ (object)
-                imgElement.src = typeof imgObj === 'string' ? imgObj : imgObj.data;
+                const img = document.createElement('img');
+                img.src = typeof imgObj === 'string' ? imgObj : imgObj.data;
                 
-                const removeBtn = document.createElement('button');
-                removeBtn.className = 'thumbnail-remove';
-                removeBtn.innerHTML = '&times;';
-                removeBtn.onclick = () => removeImage(index);
+                const btn = document.createElement('button');
+                btn.className = 'thumbnail-remove';
+                btn.innerHTML = '&times;';
+                btn.onclick = () => removeImage(index);
                 
-                // เพิ่มไอคอน YouTube ถ้าเป็นวิดีโอ
                 if (typeof imgObj === 'object' && imgObj.type === 'youtube') {
-                    const youtubeIcon = document.createElement('div');
-                    youtubeIcon.style.cssText = `
-                        position: absolute;
-                        bottom: 5px;
-                        left: 5px;
-                        background: rgba(255, 0, 0, 0.9);
-                        color: white;
-                        padding: 3px 8px;
-                        border-radius: 3px;
-                        font-size: 10px;
-                        font-weight: bold;
-                    `;
-                    youtubeIcon.textContent = '▶ YouTube';
-                    thumbnailItem.appendChild(youtubeIcon);
+                    const icon = document.createElement('div');
+                    icon.style.cssText = 'position:absolute;bottom:5px;left:5px;background:rgba(255,0,0,0.9);color:white;padding:3px 8px;border-radius:3px;font-size:10px;font-weight:bold;';
+                    icon.textContent = '▶ YouTube';
+                    item.appendChild(icon);
                 }
                 
-                thumbnailItem.appendChild(imgElement);
-                thumbnailItem.appendChild(removeBtn);
-                thumbnailGrid.appendChild(thumbnailItem);
+                item.appendChild(img);
+                item.appendChild(btn);
+                thumbnailGrid.appendChild(item);
             });
         }
 
-        // ลบรูปภาพ
         function removeImage(index) {
             images.splice(index, 1);
             updateThumbnails();
             updateControls();
-            saveImagesToStorage(); // บันทึกหลังลบภาพ
+            saveImagesToStorage();
         }
 
-        // ลบภาพทั้งหมด
         clearBtn.addEventListener('click', function() {
-            if (images.length > 0 && confirm('คุณต้องการลบรูปภาพทั้งหมดใช่หรือไม่?')) {
+            if (images.length > 0 && confirm('ลบทั้งหมด?')) {
                 images = [];
                 updateThumbnails();
                 updateControls();
                 closeSlideshow();
-                saveImagesToStorage(); // บันทึกหลังลบภาพทั้งหมด
+                saveImagesToStorage();
             }
         });
 
-        // อัพเดทปุ่มควบคุม
         function updateControls() {
             imageCount.textContent = images.length;
             showBtn.disabled = images.length === 0;
         }
 
-        // แสดง slideshow
         showBtn.addEventListener('click', function() {
             if (images.length > 0) {
                 showSlideshow();
@@ -849,209 +705,133 @@
             renderSlides();
             showSlide(0);
             startSlideshow();
-            document.body.style.overflow = 'hidden'; // ป้องกันการ scroll
+            document.body.style.overflow = 'hidden';
         }
 
-        // สร้าง slides
         function renderSlides() {
             slidesWrapper.innerHTML = '';
-            totalSlidesSpan.textContent = images.length;
             
             images.forEach((imgObj, index) => {
-                const imgData = typeof imgObj === 'string' ? imgObj : imgObj.data;
-                const isYouTube = typeof imgObj === 'object' && imgObj.type === 'youtube';
+                const isYT = typeof imgObj === 'object' && imgObj.type === 'youtube';
                 
-                if (isYouTube) {
-                    // สร้าง container สำหรับ YouTube
-                    const youtubeContainer = document.createElement('div');
-                    youtubeContainer.className = 'slide youtube-slide';
-                    youtubeContainer.setAttribute('data-video-id', imgObj.videoId);
-                    youtubeContainer.setAttribute('data-index', index);
-                    youtubeContainer.style.cssText = `
-                        position: relative;
-                        width: 100vw;
-                        height: 100vh;
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                        background: black;
-                    `;
-                    
-                    slidesWrapper.appendChild(youtubeContainer);
+                if (isYT) {
+                    const div = document.createElement('div');
+                    div.className = 'slide youtube-slide';
+                    div.setAttribute('data-video-id', imgObj.videoId);
+                    div.style.cssText = 'position:relative;width:100vw;height:100vh;display:flex;justify-content:center;align-items:center;background:black;';
+                    slidesWrapper.appendChild(div);
                 } else {
-                    // รูปภาพทั่วไป
-                    const slideImg = document.createElement('img');
-                    slideImg.className = 'slide';
-                    slideImg.src = imgData;
-                    slidesWrapper.appendChild(slideImg);
+                    const img = document.createElement('img');
+                    img.className = 'slide';
+                    img.src = typeof imgObj === 'string' ? imgObj : imgObj.data;
+                    slidesWrapper.appendChild(img);
                 }
             });
         }
 
-        // แสดง slide
         function showSlide(index) {
             const slides = document.querySelectorAll('.slide');
-            slides.forEach((slide, i) => {
-                slide.classList.remove('active');
-                // ลบ effect classes ทั้งหมด
-                slide.classList.remove('effect-zoom-fade', 'effect-slide-fade', 'effect-ken-burns', 'effect-3d-flip', 'effect-blur');
+            slides.forEach(s => {
+                s.classList.remove('active', 'effect-zoom-fade', 'effect-slide-fade', 'effect-ken-burns', 'effect-3d-flip', 'effect-blur');
             });
             
             if (slides.length > 0) {
-                const currentSlide = slides[index];
-                currentSlide.classList.add('active');
+                const slide = slides[index];
+                slide.classList.add('active');
                 
-                // ตรวจสอบว่าเป็น YouTube slide หรือไม่
-                if (currentSlide.classList.contains('youtube-slide')) {
-                    const videoId = currentSlide.getAttribute('data-video-id');
+                if (slide.classList.contains('youtube-slide')) {
+                    const videoId = slide.getAttribute('data-video-id');
+                    slide.innerHTML = '';
+                    const div = document.createElement('div');
+                    div.id = 'yt-player-' + index;
+                    div.style.cssText = 'width:100%;height:100%;';
+                    slide.appendChild(div);
                     
-                    // ล้าง container และสร้าง div สำหรับ YouTube player
-                    currentSlide.innerHTML = '';
-                    const playerDiv = document.createElement('div');
-                    playerDiv.id = 'youtube-player-' + index;
-                    playerDiv.style.cssText = 'width: 100%; height: 100%;';
-                    currentSlide.appendChild(playerDiv);
-                    
-                    // สร้าง YouTube player ใหม่
                     if (typeof YT !== 'undefined' && YT.Player) {
-                        youtubePlayer = new YT.Player(playerDiv.id, {
+                        youtubePlayer = new YT.Player(div.id, {
                             width: '100%',
                             height: '100%',
                             videoId: videoId,
-                            playerVars: {
-                                autoplay: 1,
-                                controls: 1,
-                                rel: 0,
-                                modestbranding: 1,
-                                playsinline: 1
-                            },
+                            playerVars: { autoplay: 1, controls: 1, rel: 0, modestbranding: 1 },
                             events: {
-                                'onReady': function(event) {
-                                    event.target.playVideo();
+                                'onReady': (e) => {
+                                    e.target.playVideo();
                                     isYouTubePlaying = true;
-                                    stopSlideshow(); // หยุด slideshow ขณะเล่น YouTube
+                                    stopSlideshow();
                                 },
-                                'onStateChange': function(event) {
-                                    // YT.PlayerState.ENDED = 0
-                                    if (event.data === 0) {
-                                        // วิดีโอจบแล้ว เปลี่ยนภาพถัดไป
+                                'onStateChange': (e) => {
+                                    if (e.data === 0) {
                                         isYouTubePlaying = false;
                                         youtubePlayer = null;
                                         setTimeout(() => {
                                             currentSlideIndex = (currentSlideIndex + 1) % images.length;
                                             showSlide(currentSlideIndex);
-                                            startSlideshow(); // เริ่ม slideshow ใหม่
+                                            startSlideshow();
                                         }, 500);
                                     }
                                 }
                             }
                         });
-                    } else {
-                        // ถ้า YouTube API ยังไม่พร้อม ใช้ iframe ธรรมดา
-                        const iframe = document.createElement('iframe');
-                        iframe.style.cssText = 'width: 100%; height: 100%; border: none;';
-                        iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&rel=0&modestbranding=1`;
-                        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-                        iframe.allowFullscreen = true;
-                        currentSlide.innerHTML = '';
-                        currentSlide.appendChild(iframe);
-                        
-                        // สำหรับ iframe ธรรมดา จะใช้เวลาโดยประมาณในการเปลี่ยนภาพ
-                        isYouTubePlaying = true;
-                        stopSlideshow();
                     }
                 } else {
-                    // รูปภาพทั่วไป - เพิ่ม effect
-                    currentSlide.classList.add('effect-' + currentEffect);
+                    slide.classList.add('effect-' + currentEffect);
                     isYouTubePlaying = false;
                 }
-                
-                currentSlideSpan.textContent = index + 1;
             }
         }
 
-        // เริ่ม slideshow
         function startSlideshow() {
-            stopSlideshow(); // หยุด slideshow เก่าก่อน
+            stopSlideshow();
             
-            // ถ้าเป็น YouTube ให้รอให้มันเล่นเองไม่ต้อง animate progress
             if (!isYouTubePlaying) {
                 animateProgress();
-                
                 slideInterval = setInterval(() => {
                     currentSlideIndex = (currentSlideIndex + 1) % images.length;
                     showSlide(currentSlideIndex);
-                    
-                    // ถ้าภาพถัดไปไม่ใช่ YouTube ให้ animate progress
                     const imgObj = images[currentSlideIndex];
-                    const isNextYouTube = typeof imgObj === 'object' && imgObj.type === 'youtube';
-                    if (!isNextYouTube) {
+                    if (!(typeof imgObj === 'object' && imgObj.type === 'youtube')) {
                         animateProgress();
                     }
                 }, SLIDE_DURATION);
             }
         }
 
-        // แอนิเมชัน progress bar
         function animateProgress() {
             progressBar.style.width = '0%';
             clearInterval(progressInterval);
-            
             let progress = 0;
-            const step = 100 / (SLIDE_DURATION / 50);
-            
             progressInterval = setInterval(() => {
-                progress += step;
+                progress += 2;
                 if (progress >= 100) {
                     progress = 100;
                     clearInterval(progressInterval);
                 }
                 progressBar.style.width = progress + '%';
-            }, 50);
+            }, 100);
         }
 
-        // หยุด slideshow
         function stopSlideshow() {
-            if (slideInterval) {
-                clearInterval(slideInterval);
-            }
-            if (progressInterval) {
-                clearInterval(progressInterval);
-            }
+            clearInterval(slideInterval);
+            clearInterval(progressInterval);
         }
 
-        // ออกจาก Fullscreen
-        function exitFullscreen() {
         function enterFullscreen() {
             const elem = document.documentElement;
-            if (elem.requestFullscreen) {
-                elem.requestFullscreen();
-            } else if (elem.webkitRequestFullscreen) { // Safari
-                elem.webkitRequestFullscreen();
-            } else if (elem.msRequestFullscreen) { // IE11
-                elem.msRequestFullscreen();
-            }
+            if (elem.requestFullscreen) elem.requestFullscreen();
+            else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
         }
 
-        // ฟังก์ชันออกจาก Fullscreen
         function exitFullscreen() {
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            } else if (document.webkitExitFullscreen) { // Safari
-                document.webkitExitFullscreen();
-            } else if (document.msExitFullscreen) { // IE11
-                document.msExitFullscreen();
-            }
+            if (document.exitFullscreen) document.exitFullscreen();
+            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
         }
 
         function closeSlideshow() {
             slideshowContainer.classList.remove('active');
             stopSlideshow();
             progressBar.style.width = '0%';
-            document.body.style.overflow = ''; // เปิดการ scroll กลับ
-            exitFullscreen(); // ออกจาก fullscreen
-            
-            // ทำลาย YouTube player ถ้ามี
+            document.body.style.overflow = '';
+            exitFullscreen();
             if (youtubePlayer) {
                 youtubePlayer.destroy();
                 youtubePlayer = null;
@@ -1059,36 +839,25 @@
             isYouTubePlaying = false;
         }
 
-        // ปิด slideshow เมื่อคลิกพื้นหลัง
-        slideshowContainer.addEventListener('click', function(e) {
-            if (e.target === slideshowContainer) {
-                closeSlideshow();
-            }
+        slideshowContainer.addEventListener('click', (e) => {
+            if (e.target === slideshowContainer) closeSlideshow();
         });
 
-        // ปิด slideshow ด้วย ESC key
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && slideshowContainer.classList.contains('active')) {
                 closeSlideshow();
             }
         });
 
-        // ตรวจจับเมื่อออกจาก fullscreen (กรณีกด ESC หรือปุ่ม fullscreen ของเบราว์เซอร์)
-        document.addEventListener('fullscreenchange', function() {
+        document.addEventListener('fullscreenchange', () => {
             if (!document.fullscreenElement && slideshowContainer.classList.contains('active')) {
-                closeSlideshow();
-            }
-        });
-
-        document.addEventListener('webkitfullscreenchange', function() {
-            if (!document.webkitFullscreenElement && slideshowContainer.classList.contains('active')) {
                 closeSlideshow();
             }
         });
 
         // Initialize
         updateControls();
-        loadImagesFromStorage(); // โหลดรูปภาพที่บันทึกไว้เมื่อเปิดหน้าเว็บ
+        loadImagesFromStorage();
     </script>
 </body>
 </html>
