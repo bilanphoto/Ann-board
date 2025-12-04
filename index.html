@@ -71,10 +71,6 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        .url-input::placeholder {
-            color: #9ca3af;
-        }
-
         .file-input-wrapper {
             position: relative;
             overflow: hidden;
@@ -183,16 +179,6 @@
             transition: all 0.3s;
         }
 
-        .effect-selector select:hover {
-            border-color: #667eea;
-        }
-
-        .effect-selector select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
         .thumbnail-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -207,10 +193,17 @@
             overflow: hidden;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             transition: transform 0.3s;
+            cursor: move;
+            cursor: grab;
+        }
+
+        .thumbnail-item:active {
+            cursor: grabbing;
         }
 
         .thumbnail-item:hover {
             transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
         }
 
         .thumbnail-item img {
@@ -231,10 +224,6 @@
             height: 25px;
             cursor: pointer;
             font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
         }
 
         .thumbnail-remove:hover {
@@ -259,22 +248,10 @@
             display: flex;
         }
 
-        .slideshow-content {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
         #slidesWrapper {
             position: relative;
             width: 100%;
             height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
 
         .slide {
@@ -282,8 +259,6 @@
             width: 100vw;
             height: 100vh;
             object-fit: cover;
-            border-radius: 0;
-            box-shadow: none;
             position: absolute;
             top: 50%;
             left: 50%;
@@ -301,9 +276,10 @@
 
         .youtube-slide.active {
             display: flex !important;
+            justify-content: center;
+            align-items: center;
         }
 
-        /* Effect 1: Zoom Fade */
         .slide.active.effect-zoom-fade:not(.youtube-slide) {
             animation: zoomFade 1s ease-out;
         }
@@ -319,7 +295,6 @@
             }
         }
 
-        /* Effect 2: Slide & Fade */
         .slide.active.effect-slide-fade:not(.youtube-slide) {
             animation: slideFade 0.8s ease-out;
         }
@@ -335,7 +310,6 @@
             }
         }
 
-        /* Effect 3: Ken Burns */
         .slide.active.effect-ken-burns:not(.youtube-slide) {
             animation: kenBurns 5s ease-out;
         }
@@ -354,10 +328,8 @@
             }
         }
 
-        /* Effect 4: 3D Flip */
         .slide.active.effect-3d-flip:not(.youtube-slide) {
             animation: flip3D 0.8s ease-out;
-            transform-style: preserve-3d;
         }
 
         @keyframes flip3D {
@@ -371,7 +343,6 @@
             }
         }
 
-        /* Effect 5: Blur Transition */
         .slide.active.effect-blur:not(.youtube-slide) {
             animation: blurTransition 0.8s ease-out;
         }
@@ -403,21 +374,13 @@
             h1 {
                 font-size: 1.8em;
             }
-
-            .upload-section {
+            .upload-section, .url-input-section {
                 flex-direction: column;
                 align-items: stretch;
             }
-
-            .url-input-section {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
             .url-input {
                 min-width: 100%;
             }
-
             .btn {
                 width: 100%;
             }
@@ -432,14 +395,12 @@
             <div class="upload-section">
                 <div class="file-input-wrapper">
                     <input type="file" id="imageInput" accept="image/*" multiple>
-                    <label for="imageInput" class="file-input-label">
-                        📁 เลือกรูปภาพ
-                    </label>
+                    <label for="imageInput" class="file-input-label">📁 เลือกรูปภาพ</label>
                 </div>
                 <button class="btn btn-show" id="showBtn" disabled>▶️ แสดงภาพ</button>
                 <button class="btn btn-clear" id="clearBtn">🗑️ ลบภาพทั้งหมด</button>
-                <div class="image-count" style="color: #dc2626; font-weight: 700;">
-                    ⚠️ ใช้ภาพขนาดไม่เกิน 1 MB
+                <div class="image-count" style="color: #10b981; font-weight: 700;">
+                    ✅ ภาพจะถูกบีบอัดอัตโนมัติ (แนะนำ 10-20 ภาพ)
                 </div>
                 <div class="image-count">
                     จำนวนภาพ: <span id="imageCount">0</span> ภาพ
@@ -447,7 +408,7 @@
             </div>
 
             <div class="url-input-section">
-                <input type="text" id="urlInput" placeholder="🔗 ใส่ลิงก์ภาพหรือ YouTube (เช่น https://youtube.com/watch?v=...)" class="url-input">
+                <input type="text" id="urlInput" placeholder="🔗 ใส่ลิงก์ภาพหรือ YouTube" class="url-input">
                 <button class="btn btn-add-url" id="addUrlBtn">➕ เพิ่มจากลิงก์</button>
             </div>
 
@@ -462,8 +423,8 @@
                 </select>
             </div>
 
-            <div class="effect-selector" style="background: #dcfce7; border: 1px solid #16a34a;">
-                <span style="color: #15803d;">☁️ ข้อมูลถูกซิงค์กับ GitHub - ทุกคนจะเห็นภาพเดียวกัน (รีเฟรชอัตโนมัติทุก 30 วินาที)</span>
+            <div class="effect-selector" style="background: #e0f2fe; border: 1px solid #0284c7;">
+                <span style="color: #0369a1;">💾 บันทึกอัตโนมัติ | 🖱️ ลากภาพเพื่อเรียงลำดับ</span>
             </div>
 
             <div class="thumbnail-grid" id="thumbnailGrid"></div>
@@ -471,34 +432,22 @@
     </div>
 
     <div class="slideshow-container" id="slideshowContainer">
-        <div class="slideshow-content">
-            <div id="slidesWrapper"></div>
-        </div>
+        <div id="slidesWrapper"></div>
         <div class="progress-bar" id="progressBar"></div>
     </div>
 
     <script src="https://www.youtube.com/iframe_api"></script>
     <script>
-        // ตัวแปรหลัก
         let images = [];
         let currentSlideIndex = 0;
         let slideInterval;
         let progressInterval;
         const SLIDE_DURATION = 5000;
         let currentEffect = 'zoom-fade';
+        const STORAGE_KEY = 'announcement_board_images';
         let youtubePlayer = null;
         let isYouTubePlaying = false;
 
-        // GitHub Configuration
-        const GITHUB_CONFIG = {
-            username: 'bilanphoto',
-            repo: 'Ann-board',
-            token: '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',
-            filename: 'images-data.json',
-            branch: 'main'
-        };
-
-        // ดึง DOM elements
         const imageInput = document.getElementById('imageInput');
         const showBtn = document.getElementById('showBtn');
         const clearBtn = document.getElementById('clearBtn');
@@ -511,116 +460,51 @@
         const urlInput = document.getElementById('urlInput');
         const addUrlBtn = document.getElementById('addUrlBtn');
 
-        // Callback เมื่อ YouTube API พร้อม
         window.onYouTubeIframeAPIReady = function() {
             console.log('YouTube API Ready');
         };
 
-        // โหลดข้อมูลจาก GitHub
-        async function loadImagesFromGitHub() {
+        function loadImagesFromStorage() {
             try {
-                const url = `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filename}`;
-                
-                const response = await fetch(url, {
-                    headers: {
-                        'Authorization': `token ${GITHUB_CONFIG.token}`,
-                        'Accept': 'application/vnd.github.v3+json'
-                    }
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    const content = atob(data.content);
-                    const jsonData = JSON.parse(content);
-                    images = jsonData.images || [];
+                const savedImages = localStorage.getItem(STORAGE_KEY);
+                if (savedImages) {
+                    images = JSON.parse(savedImages);
                     updateThumbnails();
                     updateControls();
-                    console.log('✅ โหลดข้อมูลจาก GitHub:', images.length, 'ภาพ');
-                } else if (response.status === 404) {
-                    // ไฟล์ยังไม่มี สร้างใหม่
-                    console.log('ไฟล์ยังไม่มี จะสร้างใหม่เมื่อเพิ่มภาพ');
-                    images = [];
-                    updateControls();
-                } else {
-                    console.error('Error loading from GitHub:', response.status);
+                    console.log('โหลด:', images.length, 'ภาพ');
                 }
             } catch (error) {
-                console.error('Error:', error);
-                alert('⚠️ ไม่สามารถโหลดข้อมูลจาก GitHub ได้\nกรุณาตรวจสอบ token และ repository');
+                console.error('Error loading:', error);
             }
         }
 
-        // บันทึกข้อมูลไปยัง GitHub
-        async function saveImagesToGitHub() {
+        function saveImagesToStorage() {
             try {
-                const url = `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filename}`;
+                const dataToSave = JSON.stringify(images);
+                const sizeInMB = (dataToSave.length / 1024 / 1024).toFixed(2);
                 
-                // ดึงข้อมูล SHA ของไฟล์ปัจจุบัน (ถ้ามี)
-                let sha = null;
-                try {
-                    const getResponse = await fetch(url, {
-                        headers: {
-                            'Authorization': `token ${GITHUB_CONFIG.token}`,
-                            'Accept': 'application/vnd.github.v3+json'
-                        }
-                    });
-                    if (getResponse.ok) {
-                        const fileData = await getResponse.json();
-                        sha = fileData.sha;
-                    }
-                } catch (e) {
-                    console.log('ไฟล์ยังไม่มี จะสร้างใหม่');
-                }
-
-                // เตรียมข้อมูล
-                const content = JSON.stringify({ 
-                    images: images,
-                    lastUpdated: new Date().toISOString()
-                }, null, 2);
+                console.log(`ขนาดข้อมูล: ${sizeInMB} MB`);
                 
-                const encodedContent = btoa(unescape(encodeURIComponent(content)));
-
-                // อัพเดทหรือสร้างไฟล์
-                const putData = {
-                    message: `Update images data - ${new Date().toLocaleString('th-TH')}`,
-                    content: encodedContent,
-                    branch: GITHUB_CONFIG.branch
-                };
-
-                if (sha) {
-                    putData.sha = sha;
+                if (sizeInMB > 8) {
+                    alert(`⚠️ ข้อมูลมีขนาด ${sizeInMB} MB (ใกล้เกินขอบเขต)\nแนะนำให้ลดจำนวนภาพลง`);
                 }
-
-                const response = await fetch(url, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `token ${GITHUB_CONFIG.token}`,
-                        'Accept': 'application/vnd.github.v3+json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(putData)
-                });
-
-                if (response.ok) {
-                    console.log('✅ บันทึกข้อมูลไปยัง GitHub สำเร็จ');
-                } else {
-                    const errorData = await response.json();
-                    console.error('Error saving to GitHub:', errorData);
-                    alert('⚠️ ไม่สามารถบันทึกข้อมูลได้: ' + (errorData.message || 'Unknown error'));
-                }
+                
+                localStorage.setItem(STORAGE_KEY, dataToSave);
+                console.log('✅ บันทึกสำเร็จ');
             } catch (error) {
-                console.error('Error:', error);
-                alert('⚠️ เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+                console.error('Error saving:', error);
+                if (error.name === 'QuotaExceededError') {
+                    const currentCount = images.length;
+                    alert(`❌ พื้นที่เก็บข้อมูลเต็ม!\n\nคุณมีภาพทั้งหมด ${currentCount} ภาพ\nแนะนำ:\n• ลบภาพบางส่วนออก (แนะนำเหลือ 10-15 ภาพ)\n• หรือใช้ภาพขนาดเล็กกว่านี้`);
+                }
             }
         }
 
-        // เปลี่ยนเอฟเฟกต์
         effectSelect.addEventListener('change', function() {
             currentEffect = this.value;
         });
 
-        // เพิ่ม URL
-        addUrlBtn.addEventListener('click', async function() {
+        addUrlBtn.addEventListener('click', function() {
             const url = urlInput.value.trim();
             if (!url) {
                 alert('กรุณาใส่ลิงก์');
@@ -637,7 +521,7 @@
                     });
                     updateThumbnails();
                     updateControls();
-                    await saveImagesToGitHub();
+                    saveImagesToStorage();
                     urlInput.value = '';
                     alert('✅ เพิ่ม YouTube สำเร็จ!');
                 } else {
@@ -663,7 +547,6 @@
                 /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/,
                 /youtube\.com\/embed\/([^&\n?#]+)/
             ];
-            
             for (const pattern of patterns) {
                 const match = url.match(pattern);
                 if (match && match[1]) return match[1];
@@ -675,25 +558,39 @@
             const img = new Image();
             img.crossOrigin = 'Anonymous';
             
-            img.onload = async function() {
+            img.onload = function() {
                 try {
                     const canvas = document.createElement('canvas');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    canvas.getContext('2d').drawImage(img, 0, 0);
                     
+                    // ลดขนาดภาพลงถ้าใหญ่เกินไป (max 1920x1080)
+                    let width = img.width;
+                    let height = img.height;
+                    const maxWidth = 1920;
+                    const maxHeight = 1080;
+                    
+                    if (width > maxWidth || height > maxHeight) {
+                        const ratio = Math.min(maxWidth / width, maxHeight / height);
+                        width = width * ratio;
+                        height = height * ratio;
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                    
+                    // บีบอัดเป็น JPEG คุณภาพ 0.7
                     images.push({
-                        data: canvas.toDataURL('image/jpeg', 0.9),
+                        data: canvas.toDataURL('image/jpeg', 0.7),
                         type: 'image'
                     });
                     
                     updateThumbnails();
                     updateControls();
-                    await saveImagesToGitHub();
+                    saveImagesToStorage();
                     urlInput.value = '';
                     alert('✅ เพิ่มรูปภาพสำเร็จ!');
                 } catch (error) {
-                    alert('❌ ไม่สามารถโหลดรูปได้ (CORS policy)');
+                    alert('❌ ไม่สามารถโหลดรูปได้ (CORS)');
                 }
             };
             
@@ -701,49 +598,90 @@
             img.src = url;
         }
 
-        // อัพโหลดรูปภาพ
-        imageInput.addEventListener('change', async function(e) {
+        imageInput.addEventListener('change', function(e) {
             const files = Array.from(e.target.files);
             let processed = 0;
             
-            for (const file of files) {
+            files.forEach(file => {
                 if (file.type.startsWith('image/')) {
                     const reader = new FileReader();
-                    reader.onload = async function(event) {
-                        images.push({
-                            data: event.target.result,
-                            type: 'image'
-                        });
-                        processed++;
-                        
-                        updateThumbnails();
-                        updateControls();
-                        
-                        // บันทึกหลังจากโหลดไฟล์สุดท้าย
-                        if (processed === files.length) {
-                            await saveImagesToGitHub();
-                        }
+                    reader.onload = function(event) {
+                        const img = new Image();
+                        img.onload = function() {
+                            const canvas = document.createElement('canvas');
+                            
+                            // ลดขนาดภาพลงถ้าใหญ่เกินไป (max 1920x1080)
+                            let width = img.width;
+                            let height = img.height;
+                            const maxWidth = 1920;
+                            const maxHeight = 1080;
+                            
+                            if (width > maxWidth || height > maxHeight) {
+                                const ratio = Math.min(maxWidth / width, maxHeight / height);
+                                width = width * ratio;
+                                height = height * ratio;
+                            }
+                            
+                            canvas.width = width;
+                            canvas.height = height;
+                            canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                            
+                            // บีบอัดเป็น JPEG คุณภาพ 0.7 (ประมาณ 200-400 KB ต่อภาพ)
+                            const compressedData = canvas.toDataURL('image/jpeg', 0.7);
+                            
+                            images.push({
+                                data: compressedData,
+                                type: 'image'
+                            });
+                            
+                            processed++;
+                            updateThumbnails();
+                            updateControls();
+                            
+                            // บันทึกหลังประมวลผลครบ
+                            if (processed === files.length) {
+                                saveImagesToStorage();
+                            }
+                        };
+                        img.src = event.target.result;
                     };
                     reader.readAsDataURL(file);
                 }
-            }
+            });
             e.target.value = '';
         });
 
-        // อัพเดท thumbnails
         function updateThumbnails() {
             thumbnailGrid.innerHTML = '';
             images.forEach((imgObj, index) => {
                 const item = document.createElement('div');
                 item.className = 'thumbnail-item';
+                item.draggable = true;
+                item.setAttribute('data-index', index);
+                
+                // Drag events
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragover', handleDragOver);
+                item.addEventListener('drop', handleDrop);
+                item.addEventListener('dragenter', handleDragEnter);
+                item.addEventListener('dragleave', handleDragLeave);
+                item.addEventListener('dragend', handleDragEnd);
                 
                 const img = document.createElement('img');
                 img.src = typeof imgObj === 'string' ? imgObj : imgObj.data;
                 
+                // เพิ่มหมายเลขลำดับ
+                const indexBadge = document.createElement('div');
+                indexBadge.style.cssText = 'position:absolute;top:5px;left:5px;background:rgba(0,0,0,0.7);color:white;padding:5px 10px;border-radius:5px;font-size:12px;font-weight:bold;';
+                indexBadge.textContent = `#${index + 1}`;
+                
                 const btn = document.createElement('button');
                 btn.className = 'thumbnail-remove';
-                btn.innerHTML = '&times;';
-                btn.onclick = () => removeImage(index);
+                btn.innerHTML = '×';
+                btn.onclick = (e) => {
+                    e.stopPropagation();
+                    removeImage(index);
+                };
                 
                 if (typeof imgObj === 'object' && imgObj.type === 'youtube') {
                     const icon = document.createElement('div');
@@ -753,25 +691,83 @@
                 }
                 
                 item.appendChild(img);
+                item.appendChild(indexBadge);
                 item.appendChild(btn);
                 thumbnailGrid.appendChild(item);
             });
         }
 
-        async function removeImage(index) {
+        // Drag and Drop handlers
+        let draggedIndex = null;
+
+        function handleDragStart(e) {
+            draggedIndex = parseInt(e.currentTarget.getAttribute('data-index'));
+            e.currentTarget.style.opacity = '0.5';
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragOver(e) {
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+            e.dataTransfer.dropEffect = 'move';
+            return false;
+        }
+
+        function handleDragEnter(e) {
+            e.currentTarget.style.border = '3px solid #667eea';
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.style.border = '';
+        }
+
+        function handleDrop(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+            e.preventDefault();
+            
+            const dropIndex = parseInt(e.currentTarget.getAttribute('data-index'));
+            
+            if (draggedIndex !== null && draggedIndex !== dropIndex) {
+                // สลับตำแหน่ง
+                const draggedItem = images[draggedIndex];
+                images.splice(draggedIndex, 1);
+                images.splice(dropIndex, 0, draggedItem);
+                
+                updateThumbnails();
+                saveImagesToStorage();
+            }
+            
+            e.currentTarget.style.border = '';
+            return false;
+        }
+
+        function handleDragEnd(e) {
+            e.currentTarget.style.opacity = '1';
+            draggedIndex = null;
+            
+            // ลบ border ทั้งหมด
+            document.querySelectorAll('.thumbnail-item').forEach(item => {
+                item.style.border = '';
+            });
+        }
+
+        function removeImage(index) {
             images.splice(index, 1);
             updateThumbnails();
             updateControls();
-            await saveImagesToGitHub();
+            saveImagesToStorage();
         }
 
-        clearBtn.addEventListener('click', async function() {
+        clearBtn.addEventListener('click', function() {
             if (images.length > 0 && confirm('ลบทั้งหมด?')) {
                 images = [];
                 updateThumbnails();
                 updateControls();
                 closeSlideshow();
-                await saveImagesToGitHub();
+                saveImagesToStorage();
             }
         });
 
@@ -943,16 +939,8 @@
             }
         });
 
-        // Initialize
         updateControls();
-        loadImagesFromGitHub();
-
-        // Auto-refresh ทุก 30 วินาที เพื่อดึงข้อมูลใหม่
-        setInterval(async () => {
-            if (!slideshowContainer.classList.contains('active')) {
-                await loadImagesFromGitHub();
-            }
-        }, 30000);
+        loadImagesFromStorage();
     </script>
 </body>
 </html>
