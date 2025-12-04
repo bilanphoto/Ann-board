@@ -261,8 +261,8 @@
 
         .slideshow-content {
             position: relative;
-            width: 90vw;
-            height: 90vh;
+            width: 100vw;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -279,11 +279,11 @@
 
         .slide {
             display: none;
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            border-radius: 10px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            border-radius: 0;
+            box-shadow: none;
             position: absolute;
             top: 50%;
             left: 50%;
@@ -881,10 +881,8 @@
                     youtubeContainer.className = 'slide youtube-slide';
                     youtubeContainer.style.cssText = `
                         position: relative;
-                        width: 90vw;
-                        height: 90vh;
-                        max-width: 1920px;
-                        max-height: 1080px;
+                        width: 100vw;
+                        height: 100vh;
                         display: flex;
                         justify-content: center;
                         align-items: center;
@@ -897,8 +895,8 @@
                     thumbnailImg.style.cssText = `
                         width: 100%;
                         height: 100%;
-                        object-fit: contain;
-                        border-radius: 10px;
+                        object-fit: cover;
+                        border-radius: 0;
                     `;
                     
                     // สร้างปุ่ม Play
@@ -910,17 +908,18 @@
                         top: 50%;
                         left: 50%;
                         transform: translate(-50%, -50%);
-                        width: 100px;
-                        height: 100px;
+                        width: 120px;
+                        height: 120px;
                         background: rgba(255, 0, 0, 0.9);
                         border-radius: 50%;
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        font-size: 40px;
+                        font-size: 50px;
                         color: white;
                         transition: all 0.3s;
                         pointer-events: none;
+                        box-shadow: 0 10px 40px rgba(255, 0, 0, 0.5);
                     `;
                     
                     // เมื่อคลิกให้แสดง YouTube iframe
@@ -930,7 +929,7 @@
                             width: 100%;
                             height: 100%;
                             border: none;
-                            border-radius: 10px;
+                            border-radius: 0;
                         `;
                         iframe.src = `https://www.youtube.com/embed/${imgObj.videoId}?autoplay=1`;
                         iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
@@ -946,13 +945,15 @@
                     
                     // Hover effect
                     youtubeContainer.addEventListener('mouseenter', function() {
-                        playButton.style.transform = 'translate(-50%, -50%) scale(1.1)';
+                        playButton.style.transform = 'translate(-50%, -50%) scale(1.15)';
                         playButton.style.background = 'rgba(255, 0, 0, 1)';
+                        playButton.style.boxShadow = '0 15px 50px rgba(255, 0, 0, 0.7)';
                     });
                     
                     youtubeContainer.addEventListener('mouseleave', function() {
                         playButton.style.transform = 'translate(-50%, -50%) scale(1)';
                         playButton.style.background = 'rgba(255, 0, 0, 0.9)';
+                        playButton.style.boxShadow = '0 10px 40px rgba(255, 0, 0, 0.5)';
                     });
                     
                     youtubeContainer.appendChild(thumbnailImg);
@@ -989,8 +990,8 @@
                         thumbnailImg.style.cssText = `
                             width: 100%;
                             height: 100%;
-                            object-fit: contain;
-                            border-radius: 10px;
+                            object-fit: cover;
+                            border-radius: 0;
                         `;
                         
                         const playButton = document.createElement('div');
@@ -1001,17 +1002,18 @@
                             top: 50%;
                             left: 50%;
                             transform: translate(-50%, -50%);
-                            width: 100px;
-                            height: 100px;
+                            width: 120px;
+                            height: 120px;
                             background: rgba(255, 0, 0, 0.9);
                             border-radius: 50%;
                             display: flex;
                             align-items: center;
                             justify-content: center;
-                            font-size: 40px;
+                            font-size: 50px;
                             color: white;
                             transition: all 0.3s;
                             pointer-events: none;
+                            box-shadow: 0 10px 40px rgba(255, 0, 0, 0.5);
                         `;
                         
                         slide.appendChild(thumbnailImg);
@@ -1024,7 +1026,7 @@
                                 width: 100%;
                                 height: 100%;
                                 border: none;
-                                border-radius: 10px;
+                                border-radius: 0;
                             `;
                             iframe.src = `https://www.youtube.com/embed/${imgObj.videoId}?autoplay=1`;
                             iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
