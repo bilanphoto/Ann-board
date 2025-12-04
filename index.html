@@ -636,7 +636,10 @@
 
         // เพิ่มรูปภาพหรือ YouTube จาก URL
         addUrlBtn.addEventListener('click', function() {
+            console.log('กดปุ่มเพิ่มลิงก์');
             const url = urlInput.value.trim();
+            console.log('URL ที่ใส่:', url);
+            
             if (!url) {
                 alert('กรุณาใส่ลิงก์');
                 return;
@@ -644,15 +647,28 @@
 
             // ตรวจสอบว่าเป็น YouTube URL หรือไม่
             if (isYouTubeUrl(url)) {
+                console.log('ตรวจพบ YouTube URL');
                 const videoId = getYouTubeVideoId(url);
+                console.log('Video ID:', videoId);
+                
                 if (videoId) {
-                    // ใช้ YouTube thumbnail
-                    const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-                    addImageFromUrl(thumbnailUrl, true, videoId);
+                    // เพิ่ม YouTube โดยไม่ต้องโหลดภาพ thumbnail ก่อน
+                    images.push({
+                        data: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+                        type: 'youtube',
+                        videoId: videoId
+                    });
+                    
+                    updateThumbnails();
+                    updateControls();
+                    saveImagesToStorage();
+                    urlInput.value = ''; // ล้างช่อง input
+                    alert('✅ เพิ่ม YouTube Video สำเร็จ!');
                 } else {
-                    alert('ลิงก์ YouTube ไม่ถูกต้อง');
+                    alert('❌ ลิงก์ YouTube ไม่ถูกต้อง');
                 }
             } else {
+                console.log('เป็นลิงก์รูปภาพ');
                 // เป็นรูปภาพทั่วไป
                 addImageFromUrl(url, false);
             }
@@ -689,51 +705,41 @@
 
         // ฟังก์ชันเพิ่มรูปภาพจาก URL
         function addImageFromUrl(url, isYouTube = false, videoId = null) {
+            console.log('กำลังโหลดรูปภาพจาก URL:', url);
+            
             const img = new Image();
             img.crossOrigin = 'Anonymous';
             
             img.onload = function() {
-                // แปลงรูปภาพเป็น Base64
-                const canvas = document.createElement('canvas');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
-                
+                console.log('โหลดรูปภาพสำเร็จ');
                 try {
+                    // แปลงรูปภาพเป็น Base64
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    
                     const base64 = canvas.toDataURL('image/jpeg', 0.9);
                     
-                    // เก็บข้อมูล YouTube ด้วยถ้ามี
-                    if (isYouTube && videoId) {
-                        images.push({
-                            data: base64,
-                            type: 'youtube',
-                            videoId: videoId
-                        });
-                    } else {
-                        images.push({
-                            data: base64,
-                            type: 'image'
-                        });
-                    }
+                    images.push({
+                        data: base64,
+                        type: 'image'
+                    });
                     
                     updateThumbnails();
                     updateControls();
                     saveImagesToStorage();
                     urlInput.value = ''; // ล้างช่อง input
-                    
-                    if (isYouTube) {
-                        alert('✅ เพิ่ม YouTube Video สำเร็จ!');
-                    } else {
-                        alert('✅ เพิ่มรูปภาพสำเร็จ!');
-                    }
+                    alert('✅ เพิ่มรูปภาพสำเร็จ!');
                 } catch (error) {
+                    console.error('Error converting image:', error);
                     alert('❌ ไม่สามารถโหลดรูปภาพได้ อาจเป็นเพราะ CORS policy\nลองใช้ภาพจากแหล่งอื่น หรืออัพโหลดไฟล์แทน');
-                    console.error('Error:', error);
                 }
             };
             
             img.onerror = function() {
+                console.error('โหลดรูปภาพล้มเหลว');
                 alert('❌ ไม่สามารถโหลดรูปภาพจาก URL นี้ได้\nกรุณาตรวจสอบลิงก์อีกครั้ง');
             };
             
