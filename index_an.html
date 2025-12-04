@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>บอร์ดแจ้งข่าวสารกิจกรรม</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .control-panel {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+
+        .upload-section {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            background: #667eea;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-block;
+            font-weight: 600;
+        }
+
+        .file-input-label:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            color: white;
+        }
+
+        .btn-show {
+            background: #10b981;
+        }
+
+        .btn-show:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-clear {
+            background: #ef4444;
+        }
+
+        .btn-clear:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .image-count {
+            color: #4b5563;
+            font-size: 14px;
+            padding: 10px 15px;
+            background: #f3f4f6;
+            border-radius: 8px;
+        }
+
+        .thumbnail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .thumbnail-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .thumbnail-item:hover {
+            transform: scale(1.05);
+        }
+
+        .thumbnail-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .thumbnail-remove {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .thumbnail-remove:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        .slideshow-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .slideshow-container.active {
+            display: flex;
+        }
+
+        .slideshow-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .slide {
+            display: none;
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .slide.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            font-size: 40px;
+            color: white;
+            cursor: pointer;
+            background: rgba(239, 68, 68, 0.8);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            z-index: 1001;
+        }
+
+        .close-btn:hover {
+            background: #dc2626;
+            transform: scale(1.1) rotate(90deg);
+        }
+
+        .slide-counter {
+            display: none;
+        }
+
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: #10b981;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .upload-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .close-btn {
+                top: 15px;
+                right: 15px;
+                width: 40px;
+                height: 40px;
+                font-size: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📢 บอร์ดแจ้งข่าวสารกิจกรรม</h1>
+
+        <div class="control-panel">
+            <div class="upload-section">
+                <div class="file-input-wrapper">
+                    <input type="file" id="imageInput" accept="image/*" multiple>
+                    <label for="imageInput" class="file-input-label">
+                        📁 เลือกรูปภาพ
+                    </label>
+                </div>
+                <button class="btn btn-show" id="showBtn" disabled>▶️ แสดงภาพ</button>
+                <button class="btn btn-clear" id="clearBtn">🗑️ ลบภาพทั้งหมด</button>
+                <div class="image-count">
+                    จำนวนภาพ: <span id="imageCount">0</span> ภาพ
+                </div>
+            </div>
+
+            <div class="thumbnail-grid" id="thumbnailGrid"></div>
+        </div>
+    </div>
+
+    <div class="slideshow-container" id="slideshowContainer">
+        <span class="close-btn" id="closeBtn">&times;</span>
+        <div class="slideshow-content">
+            <div id="slidesWrapper"></div>
+            <div class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">0</span>
+            </div>
+        </div>
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <script>
+        let images = [];
+        let currentSlideIndex = 0;
+        let slideInterval;
+        let progressInterval;
+        const SLIDE_DURATION = 5000; // 5 วินาที
+
+        const imageInput = document.getElementById('imageInput');
+        const showBtn = document.getElementById('showBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const closeBtn = document.getElementById('closeBtn');
+        const thumbnailGrid = document.getElementById('thumbnailGrid');
+        const slideshowContainer = document.getElementById('slideshowContainer');
+        const slidesWrapper = document.getElementById('slidesWrapper');
+        const imageCount = document.getElementById('imageCount');
+        const currentSlideSpan = document.getElementById('currentSlide');
+        const totalSlidesSpan = document.getElementById('totalSlides');
+        const progressBar = document.getElementById('progressBar');
+
+        // อัพโหลดรูปภาพ
+        imageInput.addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            
+            files.forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        images.push(event.target.result);
+                        updateThumbnails();
+                        updateControls();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // รีเซ็ต input เพื่อให้สามารถเลือกไฟล์เดิมได้อีก
+            e.target.value = '';
+        });
+
+        // อัพเดท thumbnails
+        function updateThumbnails() {
+            thumbnailGrid.innerHTML = '';
+            images.forEach((img, index) => {
+                const thumbnailItem = document.createElement('div');
+                thumbnailItem.className = 'thumbnail-item';
+                
+                const imgElement = document.createElement('img');
+                imgElement.src = img;
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'thumbnail-remove';
+                removeBtn.innerHTML = '&times;';
+                removeBtn.onclick = () => removeImage(index);
+                
+                thumbnailItem.appendChild(imgElement);
+                thumbnailItem.appendChild(removeBtn);
+                thumbnailGrid.appendChild(thumbnailItem);
+            });
+        }
+
+        // ลบรูปภาพ
+        function removeImage(index) {
+            images.splice(index, 1);
+            updateThumbnails();
+            updateControls();
+        }
+
+        // ลบภาพทั้งหมด
+        clearBtn.addEventListener('click', function() {
+            if (images.length > 0 && confirm('คุณต้องการลบรูปภาพทั้งหมดใช่หรือไม่?')) {
+                images = [];
+                updateThumbnails();
+                updateControls();
+                closeSlideshow();
+            }
+        });
+
+        // อัพเดทปุ่มควบคุม
+        function updateControls() {
+            imageCount.textContent = images.length;
+            showBtn.disabled = images.length === 0;
+        }
+
+        // แสดง slideshow
+        showBtn.addEventListener('click', function() {
+            if (images.length > 0) {
+                showSlideshow();
+                enterFullscreen();
+            }
+        });
+
+        function showSlideshow() {
+            slideshowContainer.classList.add('active');
+            currentSlideIndex = 0;
+            renderSlides();
+            showSlide(0);
+            startSlideshow();
+            document.body.style.overflow = 'hidden'; // ป้องกันการ scroll
+        }
+
+        // สร้าง slides
+        function renderSlides() {
+            slidesWrapper.innerHTML = '';
+            totalSlidesSpan.textContent = images.length;
+            
+            images.forEach((img, index) => {
+                const slideImg = document.createElement('img');
+                slideImg.className = 'slide';
+                slideImg.src = img;
+                slidesWrapper.appendChild(slideImg);
+            });
+        }
+
+        // แสดง slide
+        function showSlide(index) {
+            const slides = document.querySelectorAll('.slide');
+            slides.forEach(slide => slide.classList.remove('active'));
+            
+            if (slides.length > 0) {
+                slides[index].classList.add('active');
+                currentSlideSpan.textContent = index + 1;
+            }
+        }
+
+        // เริ่ม slideshow
+        function startSlideshow() {
+            stopSlideshow(); // หยุด slideshow เก่าก่อน
+            animateProgress();
+            
+            slideInterval = setInterval(() => {
+                currentSlideIndex = (currentSlideIndex + 1) % images.length;
+                showSlide(currentSlideIndex);
+                animateProgress();
+            }, SLIDE_DURATION);
+        }
+
+        // แอนิเมชัน progress bar
+        function animateProgress() {
+            progressBar.style.width = '0%';
+            clearInterval(progressInterval);
+            
+            let progress = 0;
+            const step = 100 / (SLIDE_DURATION / 50);
+            
+            progressInterval = setInterval(() => {
+                progress += step;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(progressInterval);
+                }
+                progressBar.style.width = progress + '%';
+            }, 50);
+        }
+
+        // หยุด slideshow
+        function stopSlideshow() {
+            if (slideInterval) {
+                clearInterval(slideInterval);
+            }
+            if (progressInterval) {
+                clearInterval(progressInterval);
+            }
+        }
+
+        // ปิด slideshow
+        closeBtn.addEventListener('click', closeSlideshow);
+
+        // ฟังก์ชันเข้า Fullscreen
+        function enterFullscreen() {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) { // Safari
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) { // IE11
+                elem.msRequestFullscreen();
+            }
+        }
+
+        // ฟังก์ชันออกจาก Fullscreen
+        function exitFullscreen() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) { // Safari
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) { // IE11
+                document.msExitFullscreen();
+            }
+        }
+
+        function closeSlideshow() {
+            slideshowContainer.classList.remove('active');
+            stopSlideshow();
+            progressBar.style.width = '0%';
+            document.body.style.overflow = ''; // เปิดการ scroll กลับ
+            exitFullscreen(); // ออกจาก fullscreen
+        }
+
+        // ปิด slideshow เมื่อคลิกพื้นหลัง
+        slideshowContainer.addEventListener('click', function(e) {
+            if (e.target === slideshowContainer) {
+                closeSlideshow();
+            }
+        });
+
+        // ปิด slideshow ด้วย ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && slideshowContainer.classList.contains('active')) {
+                closeSlideshow();
+            }
+        });
+
+        // ตรวจจับเมื่อออกจาก fullscreen (กรณีกด ESC หรือปุ่ม fullscreen ของเบราว์เซอร์)
+        document.addEventListener('fullscreenchange', function() {
+            if (!document.fullscreenElement && slideshowContainer.classList.contains('active')) {
+                closeSlideshow();
+            }
+        });
+
+        document.addEventListener('webkitfullscreenchange', function() {
+            if (!document.webkitFullscreenElement && slideshowContainer.classList.contains('active')) {
+                closeSlideshow();
+            }
+        });
+
+        // Initialize
+        updateControls();
+    </script>
+</body>
+</html>
