@@ -462,8 +462,8 @@
                 </select>
             </div>
 
-            <div class="effect-selector" style="background: #e0f2fe; border: 1px solid #0284c7;">
-                <span style="color: #0369a1;">💾 รูปภาพจะถูกบันทึกอัตโนมัติในเบราว์เซอร์ เมื่อปิดและเปิดหน้าใหม่รูปจะยังอยู่</span>
+            <div class="effect-selector" style="background: #dcfce7; border: 1px solid #16a34a;">
+                <span style="color: #15803d;">☁️ ข้อมูลถูกซิงค์กับ GitHub - ทุกคนจะเห็นภาพเดียวกัน (รีเฟรชอัตโนมัติทุก 30 วินาที)</span>
             </div>
 
             <div class="thumbnail-grid" id="thumbnailGrid"></div>
@@ -486,9 +486,17 @@
         let progressInterval;
         const SLIDE_DURATION = 5000;
         let currentEffect = 'zoom-fade';
-        const STORAGE_KEY = 'announcement_board_images';
         let youtubePlayer = null;
         let isYouTubePlaying = false;
+
+        // GitHub Configuration
+        const GITHUB_CONFIG = {
+            username: 'bilanphoto',
+            repo: 'Ann-board',
+            token: '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',
+            filename: 'images-data.json',
+            branch: 'main'
+        };
 
         // ดึง DOM elements
         const imageInput = document.getElementById('imageInput');
@@ -508,30 +516,101 @@
             console.log('YouTube API Ready');
         };
 
-        // โหลดรูปภาพจาก localStorage
-        function loadImagesFromStorage() {
+        // โหลดข้อมูลจาก GitHub
+        async function loadImagesFromGitHub() {
             try {
-                const savedImages = localStorage.getItem(STORAGE_KEY);
-                if (savedImages) {
-                    images = JSON.parse(savedImages);
+                const url = `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filename}`;
+                
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `token ${GITHUB_CONFIG.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const content = atob(data.content);
+                    const jsonData = JSON.parse(content);
+                    images = jsonData.images || [];
                     updateThumbnails();
                     updateControls();
-                    console.log('โหลดรูปภาพ:', images.length, 'ภาพ');
+                    console.log('✅ โหลดข้อมูลจาก GitHub:', images.length, 'ภาพ');
+                } else if (response.status === 404) {
+                    // ไฟล์ยังไม่มี สร้างใหม่
+                    console.log('ไฟล์ยังไม่มี จะสร้างใหม่เมื่อเพิ่มภาพ');
+                    images = [];
+                    updateControls();
+                } else {
+                    console.error('Error loading from GitHub:', response.status);
                 }
             } catch (error) {
-                console.error('Error loading:', error);
+                console.error('Error:', error);
+                alert('⚠️ ไม่สามารถโหลดข้อมูลจาก GitHub ได้\nกรุณาตรวจสอบ token และ repository');
             }
         }
 
-        // บันทึกรูปภาพ
-        function saveImagesToStorage() {
+        // บันทึกข้อมูลไปยัง GitHub
+        async function saveImagesToGitHub() {
             try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(images));
-            } catch (error) {
-                console.error('Error saving:', error);
-                if (error.name === 'QuotaExceededError') {
-                    alert('พื้นที่เต็ม! กรุณาลบรูปภาพบางส่วน');
+                const url = `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.filename}`;
+                
+                // ดึงข้อมูล SHA ของไฟล์ปัจจุบัน (ถ้ามี)
+                let sha = null;
+                try {
+                    const getResponse = await fetch(url, {
+                        headers: {
+                            'Authorization': `token ${GITHUB_CONFIG.token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    if (getResponse.ok) {
+                        const fileData = await getResponse.json();
+                        sha = fileData.sha;
+                    }
+                } catch (e) {
+                    console.log('ไฟล์ยังไม่มี จะสร้างใหม่');
                 }
+
+                // เตรียมข้อมูล
+                const content = JSON.stringify({ 
+                    images: images,
+                    lastUpdated: new Date().toISOString()
+                }, null, 2);
+                
+                const encodedContent = btoa(unescape(encodeURIComponent(content)));
+
+                // อัพเดทหรือสร้างไฟล์
+                const putData = {
+                    message: `Update images data - ${new Date().toLocaleString('th-TH')}`,
+                    content: encodedContent,
+                    branch: GITHUB_CONFIG.branch
+                };
+
+                if (sha) {
+                    putData.sha = sha;
+                }
+
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${GITHUB_CONFIG.token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(putData)
+                });
+
+                if (response.ok) {
+                    console.log('✅ บันทึกข้อมูลไปยัง GitHub สำเร็จ');
+                } else {
+                    const errorData = await response.json();
+                    console.error('Error saving to GitHub:', errorData);
+                    alert('⚠️ ไม่สามารถบันทึกข้อมูลได้: ' + (errorData.message || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('⚠️ เกิดข้อผิดพลาดในการบันทึกข้อมูล');
             }
         }
 
@@ -541,7 +620,7 @@
         });
 
         // เพิ่ม URL
-        addUrlBtn.addEventListener('click', function() {
+        addUrlBtn.addEventListener('click', async function() {
             const url = urlInput.value.trim();
             if (!url) {
                 alert('กรุณาใส่ลิงก์');
@@ -558,7 +637,7 @@
                     });
                     updateThumbnails();
                     updateControls();
-                    saveImagesToStorage();
+                    await saveImagesToGitHub();
                     urlInput.value = '';
                     alert('✅ เพิ่ม YouTube สำเร็จ!');
                 } else {
@@ -596,7 +675,7 @@
             const img = new Image();
             img.crossOrigin = 'Anonymous';
             
-            img.onload = function() {
+            img.onload = async function() {
                 try {
                     const canvas = document.createElement('canvas');
                     canvas.width = img.width;
@@ -610,7 +689,7 @@
                     
                     updateThumbnails();
                     updateControls();
-                    saveImagesToStorage();
+                    await saveImagesToGitHub();
                     urlInput.value = '';
                     alert('✅ เพิ่มรูปภาพสำเร็จ!');
                 } catch (error) {
@@ -623,22 +702,31 @@
         }
 
         // อัพโหลดรูปภาพ
-        imageInput.addEventListener('change', function(e) {
-            Array.from(e.target.files).forEach(file => {
+        imageInput.addEventListener('change', async function(e) {
+            const files = Array.from(e.target.files);
+            let processed = 0;
+            
+            for (const file of files) {
                 if (file.type.startsWith('image/')) {
                     const reader = new FileReader();
-                    reader.onload = function(event) {
+                    reader.onload = async function(event) {
                         images.push({
                             data: event.target.result,
                             type: 'image'
                         });
+                        processed++;
+                        
                         updateThumbnails();
                         updateControls();
-                        saveImagesToStorage();
+                        
+                        // บันทึกหลังจากโหลดไฟล์สุดท้าย
+                        if (processed === files.length) {
+                            await saveImagesToGitHub();
+                        }
                     };
                     reader.readAsDataURL(file);
                 }
-            });
+            }
             e.target.value = '';
         });
 
@@ -670,20 +758,20 @@
             });
         }
 
-        function removeImage(index) {
+        async function removeImage(index) {
             images.splice(index, 1);
             updateThumbnails();
             updateControls();
-            saveImagesToStorage();
+            await saveImagesToGitHub();
         }
 
-        clearBtn.addEventListener('click', function() {
+        clearBtn.addEventListener('click', async function() {
             if (images.length > 0 && confirm('ลบทั้งหมด?')) {
                 images = [];
                 updateThumbnails();
                 updateControls();
                 closeSlideshow();
-                saveImagesToStorage();
+                await saveImagesToGitHub();
             }
         });
 
@@ -857,7 +945,14 @@
 
         // Initialize
         updateControls();
-        loadImagesFromStorage();
+        loadImagesFromGitHub();
+
+        // Auto-refresh ทุก 30 วินาที เพื่อดึงข้อมูลใหม่
+        setInterval(async () => {
+            if (!slideshowContainer.classList.contains('active')) {
+                await loadImagesFromGitHub();
+            }
+        }, 30000);
     </script>
 </body>
 </html>
