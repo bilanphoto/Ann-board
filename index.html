@@ -469,29 +469,6 @@
             }
         }
 
-        .close-btn {
-            position: absolute;
-            top: 30px;
-            right: 40px;
-            font-size: 40px;
-            color: white;
-            cursor: pointer;
-            background: rgba(239, 68, 68, 0.8);
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-            z-index: 1001;
-        }
-
-        .close-btn:hover {
-            background: #dc2626;
-            transform: scale(1.1) rotate(90deg);
-        }
-
         .slide-counter {
             display: none;
         }
@@ -527,14 +504,6 @@
 
             .btn {
                 width: 100%;
-            }
-
-            .close-btn {
-                top: 15px;
-                right: 15px;
-                width: 40px;
-                height: 40px;
-                font-size: 30px;
             }
         }
     </style>
@@ -586,7 +555,6 @@
     </div>
 
     <div class="slideshow-container" id="slideshowContainer">
-        <span class="close-btn" id="closeBtn">&times;</span>
         <div class="slideshow-content">
             <div id="slidesWrapper"></div>
             <div class="slide-counter">
@@ -604,11 +572,12 @@
         const SLIDE_DURATION = 5000; // 5 วินาที
         let currentEffect = 'zoom-fade'; // เอฟเฟกต์เริ่มต้น
         const STORAGE_KEY = 'announcement_board_images'; // key สำหรับเก็บข้อมูล
+        let youtubePlayer = null; // YouTube player instance
+        let isYouTubePlaying = false; // สถานะการเล่น YouTube
 
         const imageInput = document.getElementById('imageInput');
         const showBtn = document.getElementById('showBtn');
         const clearBtn = document.getElementById('clearBtn');
-        const closeBtn = document.getElementById('closeBtn');
         const thumbnailGrid = document.getElementById('thumbnailGrid');
         const slideshowContainer = document.getElementById('slideshowContainer');
         const slidesWrapper = document.getElementById('slidesWrapper');
@@ -619,6 +588,17 @@
         const effectSelect = document.getElementById('effectSelect');
         const urlInput = document.getElementById('urlInput');
         const addUrlBtn = document.getElementById('addUrlBtn');
+
+        // โหลด YouTube IFrame API
+        const tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        // Callback เมื่อ YouTube API พร้อมใช้งาน
+        window.onYouTubeIframeAPIReady = function() {
+            console.log('YouTube IFrame API Ready');
+        };
 
         // โหลดข้อมูลจาก localStorage เมื่อเปิดหน้าเว็บ
         function loadImagesFromStorage() {
@@ -879,6 +859,8 @@
                     // สร้าง container สำหรับ YouTube
                     const youtubeContainer = document.createElement('div');
                     youtubeContainer.className = 'slide youtube-slide';
+                    youtubeContainer.setAttribute('data-video-id', imgObj.videoId);
+                    youtubeContainer.setAttribute('data-index', index);
                     youtubeContainer.style.cssText = `
                         position: relative;
                         width: 100vw;
@@ -886,78 +868,9 @@
                         display: flex;
                         justify-content: center;
                         align-items: center;
-                        cursor: pointer;
+                        background: black;
                     `;
                     
-                    // สร้างภาพ thumbnail
-                    const thumbnailImg = document.createElement('img');
-                    thumbnailImg.src = imgData;
-                    thumbnailImg.style.cssText = `
-                        width: 100%;
-                        height: 100%;
-                        object-fit: cover;
-                        border-radius: 0;
-                    `;
-                    
-                    // สร้างปุ่ม Play
-                    const playButton = document.createElement('div');
-                    playButton.className = 'youtube-play-button';
-                    playButton.innerHTML = '▶';
-                    playButton.style.cssText = `
-                        position: absolute;
-                        top: 50%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                        width: 120px;
-                        height: 120px;
-                        background: rgba(255, 0, 0, 0.9);
-                        border-radius: 50%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 50px;
-                        color: white;
-                        transition: all 0.3s;
-                        pointer-events: none;
-                        box-shadow: 0 10px 40px rgba(255, 0, 0, 0.5);
-                    `;
-                    
-                    // เมื่อคลิกให้แสดง YouTube iframe
-                    youtubeContainer.addEventListener('click', function() {
-                        const iframe = document.createElement('iframe');
-                        iframe.style.cssText = `
-                            width: 100%;
-                            height: 100%;
-                            border: none;
-                            border-radius: 0;
-                        `;
-                        iframe.src = `https://www.youtube.com/embed/${imgObj.videoId}?autoplay=1`;
-                        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-                        iframe.allowFullscreen = true;
-                        
-                        youtubeContainer.innerHTML = '';
-                        youtubeContainer.appendChild(iframe);
-                        youtubeContainer.style.cursor = 'default';
-                        
-                        // หยุด slideshow ชั่วคราวเมื่อเล่นวิดีโอ
-                        stopSlideshow();
-                    });
-                    
-                    // Hover effect
-                    youtubeContainer.addEventListener('mouseenter', function() {
-                        playButton.style.transform = 'translate(-50%, -50%) scale(1.15)';
-                        playButton.style.background = 'rgba(255, 0, 0, 1)';
-                        playButton.style.boxShadow = '0 15px 50px rgba(255, 0, 0, 0.7)';
-                    });
-                    
-                    youtubeContainer.addEventListener('mouseleave', function() {
-                        playButton.style.transform = 'translate(-50%, -50%) scale(1)';
-                        playButton.style.background = 'rgba(255, 0, 0, 0.9)';
-                        playButton.style.boxShadow = '0 10px 40px rgba(255, 0, 0, 0.5)';
-                    });
-                    
-                    youtubeContainer.appendChild(thumbnailImg);
-                    youtubeContainer.appendChild(playButton);
                     slidesWrapper.appendChild(youtubeContainer);
                 } else {
                     // รูปภาพทั่วไป
@@ -976,78 +889,75 @@
                 slide.classList.remove('active');
                 // ลบ effect classes ทั้งหมด
                 slide.classList.remove('effect-zoom-fade', 'effect-slide-fade', 'effect-ken-burns', 'effect-3d-flip', 'effect-blur');
-                
-                // ถ้าเป็น YouTube slide และมี iframe อยู่ ให้รีเซ็ตกลับเป็น thumbnail
-                if (slide.classList.contains('youtube-slide') && slide.querySelector('iframe')) {
-                    const imgObj = images[i];
-                    if (typeof imgObj === 'object' && imgObj.type === 'youtube') {
-                        // สร้าง thumbnail และปุ่ม play ใหม่
-                        slide.innerHTML = '';
-                        slide.style.cursor = 'pointer';
-                        
-                        const thumbnailImg = document.createElement('img');
-                        thumbnailImg.src = imgObj.data;
-                        thumbnailImg.style.cssText = `
-                            width: 100%;
-                            height: 100%;
-                            object-fit: cover;
-                            border-radius: 0;
-                        `;
-                        
-                        const playButton = document.createElement('div');
-                        playButton.className = 'youtube-play-button';
-                        playButton.innerHTML = '▶';
-                        playButton.style.cssText = `
-                            position: absolute;
-                            top: 50%;
-                            left: 50%;
-                            transform: translate(-50%, -50%);
-                            width: 120px;
-                            height: 120px;
-                            background: rgba(255, 0, 0, 0.9);
-                            border-radius: 50%;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            font-size: 50px;
-                            color: white;
-                            transition: all 0.3s;
-                            pointer-events: none;
-                            box-shadow: 0 10px 40px rgba(255, 0, 0, 0.5);
-                        `;
-                        
-                        slide.appendChild(thumbnailImg);
-                        slide.appendChild(playButton);
-                        
-                        // ใส่ event listener ใหม่
-                        slide.addEventListener('click', function() {
-                            const iframe = document.createElement('iframe');
-                            iframe.style.cssText = `
-                                width: 100%;
-                                height: 100%;
-                                border: none;
-                                border-radius: 0;
-                            `;
-                            iframe.src = `https://www.youtube.com/embed/${imgObj.videoId}?autoplay=1`;
-                            iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-                            iframe.allowFullscreen = true;
-                            
-                            slide.innerHTML = '';
-                            slide.appendChild(iframe);
-                            slide.style.cursor = 'default';
-                            stopSlideshow();
-                        });
-                    }
-                }
             });
             
             if (slides.length > 0) {
                 const currentSlide = slides[index];
                 currentSlide.classList.add('active');
                 
-                // เพิ่ม effect class ตามที่เลือก (ยกเว้น YouTube ที่กำลังเล่นอยู่)
-                if (!currentSlide.classList.contains('youtube-slide') || !currentSlide.querySelector('iframe')) {
+                // ตรวจสอบว่าเป็น YouTube slide หรือไม่
+                if (currentSlide.classList.contains('youtube-slide')) {
+                    const videoId = currentSlide.getAttribute('data-video-id');
+                    
+                    // ล้าง container และสร้าง div สำหรับ YouTube player
+                    currentSlide.innerHTML = '';
+                    const playerDiv = document.createElement('div');
+                    playerDiv.id = 'youtube-player-' + index;
+                    playerDiv.style.cssText = 'width: 100%; height: 100%;';
+                    currentSlide.appendChild(playerDiv);
+                    
+                    // สร้าง YouTube player ใหม่
+                    if (typeof YT !== 'undefined' && YT.Player) {
+                        youtubePlayer = new YT.Player(playerDiv.id, {
+                            width: '100%',
+                            height: '100%',
+                            videoId: videoId,
+                            playerVars: {
+                                autoplay: 1,
+                                controls: 1,
+                                rel: 0,
+                                modestbranding: 1,
+                                playsinline: 1
+                            },
+                            events: {
+                                'onReady': function(event) {
+                                    event.target.playVideo();
+                                    isYouTubePlaying = true;
+                                    stopSlideshow(); // หยุด slideshow ขณะเล่น YouTube
+                                },
+                                'onStateChange': function(event) {
+                                    // YT.PlayerState.ENDED = 0
+                                    if (event.data === 0) {
+                                        // วิดีโอจบแล้ว เปลี่ยนภาพถัดไป
+                                        isYouTubePlaying = false;
+                                        youtubePlayer = null;
+                                        setTimeout(() => {
+                                            currentSlideIndex = (currentSlideIndex + 1) % images.length;
+                                            showSlide(currentSlideIndex);
+                                            startSlideshow(); // เริ่ม slideshow ใหม่
+                                        }, 500);
+                                    }
+                                }
+                            }
+                        });
+                    } else {
+                        // ถ้า YouTube API ยังไม่พร้อม ใช้ iframe ธรรมดา
+                        const iframe = document.createElement('iframe');
+                        iframe.style.cssText = 'width: 100%; height: 100%; border: none;';
+                        iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&rel=0&modestbranding=1`;
+                        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+                        iframe.allowFullscreen = true;
+                        currentSlide.innerHTML = '';
+                        currentSlide.appendChild(iframe);
+                        
+                        // สำหรับ iframe ธรรมดา จะใช้เวลาโดยประมาณในการเปลี่ยนภาพ
+                        isYouTubePlaying = true;
+                        stopSlideshow();
+                    }
+                } else {
+                    // รูปภาพทั่วไป - เพิ่ม effect
                     currentSlide.classList.add('effect-' + currentEffect);
+                    isYouTubePlaying = false;
                 }
                 
                 currentSlideSpan.textContent = index + 1;
@@ -1057,13 +967,23 @@
         // เริ่ม slideshow
         function startSlideshow() {
             stopSlideshow(); // หยุด slideshow เก่าก่อน
-            animateProgress();
             
-            slideInterval = setInterval(() => {
-                currentSlideIndex = (currentSlideIndex + 1) % images.length;
-                showSlide(currentSlideIndex);
+            // ถ้าเป็น YouTube ให้รอให้มันเล่นเองไม่ต้อง animate progress
+            if (!isYouTubePlaying) {
                 animateProgress();
-            }, SLIDE_DURATION);
+                
+                slideInterval = setInterval(() => {
+                    currentSlideIndex = (currentSlideIndex + 1) % images.length;
+                    showSlide(currentSlideIndex);
+                    
+                    // ถ้าภาพถัดไปไม่ใช่ YouTube ให้ animate progress
+                    const imgObj = images[currentSlideIndex];
+                    const isNextYouTube = typeof imgObj === 'object' && imgObj.type === 'youtube';
+                    if (!isNextYouTube) {
+                        animateProgress();
+                    }
+                }, SLIDE_DURATION);
+            }
         }
 
         // แอนิเมชัน progress bar
@@ -1094,10 +1014,8 @@
             }
         }
 
-        // ปิด slideshow
-        closeBtn.addEventListener('click', closeSlideshow);
-
-        // ฟังก์ชันเข้า Fullscreen
+        // ออกจาก Fullscreen
+        function exitFullscreen() {
         function enterFullscreen() {
             const elem = document.documentElement;
             if (elem.requestFullscreen) {
@@ -1126,6 +1044,13 @@
             progressBar.style.width = '0%';
             document.body.style.overflow = ''; // เปิดการ scroll กลับ
             exitFullscreen(); // ออกจาก fullscreen
+            
+            // ทำลาย YouTube player ถ้ามี
+            if (youtubePlayer) {
+                youtubePlayer.destroy();
+                youtubePlayer = null;
+            }
+            isYouTubePlaying = false;
         }
 
         // ปิด slideshow เมื่อคลิกพื้นหลัง
