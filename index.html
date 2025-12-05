@@ -595,15 +595,19 @@
             const dataToSave = {};
             images.forEach((img, index) => {
                 const id = img.id || push(imagesRef).key;
-                dataToSave[id] = {
+                const itemData = {
                     type: img.type,
                     url: img.url,
                     thumbnail: img.thumbnail,
-                    publicId: img.publicId,
-                    videoId: img.videoId,
                     createdAt: img.createdAt,
                     order: index
                 };
+                
+                // เพิ่มข้อมูลเฉพาะถ้ามี (ไม่ให้เป็น undefined)
+                if (img.publicId) itemData.publicId = img.publicId;
+                if (img.videoId) itemData.videoId = img.videoId;
+                
+                dataToSave[id] = itemData;
             });
             
             await set(imagesRef, dataToSave);
