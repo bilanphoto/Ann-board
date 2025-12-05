@@ -491,6 +491,13 @@
                     <option value="3d-flip">3D Flip - พลิกแบบ 3 มิติ</option>
                     <option value="blur">Blur Transition - เบลอแล้วชัดขึ้น</option>
                 </select>
+                
+                <label for="durationSelect" style="margin-left: 20px;">⏱️ เวลาแสดงผล:</label>
+                <select id="durationSelect">
+                    <option value="5000">5 วินาที</option>
+                    <option value="10000">10 วินาที</option>
+                    <option value="15000">15 วินาที</option>
+                </select>
             </div>
 
             <div class="thumbnail-grid" id="thumbnailGrid"></div>
@@ -540,7 +547,7 @@
         let currentSlideIndex = 0;
         let slideInterval;
         let progressInterval;
-        const SLIDE_DURATION = 5000;
+        let SLIDE_DURATION = 5000; // Default 5 seconds, will be updated by dropdown
         let currentEffect = 'zoom-fade';
         let youtubePlayer = null;
         let isYouTubePlaying = false;
@@ -556,6 +563,7 @@
         const imageCount = document.getElementById('imageCount');
         const progressBar = document.getElementById('progressBar');
         const effectSelect = document.getElementById('effectSelect');
+        const durationSelect = document.getElementById('durationSelect');
         const urlInput = document.getElementById('urlInput');
         const addUrlBtn = document.getElementById('addUrlBtn');
         const loadingOverlay = document.getElementById('loadingOverlay');
@@ -833,6 +841,14 @@
             currentEffect = this.value;
         });
 
+        durationSelect.addEventListener('change', function() {
+            SLIDE_DURATION = parseInt(this.value);
+            // If slideshow is playing, restart with new duration
+            if (slideshowContainer.classList.contains('active') && !isYouTubePlaying) {
+                startSlideshow();
+            }
+        });
+
         showBtn.addEventListener('click', function() {
             if (images.length > 0) {
                 showSlideshow();
@@ -967,8 +983,9 @@
             progressBar.style.width = '0%';
             clearInterval(progressInterval);
             let progress = 0;
+            const step = 100 / (SLIDE_DURATION / 100); // Calculate step based on duration
             progressInterval = setInterval(() => {
-                progress += 2;
+                progress += step;
                 if (progress >= 100) {
                     progress = 100;
                     clearInterval(progressInterval);
