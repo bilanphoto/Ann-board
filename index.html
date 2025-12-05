@@ -39,33 +39,24 @@
             margin-bottom: 30px;
         }
 
-        .sync-badge {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 600;
-        }
-
-        .sync-badge.syncing {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-        }
-
-        .sync-dot {
-            width: 12px;
-            height: 12px;
-            background: white;
+        .sync-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #10b981;
             border-radius: 50%;
+            margin-left: 8px;
             animation: pulse 2s infinite;
+            vertical-align: middle;
+        }
+
+        .sync-indicator.syncing {
+            background: #f59e0b;
         }
 
         @keyframes pulse {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            50% { opacity: 0.3; }
         }
 
         .upload-section {
@@ -309,6 +300,17 @@
             align-items: center;
         }
 
+        .webpage-slide {
+            display: none !important;
+            background: white;
+        }
+
+        .webpage-slide.active {
+            display: flex !important;
+            justify-content: center;
+            align-items: center;
+        }
+
         .slide.active.effect-zoom-fade:not(.youtube-slide) {
             animation: zoomFade 1s ease-out;
         }
@@ -460,15 +462,13 @@
         <h1>📢 บอร์ดแจ้งข่าวสารกิจกรรม</h1>
 
         <div class="control-panel">
-            <div class="sync-badge" id="syncBadge">
-                <div class="sync-dot"></div>
-                <span id="syncStatus">🔥 เชื่อมต่อ Firebase สำเร็จ - ทุกเครื่อง Sync อัตโนมัติ!</span>
-            </div>
-
             <div class="upload-section">
                 <div class="file-input-wrapper">
                     <input type="file" id="imageInput" accept="image/*" multiple>
-                    <label for="imageInput" class="file-input-label">📁 เลือกรูปภาพ</label>
+                    <label for="imageInput" class="file-input-label">
+                        📁 เลือกรูปภาพ
+                        <span class="sync-indicator" id="syncIndicator"></span>
+                    </label>
                 </div>
                 <button class="btn btn-show" id="showBtn" disabled>▶️ แสดงภาพ</button>
                 <button class="btn btn-clear" id="clearBtn">🗑️ ลบภาพทั้งหมด</button>
@@ -478,8 +478,8 @@
             </div>
 
             <div class="url-input-section">
-                <input type="text" id="urlInput" placeholder="🔗 ใส่ลิงก์ YouTube" class="url-input">
-                <button class="btn btn-add-url" id="addUrlBtn">➕ เพิ่ม YouTube</button>
+                <input type="text" id="urlInput" placeholder="🔗 ใส่ลิงก์ (YouTube, Website, หรืออื่นๆ)" class="url-input">
+                <button class="btn btn-add-url" id="addUrlBtn">➕ เพิ่มลิงก์</button>
             </div>
 
             <div class="effect-selector">
@@ -560,8 +560,7 @@
         const addUrlBtn = document.getElementById('addUrlBtn');
         const loadingOverlay = document.getElementById('loadingOverlay');
         const loadingText = document.getElementById('loadingText');
-        const syncBadge = document.getElementById('syncBadge');
-        const syncStatus = document.getElementById('syncStatus');
+        const syncIndicator = document.getElementById('syncIndicator');
 
         // ==========================================
         // 🔥 FIREBASE SYNC
@@ -580,17 +579,13 @@
             updateThumbnails();
             updateControls();
             
-            syncBadge.classList.remove('syncing');
-            syncStatus.textContent = '✅ ข้อมูลอัปเดตแล้ว - ทุกเครื่องเห็นเหมือนกัน!';
-            
-            setTimeout(() => {
-                syncStatus.textContent = '🔥 เชื่อมต่อ Firebase - Sync อัตโนมัติ!';
-            }, 3000);
+            // Update sync indicator
+            syncIndicator.classList.remove('syncing');
         });
 
         async function saveToFirebase() {
-            syncBadge.classList.add('syncing');
-            syncStatus.textContent = '⏳ กำลัง Sync...';
+            // Show syncing state
+            syncIndicator.classList.add('syncing');
             
             const dataToSave = {};
             images.forEach((img, index) => {
@@ -674,7 +669,7 @@
         });
 
         // ==========================================
-        // 🔗 YOUTUBE HANDLERS
+        // 🔗 URL HANDLERS (Support all URLs)
         // ==========================================
         addUrlBtn.addEventListener('click', async function() {
             const url = urlInput.value.trim();
@@ -683,6 +678,7 @@
                 return;
             }
 
+            // Check if it's a YouTube URL
             if (isYouTubeUrl(url)) {
                 const videoId = getYouTubeVideoId(url);
                 if (videoId) {
@@ -701,7 +697,17 @@
                     alert('❌ ลิงก์ YouTube ไม่ถูกต้อง');
                 }
             } else {
-                alert('ℹ️ กรุณาใส่ YouTube URL เท่านั้น');
+                // For other URLs, create iframe embed
+                images.push({
+                    type: 'webpage',
+                    url: url,
+                    thumbnail: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"%3E%3Crect fill="%234f46e5" width="300" height="300"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="48" fill="white"%3E🌐%3C/text%3E%3C/svg%3E',
+                    createdAt: Date.now()
+                });
+                
+                await saveToFirebase();
+                urlInput.value = '';
+                alert('✅ เพิ่มลิงก์สำเร็จ!\n\n🔥 ทุกเครื่องจะเห็นหน้าเว็บนี้!');
             }
         });
 
@@ -759,6 +765,11 @@
                     const icon = document.createElement('div');
                     icon.style.cssText = 'position:absolute;bottom:5px;left:5px;background:rgba(255,0,0,0.9);color:white;padding:3px 8px;border-radius:3px;font-size:10px;font-weight:bold;';
                     icon.textContent = '▶ YouTube';
+                    item.appendChild(icon);
+                } else if (imgObj.type === 'webpage') {
+                    const icon = document.createElement('div');
+                    icon.style.cssText = 'position:absolute;bottom:5px;left:5px;background:rgba(79,70,229,0.9);color:white;padding:3px 8px;border-radius:3px;font-size:10px;font-weight:bold;';
+                    icon.textContent = '🌐 Web';
                     item.appendChild(icon);
                 }
 
@@ -848,6 +859,12 @@
                     div.setAttribute('data-video-id', imgObj.videoId);
                     div.style.cssText = 'position:relative;width:100vw;height:100vh;display:flex;justify-content:center;align-items:center;background:black;';
                     slidesWrapper.appendChild(div);
+                } else if (imgObj.type === 'webpage') {
+                    const div = document.createElement('div');
+                    div.className = 'slide webpage-slide';
+                    div.setAttribute('data-url', imgObj.url);
+                    div.style.cssText = 'position:relative;width:100vw;height:100vh;display:flex;justify-content:center;align-items:center;background:black;';
+                    slidesWrapper.appendChild(div);
                 } else {
                     const img = document.createElement('img');
                     img.className = 'slide';
@@ -914,6 +931,15 @@
                             }
                         });
                     }
+                } else if (slide.classList.contains('webpage-slide')) {
+                    const url = slide.getAttribute('data-url');
+                    slide.innerHTML = '';
+                    const iframe = document.createElement('iframe');
+                    iframe.src = url;
+                    iframe.style.cssText = 'width:100%;height:100%;border:none;';
+                    iframe.allow = 'autoplay; fullscreen';
+                    slide.appendChild(iframe);
+                    isYouTubePlaying = false;
                 } else {
                     slide.classList.add('effect-' + currentEffect);
                     isYouTubePlaying = false;
