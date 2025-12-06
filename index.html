@@ -229,6 +229,12 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            background: #f3f4f6;
+        }
+
+        .thumbnail-item img[src*="data:image/svg"] {
+            object-fit: contain;
+            padding: 20px;
         }
 
         .thumbnail-remove {
@@ -637,11 +643,15 @@
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
             const data = await response.json();
+            
+            // Create thumbnail URL with proper transformation
+            const thumbnailUrl = `https://res.cloudinary.com/${CLOUDINARY_CONFIG.cloudName}/image/upload/w_300,h_300,c_fill/${data.public_id}`;
+            
             return {
                 type: 'image',
                 url: data.secure_url,
                 publicId: data.public_id,
-                thumbnail: data.secure_url.replace('/upload/', '/upload/w_300,h_300,c_fill/'),
+                thumbnail: thumbnailUrl,
                 createdAt: Date.now()
             };
         }
@@ -751,7 +761,30 @@
                 item.dataset.index = index;
 
                 const img = document.createElement('img');
-                img.src = imgObj.thumbnail || imgObj.url;
+                
+                // Use main URL if thumbnail fails or doesn't exist
+                const thumbnailUrl = imgObj.thumbnail || imgObj.url;
+                
+                img.src = thumbnailUrl;
+                img.alt = 'Image ' + (index + 1);
+                
+                // Handle image loading errors
+                img.onerror = function() {
+                    // If thumbnail fails, try main URL
+                    if (this.src !== imgObj.url) {
+                        this.src = imgObj.url;
+                    } else {
+                        // If both fail, show placeholder
+                        this.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"%3E%3Crect fill="%23e5e7eb" width="300" height="300"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="48" fill="%239ca3af"%3E%3F%3C/text%3E%3C/svg%3E';
+                    }
+                };
+                
+                // Add loading state
+                img.onload = function() {
+                    this.style.opacity = '1';
+                };
+                img.style.opacity = '0';
+                img.style.transition = 'opacity 0.3s';
 
                 const btn = document.createElement('button');
                 btn.className = 'thumbnail-remove';
