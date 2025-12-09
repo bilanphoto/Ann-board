@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>บอร์ดแจ้งข่าวสารกิจกรรม - Firebase Edition</title>
+    <title>บอร์ดแจ้งข่าวสารกิจกรรม - Enhanced</title>
     <style>
         * {
             margin: 0;
@@ -289,6 +289,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            will-change: transform, opacity;
         }
 
         .slide.active {
@@ -317,7 +318,139 @@
             align-items: center;
         }
 
-        .slide.active.effect-zoom-fade:not(.youtube-slide) {
+        /* Navigation Buttons */
+        .nav-btn {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1001;
+            transition: all 0.3s, opacity 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .slideshow-container.show-controls .nav-btn {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .nav-btn:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+
+        .nav-btn-prev {
+            left: 20px;
+        }
+
+        .nav-btn-next {
+            right: 20px;
+        }
+
+        .close-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(239, 68, 68, 0.8);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1001;
+            transition: all 0.3s, opacity 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .slideshow-container.show-controls .close-btn {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .close-btn:hover {
+            background: rgba(239, 68, 68, 1);
+            transform: scale(1.1);
+        }
+
+        .fullscreen-btn {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background: rgba(102, 126, 234, 0.8);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 1001;
+            transition: all 0.3s, opacity 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .slideshow-container.show-controls .fullscreen-btn {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .fullscreen-btn:hover {
+            background: rgba(102, 126, 234, 1);
+            transform: scale(1.1);
+        }
+
+        /* Slide Counter */
+        .slide-counter {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 1001;
+            font-weight: 600;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .slideshow-container.show-controls .slide-counter {
+            opacity: 1;
+        }
+
+        .slide.active.effect-zoom-fade:not(.youtube-slide):not(.webpage-slide) {
             animation: zoomFade 1s ease-out;
         }
 
@@ -332,7 +465,7 @@
             }
         }
 
-        .slide.active.effect-slide-fade:not(.youtube-slide) {
+        .slide.active.effect-slide-fade:not(.youtube-slide):not(.webpage-slide) {
             animation: slideFade 0.8s ease-out;
         }
 
@@ -347,7 +480,7 @@
             }
         }
 
-        .slide.active.effect-ken-burns:not(.youtube-slide) {
+        .slide.active.effect-ken-burns:not(.youtube-slide):not(.webpage-slide) {
             animation: kenBurns 5s ease-out;
         }
 
@@ -365,7 +498,7 @@
             }
         }
 
-        .slide.active.effect-3d-flip:not(.youtube-slide) {
+        .slide.active.effect-3d-flip:not(.youtube-slide):not(.webpage-slide) {
             animation: flip3D 0.8s ease-out;
         }
 
@@ -380,7 +513,7 @@
             }
         }
 
-        .slide.active.effect-blur:not(.youtube-slide) {
+        .slide.active.effect-blur:not(.youtube-slide):not(.webpage-slide) {
             animation: blurTransition 0.8s ease-out;
         }
 
@@ -460,6 +593,24 @@
             .btn {
                 width: 100%;
             }
+            .nav-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+            .nav-btn-prev {
+                left: 10px;
+            }
+            .nav-btn-next {
+                right: 10px;
+            }
+            .effect-selector {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .effect-selector label {
+                margin-bottom: 5px;
+            }
         }
     </style>
 </head>
@@ -489,16 +640,16 @@
             </div>
 
             <div class="effect-selector">
-                <label for="effectSelect">🎨 เอฟเฟกต์การเปลี่ยนภาพ:</label>
+                <label for="effectSelect">🎨 เอฟเฟกต์:</label>
                 <select id="effectSelect">
-                    <option value="zoom-fade">Zoom Fade - ซูมเข้าพร้อมเฟด</option>
-                    <option value="slide-fade">Slide & Fade - เลื่อนข้างพร้อมเฟด</option>
-                    <option value="ken-burns">Ken Burns - ซูมช้าๆ แบบสารคดี</option>
-                    <option value="3d-flip">3D Flip - พลิกแบบ 3 มิติ</option>
-                    <option value="blur">Blur Transition - เบลอแล้วชัดขึ้น</option>
+                    <option value="zoom-fade">Zoom Fade</option>
+                    <option value="slide-fade">Slide & Fade</option>
+                    <option value="ken-burns">Ken Burns</option>
+                    <option value="3d-flip">3D Flip</option>
+                    <option value="blur">Blur</option>
                 </select>
                 
-                <label for="durationSelect" style="margin-left: 20px;">⏱️ เวลาแสดงผล:</label>
+                <label for="durationSelect">⏱️ เวลา:</label>
                 <select id="durationSelect">
                     <option value="5000">5 วินาที</option>
                     <option value="10000">10 วินาที</option>
@@ -511,6 +662,11 @@
     </div>
 
     <div class="slideshow-container" id="slideshowContainer">
+        <button class="nav-btn nav-btn-prev" id="prevBtn">‹</button>
+        <button class="nav-btn nav-btn-next" id="nextBtn">›</button>
+        <button class="close-btn" id="closeBtn">×</button>
+        <button class="fullscreen-btn" id="fullscreenBtn">⛶</button>
+        <div class="slide-counter" id="slideCounter">1 / 1</div>
         <div id="slidesWrapper"></div>
         <div class="progress-bar" id="progressBar"></div>
     </div>
@@ -520,12 +676,10 @@
         <div class="loading-text" id="loadingText">⏳ กำลังโหลด...</div>
     </div>
 
-    <!-- Firebase Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, onValue, push, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyC4zskizb1Zsc_BCAaIB95n5XSY91CYgZI",
             authDomain: "ann-board.firebaseapp.com",
@@ -536,30 +690,29 @@
             appId: "1:901899688330:web:ab2239980a72ce45fa1073"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
         const imagesRef = ref(database, 'images');
 
-        // Cloudinary Configuration
         const CLOUDINARY_CONFIG = {
             cloudName: 'lik',
             uploadPreset: 'Ann-board',
             folder: 'Ann-board'
         };
 
-        // Main Variables
         let images = [];
         let currentSlideIndex = 0;
         let slideInterval;
         let progressInterval;
-        let SLIDE_DURATION = 5000; // Default 5 seconds, will be updated by dropdown
+        let SLIDE_DURATION = 5000;
         let currentEffect = 'zoom-fade';
         let youtubePlayer = null;
         let isYouTubePlaying = false;
         let draggedIndex = null;
+        let touchStartX = 0;
+        let touchEndX = 0;
+        let controlsTimeout;
 
-        // DOM Elements
         const imageInput = document.getElementById('imageInput');
         const showBtn = document.getElementById('showBtn');
         const clearBtn = document.getElementById('clearBtn');
@@ -575,10 +728,17 @@
         const loadingOverlay = document.getElementById('loadingOverlay');
         const loadingText = document.getElementById('loadingText');
         const syncIndicator = document.getElementById('syncIndicator');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const closeBtn = document.getElementById('closeBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const slideCounter = document.getElementById('slideCounter');
 
         // ==========================================
-        // 🔥 FIREBASE SYNC
+        // 🔥 FIREBASE SYNC (Performance Optimized)
         // ==========================================
+        let imageCache = new Map();
+        
         onValue(imagesRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
@@ -587,20 +747,25 @@
                     ...data[key]
                 }));
                 images.sort((a, b) => (a.order || 0) - (b.order || 0));
+                
+                // Cache images for better performance
+                images.forEach(img => {
+                    if (img.type === 'image' && !imageCache.has(img.url)) {
+                        const imgEl = new Image();
+                        imgEl.src = img.url;
+                        imageCache.set(img.url, imgEl);
+                    }
+                });
             } else {
                 images = [];
             }
             updateThumbnails();
             updateControls();
-            
-            // Update sync indicator
             syncIndicator.classList.remove('syncing');
         });
 
         async function saveToFirebase() {
-            // Show syncing state
             syncIndicator.classList.add('syncing');
-            
             const dataToSave = {};
             images.forEach((img, index) => {
                 const id = img.id || push(imagesRef).key;
@@ -611,14 +776,10 @@
                     createdAt: img.createdAt,
                     order: index
                 };
-                
-                // เพิ่มข้อมูลเฉพาะถ้ามี (ไม่ให้เป็น undefined)
                 if (img.publicId) itemData.publicId = img.publicId;
                 if (img.videoId) itemData.videoId = img.videoId;
-                
                 dataToSave[id] = itemData;
             });
-            
             await set(imagesRef, dataToSave);
         }
 
@@ -627,7 +788,7 @@
         }
 
         // ==========================================
-        // ☁️ CLOUDINARY FUNCTIONS
+        // ☁️ CLOUDINARY (Optimized)
         // ==========================================
         async function uploadToCloudinary(file) {
             const formData = new FormData();
@@ -641,10 +802,7 @@
             );
 
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
             const data = await response.json();
-            
-            // Create thumbnail URL with proper transformation
             const thumbnailUrl = `https://res.cloudinary.com/${CLOUDINARY_CONFIG.cloudName}/image/upload/w_300,h_300,c_fill/${data.public_id}`;
             
             return {
@@ -674,20 +832,18 @@
                         images.push(result);
                     }
                 }
-                
                 await saveToFirebase();
                 hideLoading();
-                alert(`✅ อัปโหลดสำเร็จ ${files.length} รูป!\n\n🔥 ทุกเครื่องจะเห็นรูปใหม่อัตโนมัติ!`);
+                alert(`✅ อัปโหลดสำเร็จ ${files.length} รูป!`);
             } catch (error) {
                 hideLoading();
                 alert('❌ เกิดข้อผิดพลาด: ' + error.message);
             }
-            
             e.target.value = '';
         });
 
         // ==========================================
-        // 🔗 URL HANDLERS (Support all URLs)
+        // 🔗 URL HANDLERS
         // ==========================================
         addUrlBtn.addEventListener('click', async function() {
             const url = urlInput.value.trim();
@@ -696,7 +852,6 @@
                 return;
             }
 
-            // Check if it's a YouTube URL
             if (isYouTubeUrl(url)) {
                 const videoId = getYouTubeVideoId(url);
                 if (videoId) {
@@ -707,25 +862,22 @@
                         thumbnail: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
                         createdAt: Date.now()
                     });
-                    
                     await saveToFirebase();
                     urlInput.value = '';
-                    alert('✅ เพิ่ม YouTube สำเร็จ!\n\n🔥 ทุกเครื่องจะเห็นวิดีโอนี้!');
+                    alert('✅ เพิ่ม YouTube สำเร็จ!');
                 } else {
                     alert('❌ ลิงก์ YouTube ไม่ถูกต้อง');
                 }
             } else {
-                // For other URLs, create iframe embed
                 images.push({
                     type: 'webpage',
                     url: url,
                     thumbnail: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"%3E%3Crect fill="%234f46e5" width="300" height="300"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="48" fill="white"%3E🌐%3C/text%3E%3C/svg%3E',
                     createdAt: Date.now()
                 });
-                
                 await saveToFirebase();
                 urlInput.value = '';
-                alert('✅ เพิ่มลิงก์สำเร็จ!\n\n🔥 ทุกเครื่องจะเห็นหน้าเว็บนี้!');
+                alert('✅ เพิ่มลิงก์สำเร็จ!');
             }
         });
 
@@ -750,10 +902,12 @@
         }
 
         // ==========================================
-        // 🎨 THUMBNAIL FUNCTIONS
+        // 🎨 THUMBNAILS (Optimized)
         // ==========================================
         function updateThumbnails() {
             thumbnailGrid.innerHTML = '';
+            const fragment = document.createDocumentFragment();
+            
             images.forEach((imgObj, index) => {
                 const item = document.createElement('div');
                 item.className = 'thumbnail-item';
@@ -761,37 +915,25 @@
                 item.dataset.index = index;
 
                 const img = document.createElement('img');
-                
-                // Use main URL if thumbnail fails or doesn't exist
                 const thumbnailUrl = imgObj.thumbnail || imgObj.url;
-                
                 img.src = thumbnailUrl;
                 img.alt = 'Image ' + (index + 1);
+                img.loading = 'lazy';
                 
-                // Handle image loading errors
                 img.onerror = function() {
-                    // If thumbnail fails, try main URL
                     if (this.src !== imgObj.url) {
                         this.src = imgObj.url;
                     } else {
-                        // If both fail, show placeholder
                         this.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"%3E%3Crect fill="%23e5e7eb" width="300" height="300"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="48" fill="%239ca3af"%3E%3F%3C/text%3E%3C/svg%3E';
                     }
                 };
-                
-                // Add loading state
-                img.onload = function() {
-                    this.style.opacity = '1';
-                };
-                img.style.opacity = '0';
-                img.style.transition = 'opacity 0.3s';
 
                 const btn = document.createElement('button');
                 btn.className = 'thumbnail-remove';
                 btn.innerHTML = '×';
                 btn.onclick = async (e) => {
                     e.stopPropagation();
-                    if (confirm('ต้องการลบรูปนี้?\n\n🔥 ทุกเครื่องจะเห็นว่ารูปถูกลบ!')) {
+                    if (confirm('ต้องการลบรูปนี้?')) {
                         const id = imgObj.id;
                         images.splice(index, 1);
                         if (id) {
@@ -821,8 +963,10 @@
 
                 item.appendChild(img);
                 item.appendChild(btn);
-                thumbnailGrid.appendChild(item);
+                fragment.appendChild(item);
             });
+            
+            thumbnailGrid.appendChild(fragment);
         }
 
         function handleDragStart(e) {
@@ -840,7 +984,6 @@
         async function handleDrop(e) {
             e.preventDefault();
             const dropIndex = parseInt(this.dataset.index);
-            
             if (draggedIndex !== dropIndex) {
                 const draggedItem = images[draggedIndex];
                 images.splice(draggedIndex, 1);
@@ -856,7 +999,7 @@
         }
 
         clearBtn.addEventListener('click', async function() {
-            if (images.length > 0 && confirm('ลบทั้งหมด?\n\n🔥 ทุกเครื่องจะเห็นว่ารูปถูกลบหมด!')) {
+            if (images.length > 0 && confirm('ลบทั้งหมด?')) {
                 await set(imagesRef, {});
                 closeSlideshow();
             }
@@ -868,7 +1011,7 @@
         }
 
         // ==========================================
-        // 🎬 SLIDESHOW FUNCTIONS
+        // 🎬 SLIDESHOW (Enhanced with Navigation)
         // ==========================================
         effectSelect.addEventListener('change', function() {
             currentEffect = this.value;
@@ -876,7 +1019,6 @@
 
         durationSelect.addEventListener('change', function() {
             SLIDE_DURATION = parseInt(this.value);
-            // If slideshow is playing, restart with new duration
             if (slideshowContainer.classList.contains('active') && !isYouTubePlaying) {
                 startSlideshow();
             }
@@ -885,7 +1027,6 @@
         showBtn.addEventListener('click', function() {
             if (images.length > 0) {
                 showSlideshow();
-                enterFullscreen();
             }
         });
 
@@ -895,11 +1036,15 @@
             renderSlides();
             showSlide(0);
             startSlideshow();
+            updateCounter();
             document.body.style.overflow = 'hidden';
+            enterFullscreen();
+            showControls();
         }
 
         function renderSlides() {
             slidesWrapper.innerHTML = '';
+            const fragment = document.createDocumentFragment();
             
             images.forEach((imgObj) => {
                 if (imgObj.type === 'youtube') {
@@ -907,25 +1052,23 @@
                     div.className = 'slide youtube-slide';
                     div.setAttribute('data-video-id', imgObj.videoId);
                     div.style.cssText = 'position:relative;width:100vw;height:100vh;display:flex;justify-content:center;align-items:center;background:black;';
-                    slidesWrapper.appendChild(div);
+                    fragment.appendChild(div);
                 } else if (imgObj.type === 'webpage') {
                     const div = document.createElement('div');
                     div.className = 'slide webpage-slide';
                     div.setAttribute('data-url', imgObj.url);
                     div.style.cssText = 'position:relative;width:100vw;height:100vh;display:flex;justify-content:center;align-items:center;background:black;';
-                    slidesWrapper.appendChild(div);
+                    fragment.appendChild(div);
                 } else {
                     const img = document.createElement('img');
                     img.className = 'slide';
                     img.src = imgObj.url;
-                    slidesWrapper.appendChild(img);
+                    fragment.appendChild(img);
                 }
             });
+            
+            slidesWrapper.appendChild(fragment);
         }
-
-        window.onYouTubeIframeAPIReady = function() {
-            console.log('YouTube API Ready');
-        };
 
         function showSlide(index) {
             const slides = document.querySelectorAll('.slide');
@@ -971,9 +1114,7 @@
                                             youtubePlayer = null;
                                         }
                                         setTimeout(() => {
-                                            currentSlideIndex = (currentSlideIndex + 1) % images.length;
-                                            showSlide(currentSlideIndex);
-                                            startSlideshow();
+                                            nextSlide();
                                         }, 1000);
                                     }
                                 }
@@ -994,20 +1135,111 @@
                     isYouTubePlaying = false;
                 }
             }
+            updateCounter();
         }
+
+        function updateCounter() {
+            slideCounter.textContent = `${currentSlideIndex + 1} / ${images.length}`;
+        }
+
+        function nextSlide() {
+            if (youtubePlayer) {
+                youtubePlayer.destroy();
+                youtubePlayer = null;
+                isYouTubePlaying = false;
+            }
+            currentSlideIndex = (currentSlideIndex + 1) % images.length;
+            showSlide(currentSlideIndex);
+            startSlideshow();
+        }
+
+        function prevSlide() {
+            if (youtubePlayer) {
+                youtubePlayer.destroy();
+                youtubePlayer = null;
+                isYouTubePlaying = false;
+            }
+            currentSlideIndex = (currentSlideIndex - 1 + images.length) % images.length;
+            showSlide(currentSlideIndex);
+            startSlideshow();
+        }
+
+        prevBtn.addEventListener('click', prevSlide);
+        nextBtn.addEventListener('click', nextSlide);
+
+        // ==========================================
+        // 🎨 AUTO-HIDE CONTROLS
+        // ==========================================
+        function showControls() {
+            slideshowContainer.classList.add('show-controls');
+            clearTimeout(controlsTimeout);
+            controlsTimeout = setTimeout(() => {
+                slideshowContainer.classList.remove('show-controls');
+            }, 3000);
+        }
+
+        function hideControls() {
+            slideshowContainer.classList.remove('show-controls');
+        }
+
+        // Show controls on mouse move, click, or touch
+        slideshowContainer.addEventListener('mousemove', showControls);
+        slideshowContainer.addEventListener('click', (e) => {
+            // Don't toggle controls if clicking on buttons
+            if (!e.target.closest('.nav-btn, .close-btn, .fullscreen-btn')) {
+                showControls();
+            }
+        });
+        slideshowContainer.addEventListener('touchstart', showControls);
+
+        // ==========================================
+        // 👆 TOUCH SWIPE SUPPORT
+        // ==========================================
+        slideshowContainer.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        slideshowContainer.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    nextSlide();
+                } else {
+                    prevSlide();
+                }
+            }
+        }
+
+        // ==========================================
+        // ⌨️ KEYBOARD NAVIGATION
+        // ==========================================
+        document.addEventListener('keydown', (e) => {
+            if (slideshowContainer.classList.contains('active')) {
+                if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    nextSlide();
+                } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    prevSlide();
+                } else if (e.key === 'Escape') {
+                    closeSlideshow();
+                }
+            }
+        });
 
         function startSlideshow() {
             stopSlideshow();
-            
             if (!isYouTubePlaying) {
                 animateProgress();
                 slideInterval = setInterval(() => {
-                    currentSlideIndex = (currentSlideIndex + 1) % images.length;
-                    showSlide(currentSlideIndex);
-                    const imgObj = images[currentSlideIndex];
-                    if (imgObj.type !== 'youtube') {
-                        animateProgress();
-                    }
+                    nextSlide();
                 }, SLIDE_DURATION);
             }
         }
@@ -1016,7 +1248,7 @@
             progressBar.style.width = '0%';
             clearInterval(progressInterval);
             let progress = 0;
-            const step = 100 / (SLIDE_DURATION / 100); // Calculate step based on duration
+            const step = 100 / (SLIDE_DURATION / 100);
             progressInterval = setInterval(() => {
                 progress += step;
                 if (progress >= 100) {
@@ -1032,16 +1264,55 @@
             clearInterval(progressInterval);
         }
 
+        // ==========================================
+        // 🖥️ FULLSCREEN FUNCTIONS (Enhanced)
+        // ==========================================
         function enterFullscreen() {
             const elem = document.documentElement;
-            if (elem.requestFullscreen) elem.requestFullscreen();
-            else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(err => console.log('Fullscreen error:', err));
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            }
+            updateFullscreenBtn();
         }
 
         function exitFullscreen() {
-            if (document.exitFullscreen) document.exitFullscreen();
-            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            if (document.exitFullscreen) {
+                document.exitFullscreen().catch(err => console.log('Exit fullscreen error:', err));
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+            updateFullscreenBtn();
         }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                enterFullscreen();
+            } else {
+                exitFullscreen();
+            }
+        }
+
+        function updateFullscreenBtn() {
+            if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
+                fullscreenBtn.innerHTML = '⛶';
+            } else {
+                fullscreenBtn.innerHTML = '⛶';
+            }
+        }
+
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+        document.addEventListener('fullscreenchange', updateFullscreenBtn);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenBtn);
+        document.addEventListener('msfullscreenchange', updateFullscreenBtn);
+
+        closeBtn.addEventListener('click', closeSlideshow);
 
         function closeSlideshow() {
             slideshowContainer.classList.remove('active');
@@ -1056,19 +1327,10 @@
             isYouTubePlaying = false;
         }
 
-        slideshowContainer.addEventListener('click', (e) => {
-            if (e.target === slideshowContainer) closeSlideshow();
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && slideshowContainer.classList.contains('active')) {
-                closeSlideshow();
-            }
-        });
-
         document.addEventListener('fullscreenchange', () => {
             if (!document.fullscreenElement && slideshowContainer.classList.contains('active')) {
-                closeSlideshow();
+                // Don't auto-close on mobile - just update button
+                updateFullscreenBtn();
             }
         });
 
@@ -1081,8 +1343,8 @@
             loadingOverlay.classList.remove('active');
         }
 
-        console.log('🔥 Firebase + Cloudinary Edition Ready!');
-        console.log('✅ Real-time sync enabled');
+        console.log('🚀 Performance Enhanced Edition Ready!');
+        console.log('✨ Features: Touch Swipe, Navigation Buttons, Better Performance');
     </script>
     <script src="https://www.youtube.com/iframe_api"></script>
 </body>
