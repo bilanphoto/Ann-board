@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>บอร์ดแจ้งข่าวสารกิจกรรม - Enhanced</title>
+    <title>บอร์ดแจ้งข่าวสารกิจกรรม - Firebase Edition</title>
     <style>
         * {
             margin: 0;
@@ -150,6 +150,16 @@
             box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
         }
 
+        .btn-training {
+            background: #f59e0b;
+        }
+
+        .btn-training:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
+        }
+
         .btn-add-url {
             background: #8b5cf6;
         }
@@ -289,28 +299,10 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            will-change: transform, opacity;
         }
 
         .slide.active {
             display: block;
-        }
-
-        .video-slide {
-            display: none !important;
-            background: black;
-        }
-
-        .video-slide.active {
-            display: flex !important;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .video-slide video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
         }
 
         .youtube-slide {
@@ -335,139 +327,7 @@
             align-items: center;
         }
 
-        /* Navigation Buttons */
-        .nav-btn {
-            position: fixed;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            font-size: 24px;
-            cursor: pointer;
-            z-index: 1001;
-            transition: all 0.3s, opacity 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .slideshow-container.show-controls .nav-btn {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .nav-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-50%) scale(1.1);
-        }
-
-        .nav-btn:active {
-            transform: translateY(-50%) scale(0.95);
-        }
-
-        .nav-btn-prev {
-            left: 20px;
-        }
-
-        .nav-btn-next {
-            right: 20px;
-        }
-
-        .close-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(239, 68, 68, 0.8);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            font-size: 24px;
-            cursor: pointer;
-            z-index: 1001;
-            transition: all 0.3s, opacity 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .slideshow-container.show-controls .close-btn {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .close-btn:hover {
-            background: rgba(239, 68, 68, 1);
-            transform: scale(1.1);
-        }
-
-        .fullscreen-btn {
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            background: rgba(102, 126, 234, 0.8);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            font-size: 20px;
-            cursor: pointer;
-            z-index: 1001;
-            transition: all 0.3s, opacity 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .slideshow-container.show-controls .fullscreen-btn {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .fullscreen-btn:hover {
-            background: rgba(102, 126, 234, 1);
-            transform: scale(1.1);
-        }
-
-        /* Slide Counter */
-        .slide-counter {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(10px);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 14px;
-            z-index: 1001;
-            font-weight: 600;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
-
-        .slideshow-container.show-controls .slide-counter {
-            opacity: 1;
-        }
-
-        .slide.active.effect-zoom-fade:not(.youtube-slide):not(.webpage-slide) {
+        .slide.active.effect-zoom-fade:not(.youtube-slide) {
             animation: zoomFade 1s ease-out;
         }
 
@@ -482,7 +342,7 @@
             }
         }
 
-        .slide.active.effect-slide-fade:not(.youtube-slide):not(.webpage-slide) {
+        .slide.active.effect-slide-fade:not(.youtube-slide) {
             animation: slideFade 0.8s ease-out;
         }
 
@@ -497,7 +357,7 @@
             }
         }
 
-        .slide.active.effect-ken-burns:not(.youtube-slide):not(.webpage-slide) {
+        .slide.active.effect-ken-burns:not(.youtube-slide) {
             animation: kenBurns 5s ease-out;
         }
 
@@ -515,7 +375,7 @@
             }
         }
 
-        .slide.active.effect-3d-flip:not(.youtube-slide):not(.webpage-slide) {
+        .slide.active.effect-3d-flip:not(.youtube-slide) {
             animation: flip3D 0.8s ease-out;
         }
 
@@ -530,7 +390,7 @@
             }
         }
 
-        .slide.active.effect-blur:not(.youtube-slide):not(.webpage-slide) {
+        .slide.active.effect-blur:not(.youtube-slide) {
             animation: blurTransition 0.8s ease-out;
         }
 
@@ -610,24 +470,200 @@
             .btn {
                 width: 100%;
             }
-            .nav-btn {
-                width: 50px;
-                height: 50px;
-                font-size: 20px;
-            }
-            .nav-btn-prev {
-                left: 10px;
-            }
-            .nav-btn-next {
-                right: 10px;
-            }
-            .effect-selector {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .effect-selector label {
-                margin-bottom: 5px;
-            }
+        }
+
+        /* Training Table Styles */
+        .training-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .training-content {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            width: 900px;
+            max-width: 95%;
+            max-height: 90vh;
+            overflow: auto;
+            padding: 30px;
+        }
+
+        .training-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .training-header h3 {
+            color: #374151;
+            font-size: 24px;
+        }
+
+        .btn-close-training {
+            background: #ef4444;
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-close-training:hover {
+            background: #dc2626;
+            transform: rotate(90deg);
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header-input {
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px 20px;
+            width: 100%;
+            transition: all 0.3s;
+            line-height: 1.5;
+            vertical-align: middle;
+        }
+
+        .header-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .table-container {
+            overflow: auto;
+            margin-bottom: 20px;
+        }
+
+        .page-watermark {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            font-family: monospace;
+            z-index: 100;
+            pointer-events: none;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .table-container table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .table-container th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            border: 2px solid #5568d3;
+        }
+
+        .table-container td {
+            padding: 10px;
+            text-align: center;
+            border: 2px solid #ddd;
+            background: white;
+            vertical-align: middle;
+        }
+
+        .table-container select,
+        .table-container input[type="date"],
+        .table-container input[type="text"].training-date {
+            width: 100%;
+            padding: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            line-height: 1.5;
+            vertical-align: middle;
+            display: flex;
+            align-items: center;
+            text-align: center;
+        }
+
+        .table-container select:hover,
+        .table-container input[type="date"]:hover {
+            border-color: #667eea;
+        }
+
+        .table-container select:focus,
+        .table-container input[type="date"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .training-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .btn-add-row {
+            background: #10b981;
+        }
+
+        .btn-add-row:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-save-training {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .btn-save-training:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-delete-row {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .btn-delete-row:hover {
+            background: #dc2626;
+            transform: scale(1.1);
         }
     </style>
 </head>
@@ -646,28 +682,28 @@
                 </div>
                 <button class="btn btn-show" id="showBtn" disabled>▶️ แสดงภาพ</button>
                 <button class="btn btn-clear" id="clearBtn">🗑️ ลบภาพทั้งหมด</button>
+                <button class="btn btn-training" id="trainingBtn">📋 สร้างตารางอบรม</button>
                 <div class="image-count">
                     จำนวนภาพ: <span id="imageCount">0</span> ภาพ
                 </div>
             </div>
 
             <div class="url-input-section">
-                <input type="text" id="urlInput" placeholder="🔗 ใส่ลิงก์ YouTube, เว็บไซต์, หรือ URL รูปภาพ" class="url-input">
+                <input type="text" id="urlInput" placeholder="🔗 ใส่ลิงก์ (YouTube, Website, หรืออื่นๆ)" class="url-input">
                 <button class="btn btn-add-url" id="addUrlBtn">➕ เพิ่มลิงก์</button>
-            </div> เพิ่มลิงก์</button>
             </div>
 
             <div class="effect-selector">
-                <label for="effectSelect">🎨 เอฟเฟกต์:</label>
+                <label for="effectSelect">🎨 เอฟเฟกต์การเปลี่ยนภาพ:</label>
                 <select id="effectSelect">
-                    <option value="zoom-fade">Zoom Fade</option>
-                    <option value="slide-fade">Slide & Fade</option>
-                    <option value="ken-burns">Ken Burns</option>
-                    <option value="3d-flip">3D Flip</option>
-                    <option value="blur">Blur</option>
+                    <option value="zoom-fade">Zoom Fade - ซูมเข้าพร้อมเฟด</option>
+                    <option value="slide-fade">Slide & Fade - เลื่อนข้างพร้อมเฟด</option>
+                    <option value="ken-burns">Ken Burns - ซูมช้าๆ แบบสารคดี</option>
+                    <option value="3d-flip">3D Flip - พลิกแบบ 3 มิติ</option>
+                    <option value="blur">Blur Transition - เบลอแล้วชัดขึ้น</option>
                 </select>
                 
-                <label for="durationSelect">⏱️ เวลา:</label>
+                <label for="durationSelect" style="margin-left: 20px;">⏱️ เวลาแสดงผล:</label>
                 <select id="durationSelect">
                     <option value="5000">5 วินาที</option>
                     <option value="10000">10 วินาที</option>
@@ -675,16 +711,74 @@
                 </select>
             </div>
 
+            <!-- Training Table Container -->
+            <div class="training-container" id="trainingContainer" style="display: none;">
+                <div class="training-content">
+                    <div class="training-header">
+                        <h3>📋 สร้างตารางอบรม</h3>
+                        <button class="btn-close-training" id="closeTrainingBtn">✕</button>
+                    </div>
+                    
+                    <div class="training-form">
+                        <div class="header-section">
+                            <input type="text" class="header-input" id="trainingHeaderText" value="อบรม" placeholder="ใส่หัวข้อ">
+                        </div>
+                        
+                        <div class="table-container">
+                            <table id="shiftTable">
+                                <thead>
+                                    <tr>
+                                        <th>Shift training</th>
+                                        <th>Date</th>
+                                        <th>Working shift</th>
+                                        <th style="width: 80px;">ลบ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="trainingTableBody">
+                                    <tr>
+                                        <td>
+                                            <select class="shift-training">
+                                                <option value="Shift A">Shift A</option>
+                                                <option value="Shift B">Shift B</option>
+                                                <option value="Shift C">Shift C</option>
+                                                <option value="Shift D">Shift D</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="text" class="training-date" placeholder="DD/MM/YYYY" readonly onclick="openDatePicker(this)">
+                                        </td>
+                                        <td>
+                                            <select class="working-shift">
+                                                <option value="Shift A">Shift A</option>
+                                                <option value="Shift B">Shift B</option>
+                                                <option value="Shift C">Shift C</option>
+                                                <option value="Shift D">Shift D</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <button class="btn-delete-row" onclick="deleteTrainingRow(this)">🗑️</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="training-controls">
+                            <button class="btn btn-add-row" id="addRowBtn">➕ เพิ่มแถว</button>
+                            <button class="btn btn-save-training" id="saveTrainingBtn">💾 บันทึกเป็นรูป</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="thumbnail-grid" id="thumbnailGrid"></div>
         </div>
+
+        <!-- Watermark -->
+        <div class="page-watermark">by490047</div>
     </div>
 
     <div class="slideshow-container" id="slideshowContainer">
-        <button class="nav-btn nav-btn-prev" id="prevBtn">‹</button>
-        <button class="nav-btn nav-btn-next" id="nextBtn">›</button>
-        <button class="close-btn" id="closeBtn">×</button>
-        <button class="fullscreen-btn" id="fullscreenBtn">⛶</button>
-        <div class="slide-counter" id="slideCounter">1 / 1</div>
         <div id="slidesWrapper"></div>
         <div class="progress-bar" id="progressBar"></div>
     </div>
@@ -694,10 +788,12 @@
         <div class="loading-text" id="loadingText">⏳ กำลังโหลด...</div>
     </div>
 
+    <!-- Firebase Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, onValue, push, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyC4zskizb1Zsc_BCAaIB95n5XSY91CYgZI",
             authDomain: "ann-board.firebaseapp.com",
@@ -708,31 +804,30 @@
             appId: "1:901899688330:web:ab2239980a72ce45fa1073"
         };
 
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
         const imagesRef = ref(database, 'images');
 
+        // Cloudinary Configuration
         const CLOUDINARY_CONFIG = {
             cloudName: 'lik',
             uploadPreset: 'Ann-board',
             folder: 'Ann-board'
         };
 
+        // Main Variables
         let images = [];
         let currentSlideIndex = 0;
         let slideInterval;
         let progressInterval;
-        let SLIDE_DURATION = 5000;
+        let SLIDE_DURATION = 5000; // Default 5 seconds, will be updated by dropdown
         let currentEffect = 'zoom-fade';
         let youtubePlayer = null;
         let isYouTubePlaying = false;
-        let isVideoPlaying = false;
-        let currentVideoElement = null;
         let draggedIndex = null;
-        let touchStartX = 0;
-        let touchEndX = 0;
-        let controlsTimeout;
 
+        // DOM Elements
         const imageInput = document.getElementById('imageInput');
         const showBtn = document.getElementById('showBtn');
         const clearBtn = document.getElementById('clearBtn');
@@ -748,17 +843,10 @@
         const loadingOverlay = document.getElementById('loadingOverlay');
         const loadingText = document.getElementById('loadingText');
         const syncIndicator = document.getElementById('syncIndicator');
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        const closeBtn = document.getElementById('closeBtn');
-        const fullscreenBtn = document.getElementById('fullscreenBtn');
-        const slideCounter = document.getElementById('slideCounter');
 
         // ==========================================
-        // 🔥 FIREBASE SYNC (Performance Optimized)
+        // 🔥 FIREBASE SYNC
         // ==========================================
-        let imageCache = new Map();
-        
         onValue(imagesRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
@@ -767,25 +855,20 @@
                     ...data[key]
                 }));
                 images.sort((a, b) => (a.order || 0) - (b.order || 0));
-                
-                // Cache images for better performance
-                images.forEach(img => {
-                    if (img.type === 'image' && !imageCache.has(img.url)) {
-                        const imgEl = new Image();
-                        imgEl.src = img.url;
-                        imageCache.set(img.url, imgEl);
-                    }
-                });
             } else {
                 images = [];
             }
             updateThumbnails();
             updateControls();
+            
+            // Update sync indicator
             syncIndicator.classList.remove('syncing');
         });
 
         async function saveToFirebase() {
+            // Show syncing state
             syncIndicator.classList.add('syncing');
+            
             const dataToSave = {};
             images.forEach((img, index) => {
                 const id = img.id || push(imagesRef).key;
@@ -796,10 +879,14 @@
                     createdAt: img.createdAt,
                     order: index
                 };
+                
+                // เพิ่มข้อมูลเฉพาะถ้ามี (ไม่ให้เป็น undefined)
                 if (img.publicId) itemData.publicId = img.publicId;
                 if (img.videoId) itemData.videoId = img.videoId;
+                
                 dataToSave[id] = itemData;
             });
+            
             await set(imagesRef, dataToSave);
         }
 
@@ -808,7 +895,7 @@
         }
 
         // ==========================================
-        // ☁️ CLOUDINARY (Optimized)
+        // ☁️ CLOUDINARY FUNCTIONS
         // ==========================================
         async function uploadToCloudinary(file) {
             const formData = new FormData();
@@ -822,7 +909,10 @@
             );
 
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
             const data = await response.json();
+            
+            // Create thumbnail URL with proper transformation
             const thumbnailUrl = `https://res.cloudinary.com/${CLOUDINARY_CONFIG.cloudName}/image/upload/w_300,h_300,c_fill/${data.public_id}`;
             
             return {
@@ -852,18 +942,20 @@
                         images.push(result);
                     }
                 }
+                
                 await saveToFirebase();
                 hideLoading();
-                alert(`✅ อัปโหลดสำเร็จ ${files.length} รูป!`);
+                alert(`✅ อัปโหลดสำเร็จ ${files.length} รูป!\n\n🔥 ทุกเครื่องจะเห็นรูปใหม่อัตโนมัติ!`);
             } catch (error) {
                 hideLoading();
                 alert('❌ เกิดข้อผิดพลาด: ' + error.message);
             }
+            
             e.target.value = '';
         });
 
         // ==========================================
-        // 🔗 URL HANDLERS
+        // 🔗 URL HANDLERS (Support all URLs)
         // ==========================================
         addUrlBtn.addEventListener('click', async function() {
             const url = urlInput.value.trim();
@@ -883,48 +975,25 @@
                         thumbnail: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
                         createdAt: Date.now()
                     });
+                    
                     await saveToFirebase();
                     urlInput.value = '';
-                    alert('✅ เพิ่ม YouTube สำเร็จ!');
+                    alert('✅ เพิ่ม YouTube สำเร็จ!\n\n🔥 ทุกเครื่องจะเห็นวิดีโอนี้!');
                 } else {
                     alert('❌ ลิงก์ YouTube ไม่ถูกต้อง');
                 }
-            } 
-            // Check if it's a video URL
-            else if (isVideoUrl(url)) {
-                images.push({
-                    type: 'video',
-                    url: url,
-                    thumbnail: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"%3E%3Crect fill="%23ef4444" width="300" height="300"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="48" fill="white"%3E▶%3C/text%3E%3C/svg%3E',
-                    createdAt: Date.now()
-                });
-                await saveToFirebase();
-                urlInput.value = '';
-                alert('✅ เพิ่มวิดีโอสำเร็จ!\n\n💡 วิดีโอจะเล่นอัตโนมัติและวนลูป');
-            }
-            // Check if it's an image URL
-            else if (isImageUrl(url)) {
-                images.push({
-                    type: 'image',
-                    url: url,
-                    thumbnail: url,
-                    createdAt: Date.now()
-                });
-                await saveToFirebase();
-                urlInput.value = '';
-                alert('✅ เพิ่มรูปภาพสำเร็จ!');
-            }
-            // Otherwise treat as webpage
-            else {
+            } else {
+                // For other URLs, create iframe embed
                 images.push({
                     type: 'webpage',
                     url: url,
                     thumbnail: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"%3E%3Crect fill="%234f46e5" width="300" height="300"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="48" fill="white"%3E🌐%3C/text%3E%3C/svg%3E',
                     createdAt: Date.now()
                 });
+                
                 await saveToFirebase();
                 urlInput.value = '';
-                alert('✅ เพิ่มลิงก์สำเร็จ!');
+                alert('✅ เพิ่มลิงก์สำเร็จ!\n\n🔥 ทุกเครื่องจะเห็นหน้าเว็บนี้!');
             }
         });
 
@@ -948,25 +1017,11 @@
             return null;
         }
 
-        function isVideoUrl(url) {
-            const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.avi', '.mkv', '.m4v'];
-            const urlLower = url.toLowerCase();
-            return videoExtensions.some(ext => urlLower.includes(ext));
-        }
-
-        function isImageUrl(url) {
-            const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
-            const urlLower = url.toLowerCase();
-            return imageExtensions.some(ext => urlLower.includes(ext));
-        }
-
         // ==========================================
-        // 🎨 THUMBNAILS (Optimized)
+        // 🎨 THUMBNAIL FUNCTIONS
         // ==========================================
         function updateThumbnails() {
             thumbnailGrid.innerHTML = '';
-            const fragment = document.createDocumentFragment();
-            
             images.forEach((imgObj, index) => {
                 const item = document.createElement('div');
                 item.className = 'thumbnail-item';
@@ -974,25 +1029,37 @@
                 item.dataset.index = index;
 
                 const img = document.createElement('img');
+                
+                // Use main URL if thumbnail fails or doesn't exist
                 const thumbnailUrl = imgObj.thumbnail || imgObj.url;
+                
                 img.src = thumbnailUrl;
                 img.alt = 'Image ' + (index + 1);
-                img.loading = 'lazy';
                 
+                // Handle image loading errors
                 img.onerror = function() {
+                    // If thumbnail fails, try main URL
                     if (this.src !== imgObj.url) {
                         this.src = imgObj.url;
                     } else {
+                        // If both fail, show placeholder
                         this.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"%3E%3Crect fill="%23e5e7eb" width="300" height="300"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="48" fill="%239ca3af"%3E%3F%3C/text%3E%3C/svg%3E';
                     }
                 };
+                
+                // Add loading state
+                img.onload = function() {
+                    this.style.opacity = '1';
+                };
+                img.style.opacity = '0';
+                img.style.transition = 'opacity 0.3s';
 
                 const btn = document.createElement('button');
                 btn.className = 'thumbnail-remove';
                 btn.innerHTML = '×';
                 btn.onclick = async (e) => {
                     e.stopPropagation();
-                    if (confirm('ต้องการลบรูปนี้?')) {
+                    if (confirm('ต้องการลบรูปนี้?\n\n🔥 ทุกเครื่องจะเห็นว่ารูปถูกลบ!')) {
                         const id = imgObj.id;
                         images.splice(index, 1);
                         if (id) {
@@ -1008,11 +1075,6 @@
                     icon.style.cssText = 'position:absolute;bottom:5px;left:5px;background:rgba(255,0,0,0.9);color:white;padding:3px 8px;border-radius:3px;font-size:10px;font-weight:bold;';
                     icon.textContent = '▶ YouTube';
                     item.appendChild(icon);
-                } else if (imgObj.type === 'video') {
-                    const icon = document.createElement('div');
-                    icon.style.cssText = 'position:absolute;bottom:5px;left:5px;background:rgba(239,68,68,0.9);color:white;padding:3px 8px;border-radius:3px;font-size:10px;font-weight:bold;';
-                    icon.textContent = '▶ Video';
-                    item.appendChild(icon);
                 } else if (imgObj.type === 'webpage') {
                     const icon = document.createElement('div');
                     icon.style.cssText = 'position:absolute;bottom:5px;left:5px;background:rgba(79,70,229,0.9);color:white;padding:3px 8px;border-radius:3px;font-size:10px;font-weight:bold;';
@@ -1027,10 +1089,8 @@
 
                 item.appendChild(img);
                 item.appendChild(btn);
-                fragment.appendChild(item);
+                thumbnailGrid.appendChild(item);
             });
-            
-            thumbnailGrid.appendChild(fragment);
         }
 
         function handleDragStart(e) {
@@ -1048,6 +1108,7 @@
         async function handleDrop(e) {
             e.preventDefault();
             const dropIndex = parseInt(this.dataset.index);
+            
             if (draggedIndex !== dropIndex) {
                 const draggedItem = images[draggedIndex];
                 images.splice(draggedIndex, 1);
@@ -1063,7 +1124,7 @@
         }
 
         clearBtn.addEventListener('click', async function() {
-            if (images.length > 0 && confirm('ลบทั้งหมด?')) {
+            if (images.length > 0 && confirm('ลบทั้งหมด?\n\n🔥 ทุกเครื่องจะเห็นว่ารูปถูกลบหมด!')) {
                 await set(imagesRef, {});
                 closeSlideshow();
             }
@@ -1075,7 +1136,7 @@
         }
 
         // ==========================================
-        // 🎬 SLIDESHOW (Enhanced with Navigation)
+        // 🎬 SLIDESHOW FUNCTIONS
         // ==========================================
         effectSelect.addEventListener('change', function() {
             currentEffect = this.value;
@@ -1083,6 +1144,7 @@
 
         durationSelect.addEventListener('change', function() {
             SLIDE_DURATION = parseInt(this.value);
+            // If slideshow is playing, restart with new duration
             if (slideshowContainer.classList.contains('active') && !isYouTubePlaying) {
                 startSlideshow();
             }
@@ -1091,6 +1153,7 @@
         showBtn.addEventListener('click', function() {
             if (images.length > 0) {
                 showSlideshow();
+                enterFullscreen();
             }
         });
 
@@ -1100,15 +1163,11 @@
             renderSlides();
             showSlide(0);
             startSlideshow();
-            updateCounter();
             document.body.style.overflow = 'hidden';
-            enterFullscreen();
-            showControls();
         }
 
         function renderSlides() {
             slidesWrapper.innerHTML = '';
-            const fragment = document.createDocumentFragment();
             
             images.forEach((imgObj) => {
                 if (imgObj.type === 'youtube') {
@@ -1116,29 +1175,25 @@
                     div.className = 'slide youtube-slide';
                     div.setAttribute('data-video-id', imgObj.videoId);
                     div.style.cssText = 'position:relative;width:100vw;height:100vh;display:flex;justify-content:center;align-items:center;background:black;';
-                    fragment.appendChild(div);
-                } else if (imgObj.type === 'video') {
-                    const div = document.createElement('div');
-                    div.className = 'slide video-slide';
-                    div.setAttribute('data-video-url', imgObj.url);
-                    div.style.cssText = 'position:relative;width:100vw;height:100vh;display:flex;justify-content:center;align-items:center;background:black;';
-                    fragment.appendChild(div);
+                    slidesWrapper.appendChild(div);
                 } else if (imgObj.type === 'webpage') {
                     const div = document.createElement('div');
                     div.className = 'slide webpage-slide';
                     div.setAttribute('data-url', imgObj.url);
                     div.style.cssText = 'position:relative;width:100vw;height:100vh;display:flex;justify-content:center;align-items:center;background:black;';
-                    fragment.appendChild(div);
+                    slidesWrapper.appendChild(div);
                 } else {
                     const img = document.createElement('img');
                     img.className = 'slide';
                     img.src = imgObj.url;
-                    fragment.appendChild(img);
+                    slidesWrapper.appendChild(img);
                 }
             });
-            
-            slidesWrapper.appendChild(fragment);
         }
+
+        window.onYouTubeIframeAPIReady = function() {
+            console.log('YouTube API Ready');
+        };
 
         function showSlide(index) {
             const slides = document.querySelectorAll('.slide');
@@ -1150,7 +1205,6 @@
                 const slide = slides[index];
                 slide.classList.add('active');
                 
-                // YouTube Video
                 if (slide.classList.contains('youtube-slide')) {
                     const videoId = slide.getAttribute('data-video-id');
                     slide.innerHTML = '';
@@ -1185,43 +1239,16 @@
                                             youtubePlayer = null;
                                         }
                                         setTimeout(() => {
-                                            nextSlide();
+                                            currentSlideIndex = (currentSlideIndex + 1) % images.length;
+                                            showSlide(currentSlideIndex);
+                                            startSlideshow();
                                         }, 1000);
                                     }
                                 }
                             }
                         });
                     }
-                } 
-                // Local/Network Video
-                else if (slide.classList.contains('video-slide')) {
-                    const videoUrl = slide.getAttribute('data-video-url');
-                    slide.innerHTML = '';
-                    const video = document.createElement('video');
-                    video.src = videoUrl;
-                    video.controls = true;
-                    video.autoplay = true;
-                    video.loop = true;
-                    video.style.cssText = 'width:100%;height:100%;object-fit:contain;';
-                    
-                    video.addEventListener('loadeddata', () => {
-                        isVideoPlaying = true;
-                        currentVideoElement = video;
-                        stopSlideshow();
-                    });
-                    
-                    video.addEventListener('error', () => {
-                        console.error('Video failed to load:', videoUrl);
-                        slide.innerHTML = '<div style="color:white;font-size:24px;text-align:center;padding:50px;">❌ ไม่สามารถโหลดวิดีโอได้<br><br>กรุณาตรวจสอบ:<br>1. เปิด HTTP Server แล้ว<br>2. URL ถูกต้อง<br>3. ไฟล์อยู่ในโฟลเดอร์</div>';
-                        setTimeout(() => {
-                            nextSlide();
-                        }, 5000);
-                    });
-                    
-                    slide.appendChild(video);
-                } 
-                // Webpage
-                else if (slide.classList.contains('webpage-slide')) {
+                } else if (slide.classList.contains('webpage-slide')) {
                     const url = slide.getAttribute('data-url');
                     slide.innerHTML = '';
                     const iframe = document.createElement('iframe');
@@ -1230,130 +1257,25 @@
                     iframe.allow = 'autoplay; fullscreen';
                     slide.appendChild(iframe);
                     isYouTubePlaying = false;
-                    isVideoPlaying = false;
-                } 
-                // Image
-                else {
+                } else {
                     slide.classList.add('effect-' + currentEffect);
                     isYouTubePlaying = false;
-                    isVideoPlaying = false;
-                }
-            }
-            updateCounter();
-        }
-
-        function updateCounter() {
-            slideCounter.textContent = `${currentSlideIndex + 1} / ${images.length}`;
-        }
-
-        function nextSlide() {
-            if (youtubePlayer) {
-                youtubePlayer.destroy();
-                youtubePlayer = null;
-                isYouTubePlaying = false;
-            }
-            if (currentVideoElement) {
-                currentVideoElement.pause();
-                currentVideoElement = null;
-                isVideoPlaying = false;
-            }
-            currentSlideIndex = (currentSlideIndex + 1) % images.length;
-            showSlide(currentSlideIndex);
-            startSlideshow();
-        }
-
-        function prevSlide() {
-            if (youtubePlayer) {
-                youtubePlayer.destroy();
-                youtubePlayer = null;
-                isYouTubePlaying = false;
-            }
-            if (currentVideoElement) {
-                currentVideoElement.pause();
-                currentVideoElement = null;
-                isVideoPlaying = false;
-            }
-            currentSlideIndex = (currentSlideIndex - 1 + images.length) % images.length;
-            showSlide(currentSlideIndex);
-            startSlideshow();
-        }
-
-        prevBtn.addEventListener('click', prevSlide);
-        nextBtn.addEventListener('click', nextSlide);
-
-        // ==========================================
-        // 🎨 AUTO-HIDE CONTROLS
-        // ==========================================
-        function showControls() {
-            slideshowContainer.classList.add('show-controls');
-            clearTimeout(controlsTimeout);
-            controlsTimeout = setTimeout(() => {
-                slideshowContainer.classList.remove('show-controls');
-            }, 3000);
-        }
-
-        function hideControls() {
-            slideshowContainer.classList.remove('show-controls');
-        }
-
-        // Show controls on mouse move, click, or touch
-        slideshowContainer.addEventListener('mousemove', showControls);
-        slideshowContainer.addEventListener('click', (e) => {
-            // Don't toggle controls if clicking on buttons
-            if (!e.target.closest('.nav-btn, .close-btn, .fullscreen-btn')) {
-                showControls();
-            }
-        });
-        slideshowContainer.addEventListener('touchstart', showControls);
-
-        // ==========================================
-        // 👆 TOUCH SWIPE SUPPORT
-        // ==========================================
-        slideshowContainer.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-        });
-
-        slideshowContainer.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            handleSwipe();
-        });
-
-        function handleSwipe() {
-            const swipeThreshold = 50;
-            const diff = touchStartX - touchEndX;
-            
-            if (Math.abs(diff) > swipeThreshold) {
-                if (diff > 0) {
-                    nextSlide();
-                } else {
-                    prevSlide();
                 }
             }
         }
-
-        // ==========================================
-        // ⌨️ KEYBOARD NAVIGATION
-        // ==========================================
-        document.addEventListener('keydown', (e) => {
-            if (slideshowContainer.classList.contains('active')) {
-                if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    nextSlide();
-                } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    prevSlide();
-                } else if (e.key === 'Escape') {
-                    closeSlideshow();
-                }
-            }
-        });
 
         function startSlideshow() {
             stopSlideshow();
+            
             if (!isYouTubePlaying) {
                 animateProgress();
                 slideInterval = setInterval(() => {
-                    nextSlide();
+                    currentSlideIndex = (currentSlideIndex + 1) % images.length;
+                    showSlide(currentSlideIndex);
+                    const imgObj = images[currentSlideIndex];
+                    if (imgObj.type !== 'youtube') {
+                        animateProgress();
+                    }
                 }, SLIDE_DURATION);
             }
         }
@@ -1362,7 +1284,7 @@
             progressBar.style.width = '0%';
             clearInterval(progressInterval);
             let progress = 0;
-            const step = 100 / (SLIDE_DURATION / 100);
+            const step = 100 / (SLIDE_DURATION / 100); // Calculate step based on duration
             progressInterval = setInterval(() => {
                 progress += step;
                 if (progress >= 100) {
@@ -1378,55 +1300,16 @@
             clearInterval(progressInterval);
         }
 
-        // ==========================================
-        // 🖥️ FULLSCREEN FUNCTIONS (Enhanced)
-        // ==========================================
         function enterFullscreen() {
             const elem = document.documentElement;
-            if (elem.requestFullscreen) {
-                elem.requestFullscreen().catch(err => console.log('Fullscreen error:', err));
-            } else if (elem.webkitRequestFullscreen) {
-                elem.webkitRequestFullscreen();
-            } else if (elem.msRequestFullscreen) {
-                elem.msRequestFullscreen();
-            }
-            updateFullscreenBtn();
+            if (elem.requestFullscreen) elem.requestFullscreen();
+            else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
         }
 
         function exitFullscreen() {
-            if (document.exitFullscreen) {
-                document.exitFullscreen().catch(err => console.log('Exit fullscreen error:', err));
-            } else if (document.webkitExitFullscreen) {
-                document.webkitExitFullscreen();
-            } else if (document.msExitFullscreen) {
-                document.msExitFullscreen();
-            }
-            updateFullscreenBtn();
+            if (document.exitFullscreen) document.exitFullscreen();
+            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
         }
-
-        function toggleFullscreen() {
-            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
-                enterFullscreen();
-            } else {
-                exitFullscreen();
-            }
-        }
-
-        function updateFullscreenBtn() {
-            if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
-                fullscreenBtn.innerHTML = '⛶';
-            } else {
-                fullscreenBtn.innerHTML = '⛶';
-            }
-        }
-
-        fullscreenBtn.addEventListener('click', toggleFullscreen);
-
-        document.addEventListener('fullscreenchange', updateFullscreenBtn);
-        document.addEventListener('webkitfullscreenchange', updateFullscreenBtn);
-        document.addEventListener('msfullscreenchange', updateFullscreenBtn);
-
-        closeBtn.addEventListener('click', closeSlideshow);
 
         function closeSlideshow() {
             slideshowContainer.classList.remove('active');
@@ -1438,18 +1321,22 @@
                 youtubePlayer.destroy();
                 youtubePlayer = null;
             }
-            if (currentVideoElement) {
-                currentVideoElement.pause();
-                currentVideoElement = null;
-            }
             isYouTubePlaying = false;
-            isVideoPlaying = false;
         }
+
+        slideshowContainer.addEventListener('click', (e) => {
+            if (e.target === slideshowContainer) closeSlideshow();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && slideshowContainer.classList.contains('active')) {
+                closeSlideshow();
+            }
+        });
 
         document.addEventListener('fullscreenchange', () => {
             if (!document.fullscreenElement && slideshowContainer.classList.contains('active')) {
-                // Don't auto-close on mobile - just update button
-                updateFullscreenBtn();
+                closeSlideshow();
             }
         });
 
@@ -1462,11 +1349,234 @@
             loadingOverlay.classList.remove('active');
         }
 
-        console.log('🚀 Performance Enhanced Edition Ready!');
-        console.log('✨ Features: Touch Swipe, Navigation Buttons, Video Support');
-        console.log('📹 Video Support: MP4, WebM, OGG, MOV');
-        console.log('💡 To use local videos: python -m http.server 8000');
+        console.log('🔥 Firebase + Cloudinary Edition Ready!');
+        console.log('✅ Real-time sync enabled');
+
+        // ==========================================
+        // 📋 TRAINING TABLE FUNCTIONS
+        // ==========================================
+        const trainingBtn = document.getElementById('trainingBtn');
+        const trainingContainer = document.getElementById('trainingContainer');
+        const closeTrainingBtn = document.getElementById('closeTrainingBtn');
+        const addRowBtn = document.getElementById('addRowBtn');
+        const saveTrainingBtn = document.getElementById('saveTrainingBtn');
+        const trainingTableBody = document.getElementById('trainingTableBody');
+
+        // Date picker function
+        let currentDateInput = null;
+        
+        window.openDatePicker = function(input) {
+            currentDateInput = input;
+            
+            // Create modal overlay
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; display: flex; justify-content: center; align-items: center;';
+            
+            // Create date picker container
+            const pickerContainer = document.createElement('div');
+            pickerContainer.style.cssText = 'background: white; padding: 20px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);';
+            
+            const tempInput = document.createElement('input');
+            tempInput.type = 'date';
+            tempInput.style.cssText = 'width: 200px; padding: 12px; font-size: 16px; border: 2px solid #667eea; border-radius: 8px; font-weight: bold;';
+            
+            // If input already has a value in DD/MM/YYYY format, convert to YYYY-MM-DD
+            if (input.value) {
+                const parts = input.value.split('/');
+                if (parts.length === 3) {
+                    const day = parts[0];
+                    const month = parts[1];
+                    const year = parseInt(parts[2]) - 543; // Convert Buddhist to Christian year
+                    tempInput.value = `${year}-${month}-${day}`;
+                }
+            }
+            
+            // Add close button
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = '✕';
+            closeBtn.style.cssText = 'position: absolute; top: 10px; right: 10px; background: #ef4444; color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 18px;';
+            closeBtn.onclick = () => document.body.removeChild(overlay);
+            
+            pickerContainer.style.position = 'relative';
+            pickerContainer.appendChild(closeBtn);
+            pickerContainer.appendChild(tempInput);
+            
+            overlay.appendChild(pickerContainer);
+            document.body.appendChild(overlay);
+            
+            // Auto focus and open picker
+            setTimeout(() => {
+                tempInput.focus();
+                try {
+                    tempInput.showPicker();
+                } catch (e) {
+                    // Fallback if showPicker not supported
+                }
+            }, 100);
+            
+            tempInput.addEventListener('change', function() {
+                if (this.value) {
+                    const date = new Date(this.value);
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const year = date.getFullYear() + 543;
+                    currentDateInput.value = `${day}/${month}/${year}`;
+                    document.body.removeChild(overlay);
+                }
+            });
+            
+            // Close on overlay click
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) {
+                    document.body.removeChild(overlay);
+                }
+            });
+        };
+
+        // Open training table
+        trainingBtn.addEventListener('click', function() {
+            trainingContainer.style.display = 'flex';
+            // Set default date to today in DD/MM/YYYY format
+            document.querySelectorAll('.training-date').forEach((input, index) => {
+                if (!input.value) {
+                    const date = new Date();
+                    date.setDate(date.getDate() + index);
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const year = date.getFullYear() + 543;
+                    input.value = `${day}/${month}/${year}`;
+                }
+            });
+        });
+
+        // Close training table
+        closeTrainingBtn.addEventListener('click', function() {
+            trainingContainer.style.display = 'none';
+        });
+
+        // Close when clicking outside
+        trainingContainer.addEventListener('click', function(e) {
+            if (e.target === trainingContainer) {
+                trainingContainer.style.display = 'none';
+            }
+        });
+
+        // Add new row
+        addRowBtn.addEventListener('click', function() {
+            const newRow = document.createElement('tr');
+            const today = new Date();
+            const rowCount = trainingTableBody.children.length;
+            today.setDate(today.getDate() + rowCount);
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const year = today.getFullYear() + 543;
+            const dateStr = `${day}/${month}/${year}`;
+            
+            newRow.innerHTML = `
+                <td>
+                    <select class="shift-training">
+                        <option value="Shift A">Shift A</option>
+                        <option value="Shift B">Shift B</option>
+                        <option value="Shift C">Shift C</option>
+                        <option value="Shift D">Shift D</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="text" class="training-date" placeholder="DD/MM/YYYY" readonly onclick="openDatePicker(this)" value="${dateStr}">
+                </td>
+                <td>
+                    <select class="working-shift">
+                        <option value="Shift A">Shift A</option>
+                        <option value="Shift B">Shift B</option>
+                        <option value="Shift C">Shift C</option>
+                        <option value="Shift D">Shift D</option>
+                    </select>
+                </td>
+                <td>
+                    <button class="btn-delete-row" onclick="deleteTrainingRow(this)">🗑️</button>
+                </td>
+            `;
+            trainingTableBody.appendChild(newRow);
+        });
+
+        // Delete row function
+        window.deleteTrainingRow = function(button) {
+            const row = button.closest('tr');
+            const tbody = document.getElementById('trainingTableBody');
+            
+            // Don't allow deleting if it's the last row
+            if (tbody.children.length <= 1) {
+                alert('⚠️ ต้องมีอย่างน้อย 1 แถว');
+                return;
+            }
+            
+            if (confirm('ต้องการลบแถวนี้?')) {
+                row.remove();
+            }
+        };
+
+        // Save as image and upload to Firebase
+        saveTrainingBtn.addEventListener('click', async function() {
+            const captureArea = document.querySelector('.training-form');
+            const headerText = document.getElementById('trainingHeaderText').value || 'อบรม';
+            
+            // Hide controls before capturing
+            const controls = captureArea.querySelector('.training-controls');
+            controls.style.display = 'none';
+            
+            // Hide delete column
+            const deleteHeader = captureArea.querySelector('th:last-child');
+            const deleteCells = captureArea.querySelectorAll('td:last-child');
+            deleteHeader.style.display = 'none';
+            deleteCells.forEach(cell => cell.style.display = 'none');
+            
+            showLoading('📸 กำลังสร้างรูปภาพ...');
+            
+            try {
+                const canvas = await html2canvas(captureArea, {
+                    backgroundColor: '#ffffff',
+                    scale: 2,
+                    logging: false,
+                    useCORS: true
+                });
+                
+                // Show controls again
+                controls.style.display = 'flex';
+                
+                // Show delete column again
+                deleteHeader.style.display = '';
+                deleteCells.forEach(cell => cell.style.display = '');
+                
+                loadingText.textContent = '☁️ กำลังอัปโหลดไปยัง Cloudinary...';
+                
+                // Convert canvas to blob
+                canvas.toBlob(async (blob) => {
+                    try {
+                        const file = new File([blob], `${headerText}_${Date.now()}.png`, { type: 'image/png' });
+                        const result = await uploadToCloudinary(file);
+                        images.push(result);
+                        await saveToFirebase();
+                        
+                        hideLoading();
+                        trainingContainer.style.display = 'none';
+                        alert(`✅ บันทึกสำเร็จ!\n\n🔥 ตารางอบรมถูกเพิ่มไปยังบอร์ดแล้ว\nทุกเครื่องจะเห็นตารางนี้!`);
+                    } catch (error) {
+                        hideLoading();
+                        alert('❌ เกิดข้อผิดพลาดในการอัปโหลด: ' + error.message);
+                    }
+                }, 'image/png');
+                
+            } catch (error) {
+                hideLoading();
+                // Restore controls if error
+                controls.style.display = 'flex';
+                deleteHeader.style.display = '';
+                deleteCells.forEach(cell => cell.style.display = '');
+                alert('❌ เกิดข้อผิดพลาดในการสร้างรูปภาพ: ' + error.message);
+            }
+        });
     </script>
     <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </body>
 </html>
