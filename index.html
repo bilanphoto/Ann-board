@@ -417,6 +417,108 @@
             transition: width 0.1s linear;
         }
 
+        .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            color: white;
+            font-size: 50px;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 20;
+            backdrop-filter: blur(10px);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .slideshow-container.show-controls .nav-button {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: translateY(-50%) scale(1.15);
+        }
+
+        .nav-button:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+
+        .nav-prev {
+            left: 20px;
+        }
+
+        .nav-next {
+            right: 20px;
+        }
+
+        /* Close button */
+        .close-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(239, 68, 68, 0.8);
+            border: none;
+            color: white;
+            font-size: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 20;
+            backdrop-filter: blur(10px);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .slideshow-container.show-controls .close-button {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .close-button:hover {
+            background: rgba(220, 38, 38, 0.9);
+            transform: scale(1.15) rotate(90deg);
+        }
+
+        .close-button:active {
+            transform: scale(0.95) rotate(90deg);
+        }
+
+        /* Hide nav buttons when not in slideshow */
+        .slideshow-container:not(.active) .nav-button,
+        .slideshow-container:not(.active) .close-button {
+            display: none;
+        }
+
+        /* Also hide progress bar when controls hidden */
+        .progress-bar {
+            transition: opacity 0.3s;
+        }
+
+        .slideshow-container:not(.show-controls) .progress-bar {
+            opacity: 0.3;
+        }
+
+        .slideshow-container.show-controls .progress-bar {
+            opacity: 1;
+        }
+
         .loading-overlay {
             display: none;
             position: fixed;
@@ -708,6 +810,7 @@
                     <option value="5000">5 วินาที</option>
                     <option value="10000">10 วินาที</option>
                     <option value="15000">15 วินาที</option>
+                    <option value="30000">30 วินาที</option>
                 </select>
             </div>
 
@@ -781,6 +884,13 @@
     <div class="slideshow-container" id="slideshowContainer">
         <div id="slidesWrapper"></div>
         <div class="progress-bar" id="progressBar"></div>
+        
+        <!-- Close Button -->
+        <button class="close-button" id="closeBtn">✕</button>
+        
+        <!-- Navigation Buttons -->
+        <button class="nav-button nav-prev" id="navPrev">‹</button>
+        <button class="nav-button nav-next" id="navNext">›</button>
     </div>
 
     <div class="loading-overlay" id="loadingOverlay">
@@ -843,6 +953,9 @@
         const loadingOverlay = document.getElementById('loadingOverlay');
         const loadingText = document.getElementById('loadingText');
         const syncIndicator = document.getElementById('syncIndicator');
+        const navPrev = document.getElementById('navPrev');
+        const navNext = document.getElementById('navNext');
+        const closeBtn = document.getElementById('closeBtn');
 
         // ==========================================
         // 🔥 FIREBASE SYNC
@@ -1157,6 +1270,26 @@
             }
         });
 
+        // ==========================================
+        // 🎮 NAVIGATION CONTROLS
+        // ==========================================
+        
+        // Auto-hide controls
+        let hideControlsTimer;
+        
+        function showControls() {
+            slideshowContainer.classList.add('show-controls');
+            clearTimeout(hideControlsTimer);
+            hideControlsTimer = setTimeout(() => {
+                slideshowContainer.classList.remove('show-controls');
+            }, 3000); // Hide after 3 seconds
+        }
+        
+        // Show controls on mouse move or touch
+        slideshowContainer.addEventListener('mousemove', showControls);
+        slideshowContainer.addEventListener('touchstart', showControls);
+        
+        // Show controls initially when slideshow starts
         function showSlideshow() {
             slideshowContainer.classList.add('active');
             currentSlideIndex = 0;
@@ -1164,7 +1297,83 @@
             showSlide(0);
             startSlideshow();
             document.body.style.overflow = 'hidden';
+            showControls(); // Show controls initially
         }
+        
+        // Close button
+        closeBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            exitFullscreen();
+        });
+        
+        // Previous button
+        navPrev.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (youtubePlayer) {
+                youtubePlayer.destroy();
+                youtubePlayer = null;
+            }
+            stopSlideshow();
+            currentSlideIndex = (currentSlideIndex - 1 + images.length) % images.length;
+            showSlide(currentSlideIndex);
+            startSlideshow();
+            showControls(); // Show controls when clicked
+        });
+
+        // Next button
+        navNext.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (youtubePlayer) {
+                youtubePlayer.destroy();
+                youtubePlayer = null;
+            }
+            stopSlideshow();
+            currentSlideIndex = (currentSlideIndex + 1) % images.length;
+            showSlide(currentSlideIndex);
+            startSlideshow();
+            showControls(); // Show controls when clicked
+        });
+
+        // Touch/Swipe support
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        slideshowContainer.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        slideshowContainer.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    // Swipe left - next
+                    navNext.click();
+                } else {
+                    // Swipe right - previous
+                    navPrev.click();
+                }
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (!slideshowContainer.classList.contains('active')) return;
+
+            if (e.key === 'ArrowLeft') {
+                navPrev.click();
+            } else if (e.key === 'ArrowRight') {
+                navNext.click();
+            } else if (e.key === 'Escape') {
+                exitFullscreen();
+            }
+        });
 
         function renderSlides() {
             slidesWrapper.innerHTML = '';
