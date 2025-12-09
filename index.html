@@ -296,6 +296,23 @@
             display: block;
         }
 
+        .video-slide {
+            display: none !important;
+            background: black;
+        }
+
+        .video-slide.active {
+            display: flex !important;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .video-slide video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
         .youtube-slide {
             display: none !important;
             background: black;
@@ -635,8 +652,9 @@
             </div>
 
             <div class="url-input-section">
-                <input type="text" id="urlInput" placeholder="🔗 ใส่ลิงก์ (YouTube, Website, หรืออื่นๆ)" class="url-input">
+                <input type="text" id="urlInput" placeholder="🔗 ใส่ลิงก์ YouTube, เว็บไซต์, หรือ URL รูปภาพ" class="url-input">
                 <button class="btn btn-add-url" id="addUrlBtn">➕ เพิ่มลิงก์</button>
+            </div> เพิ่มลิงก์</button>
             </div>
 
             <div class="effect-selector">
@@ -708,6 +726,8 @@
         let currentEffect = 'zoom-fade';
         let youtubePlayer = null;
         let isYouTubePlaying = false;
+        let isVideoPlaying = false;
+        let currentVideoElement = null;
         let draggedIndex = null;
         let touchStartX = 0;
         let touchEndX = 0;
@@ -852,6 +872,7 @@
                 return;
             }
 
+            // Check if it's a YouTube URL
             if (isYouTubeUrl(url)) {
                 const videoId = getYouTubeVideoId(url);
                 if (videoId) {
@@ -868,7 +889,33 @@
                 } else {
                     alert('❌ ลิงก์ YouTube ไม่ถูกต้อง');
                 }
-            } else {
+            } 
+            // Check if it's a video URL
+            else if (isVideoUrl(url)) {
+                images.push({
+                    type: 'video',
+                    url: url,
+                    thumbnail: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"%3E%3Crect fill="%23ef4444" width="300" height="300"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="48" fill="white"%3E▶%3C/text%3E%3C/svg%3E',
+                    createdAt: Date.now()
+                });
+                await saveToFirebase();
+                urlInput.value = '';
+                alert('✅ เพิ่มวิดีโอสำเร็จ!\n\n💡 วิดีโอจะเล่นอัตโนมัติและวนลูป');
+            }
+            // Check if it's an image URL
+            else if (isImageUrl(url)) {
+                images.push({
+                    type: 'image',
+                    url: url,
+                    thumbnail: url,
+                    createdAt: Date.now()
+                });
+                await saveToFirebase();
+                urlInput.value = '';
+                alert('✅ เพิ่มรูปภาพสำเร็จ!');
+            }
+            // Otherwise treat as webpage
+            else {
                 images.push({
                     type: 'webpage',
                     url: url,
@@ -899,6 +946,18 @@
                 if (match && match[1]) return match[1];
             }
             return null;
+        }
+
+        function isVideoUrl(url) {
+            const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.avi', '.mkv', '.m4v'];
+            const urlLower = url.toLowerCase();
+            return videoExtensions.some(ext => urlLower.includes(ext));
+        }
+
+        function isImageUrl(url) {
+            const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
+            const urlLower = url.toLowerCase();
+            return imageExtensions.some(ext => urlLower.includes(ext));
         }
 
         // ==========================================
@@ -948,6 +1007,11 @@
                     const icon = document.createElement('div');
                     icon.style.cssText = 'position:absolute;bottom:5px;left:5px;background:rgba(255,0,0,0.9);color:white;padding:3px 8px;border-radius:3px;font-size:10px;font-weight:bold;';
                     icon.textContent = '▶ YouTube';
+                    item.appendChild(icon);
+                } else if (imgObj.type === 'video') {
+                    const icon = document.createElement('div');
+                    icon.style.cssText = 'position:absolute;bottom:5px;left:5px;background:rgba(239,68,68,0.9);color:white;padding:3px 8px;border-radius:3px;font-size:10px;font-weight:bold;';
+                    icon.textContent = '▶ Video';
                     item.appendChild(icon);
                 } else if (imgObj.type === 'webpage') {
                     const icon = document.createElement('div');
@@ -1053,6 +1117,12 @@
                     div.setAttribute('data-video-id', imgObj.videoId);
                     div.style.cssText = 'position:relative;width:100vw;height:100vh;display:flex;justify-content:center;align-items:center;background:black;';
                     fragment.appendChild(div);
+                } else if (imgObj.type === 'video') {
+                    const div = document.createElement('div');
+                    div.className = 'slide video-slide';
+                    div.setAttribute('data-video-url', imgObj.url);
+                    div.style.cssText = 'position:relative;width:100vw;height:100vh;display:flex;justify-content:center;align-items:center;background:black;';
+                    fragment.appendChild(div);
                 } else if (imgObj.type === 'webpage') {
                     const div = document.createElement('div');
                     div.className = 'slide webpage-slide';
@@ -1080,6 +1150,7 @@
                 const slide = slides[index];
                 slide.classList.add('active');
                 
+                // YouTube Video
                 if (slide.classList.contains('youtube-slide')) {
                     const videoId = slide.getAttribute('data-video-id');
                     slide.innerHTML = '';
@@ -1121,7 +1192,36 @@
                             }
                         });
                     }
-                } else if (slide.classList.contains('webpage-slide')) {
+                } 
+                // Local/Network Video
+                else if (slide.classList.contains('video-slide')) {
+                    const videoUrl = slide.getAttribute('data-video-url');
+                    slide.innerHTML = '';
+                    const video = document.createElement('video');
+                    video.src = videoUrl;
+                    video.controls = true;
+                    video.autoplay = true;
+                    video.loop = true;
+                    video.style.cssText = 'width:100%;height:100%;object-fit:contain;';
+                    
+                    video.addEventListener('loadeddata', () => {
+                        isVideoPlaying = true;
+                        currentVideoElement = video;
+                        stopSlideshow();
+                    });
+                    
+                    video.addEventListener('error', () => {
+                        console.error('Video failed to load:', videoUrl);
+                        slide.innerHTML = '<div style="color:white;font-size:24px;text-align:center;padding:50px;">❌ ไม่สามารถโหลดวิดีโอได้<br><br>กรุณาตรวจสอบ:<br>1. เปิด HTTP Server แล้ว<br>2. URL ถูกต้อง<br>3. ไฟล์อยู่ในโฟลเดอร์</div>';
+                        setTimeout(() => {
+                            nextSlide();
+                        }, 5000);
+                    });
+                    
+                    slide.appendChild(video);
+                } 
+                // Webpage
+                else if (slide.classList.contains('webpage-slide')) {
                     const url = slide.getAttribute('data-url');
                     slide.innerHTML = '';
                     const iframe = document.createElement('iframe');
@@ -1130,9 +1230,13 @@
                     iframe.allow = 'autoplay; fullscreen';
                     slide.appendChild(iframe);
                     isYouTubePlaying = false;
-                } else {
+                    isVideoPlaying = false;
+                } 
+                // Image
+                else {
                     slide.classList.add('effect-' + currentEffect);
                     isYouTubePlaying = false;
+                    isVideoPlaying = false;
                 }
             }
             updateCounter();
@@ -1148,6 +1252,11 @@
                 youtubePlayer = null;
                 isYouTubePlaying = false;
             }
+            if (currentVideoElement) {
+                currentVideoElement.pause();
+                currentVideoElement = null;
+                isVideoPlaying = false;
+            }
             currentSlideIndex = (currentSlideIndex + 1) % images.length;
             showSlide(currentSlideIndex);
             startSlideshow();
@@ -1158,6 +1267,11 @@
                 youtubePlayer.destroy();
                 youtubePlayer = null;
                 isYouTubePlaying = false;
+            }
+            if (currentVideoElement) {
+                currentVideoElement.pause();
+                currentVideoElement = null;
+                isVideoPlaying = false;
             }
             currentSlideIndex = (currentSlideIndex - 1 + images.length) % images.length;
             showSlide(currentSlideIndex);
@@ -1324,7 +1438,12 @@
                 youtubePlayer.destroy();
                 youtubePlayer = null;
             }
+            if (currentVideoElement) {
+                currentVideoElement.pause();
+                currentVideoElement = null;
+            }
             isYouTubePlaying = false;
+            isVideoPlaying = false;
         }
 
         document.addEventListener('fullscreenchange', () => {
@@ -1344,7 +1463,9 @@
         }
 
         console.log('🚀 Performance Enhanced Edition Ready!');
-        console.log('✨ Features: Touch Swipe, Navigation Buttons, Better Performance');
+        console.log('✨ Features: Touch Swipe, Navigation Buttons, Video Support');
+        console.log('📹 Video Support: MP4, WebM, OGG, MOV');
+        console.log('💡 To use local videos: python -m http.server 8000');
     </script>
     <script src="https://www.youtube.com/iframe_api"></script>
 </body>
