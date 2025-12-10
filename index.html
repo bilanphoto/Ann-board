@@ -868,7 +868,7 @@
 
                         <div class="training-controls">
                             <button class="btn btn-add-row" id="addRowBtn">➕ เพิ่มแถว</button>
-                            <button class="btn btn-save-training" id="saveTrainingBtn">💾 บันทึกเป็นรูป</button>
+                            <button class="btn btn-save-training" id="saveTrainingBtn">💾 บันทึก</button>
                         </div>
                     </div>
                 </div>
@@ -1724,7 +1724,7 @@
             }
         };
 
-        // Save as image and upload to Firebase
+        // Save training table - Download to device AND upload to Firebase
         saveTrainingBtn.addEventListener('click', async function() {
             const captureArea = document.querySelector('.training-form');
             const headerText = document.getElementById('trainingHeaderText').value || 'อบรม';
@@ -1756,9 +1756,17 @@
                 deleteHeader.style.display = '';
                 deleteCells.forEach(cell => cell.style.display = '');
                 
+                // Step 1: Download to device
+                loadingText.textContent = '💾 กำลังบันทึกลงเครื่อง...';
+                const link = document.createElement('a');
+                const timestamp = new Date().toISOString().slice(0,10);
+                link.download = `${headerText}_${timestamp}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                // Step 2: Upload to Cloudinary + Firebase
                 loadingText.textContent = '☁️ กำลังอัปโหลดไปยัง Cloudinary...';
                 
-                // Convert canvas to blob
                 canvas.toBlob(async (blob) => {
                     try {
                         const file = new File([blob], `${headerText}_${Date.now()}.png`, { type: 'image/png' });
@@ -1768,10 +1776,10 @@
                         
                         hideLoading();
                         trainingContainer.style.display = 'none';
-                        alert(`✅ บันทึกสำเร็จ!\n\n🔥 ตารางอบรมถูกเพิ่มไปยังบอร์ดแล้ว\nทุกเครื่องจะเห็นตารางนี้!`);
+                        alert(`✅ บันทึกสำเร็จ!\n\n💾 ไฟล์ถูกดาวน์โหลดลงเครื่องแล้ว\n🔥 ตารางถูกเพิ่มไปยังบอร์ดแล้ว\n\nทุกเครื่องจะเห็นตารางนี้!`);
                     } catch (error) {
                         hideLoading();
-                        alert('❌ เกิดข้อผิดพลาดในการอัปโหลด: ' + error.message);
+                        alert('⚠️ บันทึกลงเครื่องสำเร็จ\nแต่อัปโหลดขึ้นบอร์ดล้มเหลว\n\nข้อผิดพลาด: ' + error.message);
                     }
                 }, 'image/png');
                 
