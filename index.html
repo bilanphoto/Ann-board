@@ -1448,30 +1448,36 @@
                             height: '100%',
                             videoId: videoId,
                             playerVars: { 
-                                autoplay: 1, 
+                                autoplay: 1,
+                                mute: 1,  // CRITICAL: Must mute for autoplay to work in modern browsers
                                 controls: 1, 
                                 rel: 0, 
                                 modestbranding: 1,
-                                playsinline: 1
+                                playsinline: 1,
+                                loop: 1,  // Enable loop
+                                playlist: videoId  // Required for loop to work
                             },
                             events: {
                                 'onReady': (e) => {
+                                    // Unmute after playback starts (autoplay requires mute)
                                     e.target.playVideo();
+                                    setTimeout(() => {
+                                        try {
+                                            e.target.unMute();
+                                        } catch(err) {
+                                            console.log('Could not unmute, user interaction may be required');
+                                        }
+                                    }, 1000);
                                     isYouTubePlaying = true;
                                     stopSlideshow();
                                 },
                                 'onStateChange': (e) => {
                                     if (e.data === YT.PlayerState.ENDED) {
-                                        isYouTubePlaying = false;
-                                        if (youtubePlayer) {
-                                            youtubePlayer.destroy();
-                                            youtubePlayer = null;
-                                        }
-                                        setTimeout(() => {
-                                            currentSlideIndex = (currentSlideIndex + 1) % images.length;
-                                            showSlide(currentSlideIndex);
-                                            startSlideshow();
-                                        }, 1000);
+                                        // Video ended, restart it (loop)
+                                        e.target.playVideo();
+                                    } else if (e.data === YT.PlayerState.PAUSED) {
+                                        // If user paused, respect that
+                                        // Do nothing, let them control
                                     }
                                 }
                             }
