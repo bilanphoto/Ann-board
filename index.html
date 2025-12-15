@@ -633,20 +633,22 @@
 
         .header-section {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            padding: 0 10px;
         }
 
         .header-input {
-            font-size: 28px;
+            font-size: 36px;
             font-weight: bold;
             text-align: center;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 12px 20px;
+            border: 3px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 25px 30px;
             width: 100%;
             transition: all 0.3s;
-            line-height: 1.5;
-            vertical-align: middle;
+            line-height: 1.4;
+            display: block;
+            box-sizing: border-box;
         }
 
         .header-input:focus {
@@ -682,41 +684,46 @@
         .table-container th {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 12px;
+            padding: 18px 15px;
             text-align: center;
             font-weight: bold;
+            font-size: 18px;
             border: 2px solid #5568d3;
         }
 
         .table-container td {
-            padding: 10px;
+            padding: 18px 15px;
             text-align: center;
             border: 2px solid #ddd;
             background: white;
             vertical-align: middle;
+            height: 70px;
         }
 
         .table-container select,
         .table-container input[type="date"],
         .table-container input[type="text"].training-date {
             width: 100%;
-            padding: 8px;
-            font-size: 14px;
+            padding: 10px 8px;
+            font-size: 16px;
             font-weight: bold;
-            border: 2px solid #e0e0e0;
-            border-radius: 6px;
-            background: white;
+            border: none;
+            border-radius: 0;
+            background: transparent;
             cursor: pointer;
             transition: all 0.3s;
             line-height: 1.5;
-            vertical-align: middle;
-            display: flex;
-            align-items: center;
             text-align: center;
         }
 
+        .table-container select:focus,
+        .table-container input[type="text"].training-date:focus {
+            outline: none;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
         .training-round {
-            font-size: 13px;
+            font-size: 15px;
         }
 
         .table-container select:hover,
@@ -1811,36 +1818,116 @@
             const controls = captureArea.querySelector('.training-controls');
             controls.style.display = 'none';
             
-            // Hide รุ่น column (first column)
-            const roundHeader = captureArea.querySelector('th:first-child');
-            const roundCells = captureArea.querySelectorAll('td:first-child');
-            roundHeader.style.display = 'none';
-            roundCells.forEach(cell => cell.style.display = 'none');
-            
-            // Hide delete column (last column)
+            // Hide ONLY delete column (last column)
             const deleteHeader = captureArea.querySelector('th:last-child');
             const deleteCells = captureArea.querySelectorAll('td:last-child');
             deleteHeader.style.display = 'none';
             deleteCells.forEach(cell => cell.style.display = 'none');
             
+            // CRITICAL FIX: Replace ALL inputs/selects with plain text divs
+            const allInputsSelects = captureArea.querySelectorAll('input, select');
+            const replacements = [];
+            
+            allInputsSelects.forEach(element => {
+                const textDiv = document.createElement('div');
+                textDiv.textContent = element.value || element.options?.[element.selectedIndex]?.text || '';
+                textDiv.style.cssText = `
+                    font-size: ${element.classList.contains('header-input') ? '36px' : '16px'};
+                    font-weight: bold;
+                    text-align: center;
+                    padding: ${element.classList.contains('header-input') ? '25px 30px' : '10px'};
+                    line-height: 1.4;
+                    width: 100%;
+                    box-sizing: border-box;
+                `;
+                
+                replacements.push({
+                    original: element,
+                    replacement: textDiv,
+                    parent: element.parentNode
+                });
+                
+                element.parentNode.replaceChild(textDiv, element);
+            });
+            
+            // Add extra padding
+            const originalPadding = captureArea.style.padding;
+            captureArea.style.padding = '50px';
+            
+            // Make table container visible
+            const tableContainer = captureArea.querySelector('.table-container');
+            const originalOverflow = tableContainer.style.overflow;
+            tableContainer.style.overflow = 'visible';
+            
             showLoading('📸 กำลังสร้างรูปภาพ...');
+            
+            // Wait for DOM to update
+            await new Promise(resolve => setTimeout(resolve, 200));
             
             try {
                 const canvas = await html2canvas(captureArea, {
                     backgroundColor: '#ffffff',
-                    scale: 2,
+                    scale: 1,  // Use scale 1 for better control
                     logging: false,
-                    useCORS: true
+                    useCORS: true,
+                    allowTaint: true,
+                    scrollY: 0,
+                    scrollX: 0,
+                    width: captureArea.scrollWidth,
+                    height: captureArea.scrollHeight
                 });
                 
-                // Show controls again
+                // Create 16:9 canvas (1920x1080 for Full HD)
+                const finalCanvas = document.createElement('canvas');
+                const targetWidth = 1920;
+                const targetHeight = 1080;
+                finalCanvas.width = targetWidth;
+                finalCanvas.height = targetHeight;
+                const ctx = finalCanvas.getContext('2d');
+                
+                // Fill with white background
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, targetWidth, targetHeight);
+                
+                // Calculate margins (3% on each side for better fit)
+                const marginPercent = 0.03;
+                const marginX = targetWidth * marginPercent;
+                const marginY = targetHeight * marginPercent;
+                
+                // Available space after margins
+                const availableWidth = targetWidth - (marginX * 2);
+                const availableHeight = targetHeight - (marginY * 2);
+                
+                // Calculate scale to fill available space
+                const scaleX = availableWidth / canvas.width;
+                const scaleY = availableHeight / canvas.height;
+                
+                // Use the LARGER scale to fill more space (instead of smaller)
+                const scale = Math.max(scaleX, scaleY) * 0.95; // 95% to leave some breathing room
+                
+                const scaledWidth = canvas.width * scale;
+                const scaledHeight = canvas.height * scale;
+                
+                // Center in canvas
+                const x = (targetWidth - scaledWidth) / 2;
+                const y = (targetHeight - scaledHeight) / 2;
+                
+                // Enable high quality rendering
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                
+                // Draw scaled image
+                ctx.drawImage(canvas, x, y, scaledWidth, scaledHeight);
+                
+                // Restore ALL original inputs/selects
+                replacements.forEach(({original, replacement, parent}) => {
+                    parent.replaceChild(original, replacement);
+                });
+                
+                // Restore original state
                 controls.style.display = 'flex';
-                
-                // Show รุ่น column again
-                roundHeader.style.display = '';
-                roundCells.forEach(cell => cell.style.display = '');
-                
-                // Show delete column again
+                captureArea.style.padding = originalPadding;
+                tableContainer.style.overflow = originalOverflow;
                 deleteHeader.style.display = '';
                 deleteCells.forEach(cell => cell.style.display = '');
                 
@@ -1849,13 +1936,13 @@
                 const link = document.createElement('a');
                 const timestamp = new Date().toISOString().slice(0,10);
                 link.download = `${headerText}_${timestamp}.png`;
-                link.href = canvas.toDataURL('image/png');
+                link.href = finalCanvas.toDataURL('image/png', 0.95);
                 link.click();
                 
                 // Step 2: Upload to Cloudinary + Firebase
                 loadingText.textContent = '☁️ กำลังอัปโหลดไปยัง Cloudinary...';
                 
-                canvas.toBlob(async (blob) => {
+                finalCanvas.toBlob(async (blob) => {
                     try {
                         const file = new File([blob], `${headerText}_${Date.now()}.png`, { type: 'image/png' });
                         const result = await uploadToCloudinary(file);
@@ -1864,19 +1951,26 @@
                         
                         hideLoading();
                         trainingContainer.style.display = 'none';
-                        alert(`✅ บันทึกสำเร็จ!\n\n💾 ไฟล์ถูกดาวน์โหลดลงเครื่องแล้ว\n🔥 ตารางถูกเพิ่มไปยังบอร์ดแล้ว\n\nทุกเครื่องจะเห็นตารางนี้!`);
+                        alert(`✅ บันทึกสำเร็จ!\n\n💾 ไฟล์ถูกดาวน์โหลดลงเครื่องแล้ว (1920x1080)\n🔥 ตารางถูกเพิ่มไปยังบอร์ดแล้ว\n\nทุกเครื่องจะเห็นตารางนี้!`);
                     } catch (error) {
                         hideLoading();
                         alert('⚠️ บันทึกลงเครื่องสำเร็จ\nแต่อัปโหลดขึ้นบอร์ดล้มเหลว\n\nข้อผิดพลาด: ' + error.message);
                     }
-                }, 'image/png');
+                }, 'image/png', 0.95);
                 
             } catch (error) {
                 hideLoading();
-                // Restore controls if error
+                
+                // Restore on error
+                replacements.forEach(({original, replacement, parent}) => {
+                    if (parent.contains(replacement)) {
+                        parent.replaceChild(original, replacement);
+                    }
+                });
+                
                 controls.style.display = 'flex';
-                roundHeader.style.display = '';
-                roundCells.forEach(cell => cell.style.display = '');
+                captureArea.style.padding = originalPadding;
+                tableContainer.style.overflow = originalOverflow;
                 deleteHeader.style.display = '';
                 deleteCells.forEach(cell => cell.style.display = '');
                 alert('❌ เกิดข้อผิดพลาดในการสร้างรูปภาพ: ' + error.message);
