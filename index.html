@@ -715,6 +715,10 @@
             text-align: center;
         }
 
+        .training-round {
+            font-size: 13px;
+        }
+
         .table-container select:hover,
         .table-container input[type="date"]:hover {
             border-color: #667eea;
@@ -831,6 +835,7 @@
                             <table id="shiftTable">
                                 <thead>
                                     <tr>
+                                        <th style="width: 120px;">รุ่น</th>
                                         <th>Shift training</th>
                                         <th>Date</th>
                                         <th>Working shift</th>
@@ -840,6 +845,14 @@
                                 <tbody id="trainingTableBody">
                                     <tr>
                                         <td>
+                                            <select class="training-round">
+                                                <option value="รุ่น 1">รุ่น 1</option>
+                                                <option value="รุ่น 2">รุ่น 2</option>
+                                                <option value="รุ่น 3">รุ่น 3</option>
+                                                <option value="รุ่น 4">รุ่น 4</option>
+                                            </select>
+                                        </td>
+                                        <td>
                                             <select class="shift-training">
                                                 <option value="Shift A">Shift A</option>
                                                 <option value="Shift B">Shift B</option>
@@ -848,7 +861,7 @@
                                             </select>
                                         </td>
                                         <td>
-                                            <input type="text" class="training-date" placeholder="DD/MM/YYYY" readonly onclick="openDatePicker(this)">
+                                            <input type="text" class="training-date" placeholder="เลือกวันที่" readonly onclick="openDateRangePicker(this)">
                                         </td>
                                         <td>
                                             <select class="working-shift">
@@ -1571,10 +1584,10 @@
         const saveTrainingBtn = document.getElementById('saveTrainingBtn');
         const trainingTableBody = document.getElementById('trainingTableBody');
 
-        // Date picker function
+        // Date range picker function (supports single or multiple dates)
         let currentDateInput = null;
         
-        window.openDatePicker = function(input) {
+        window.openDateRangePicker = function(input) {
             currentDateInput = input;
             
             // Create modal overlay
@@ -1583,56 +1596,110 @@
             
             // Create date picker container
             const pickerContainer = document.createElement('div');
-            pickerContainer.style.cssText = 'background: white; padding: 20px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);';
+            pickerContainer.style.cssText = 'background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); min-width: 400px;';
             
-            const tempInput = document.createElement('input');
-            tempInput.type = 'date';
-            tempInput.style.cssText = 'width: 200px; padding: 12px; font-size: 16px; border: 2px solid #667eea; border-radius: 8px; font-weight: bold;';
+            const title = document.createElement('h3');
+            title.textContent = 'เลือกวันที่';
+            title.style.cssText = 'margin: 0 0 20px 0; color: #374151;';
             
-            // If input already has a value in DD/MM/YYYY format, convert to YYYY-MM-DD
+            // Date inputs container
+            const datesContainer = document.createElement('div');
+            datesContainer.style.cssText = 'display: flex; gap: 10px; margin-bottom: 20px;';
+            
+            const startDateInput = document.createElement('input');
+            startDateInput.type = 'date';
+            startDateInput.placeholder = 'วันเริ่มต้น';
+            startDateInput.style.cssText = 'flex: 1; padding: 12px; font-size: 16px; border: 2px solid #667eea; border-radius: 8px; font-weight: bold;';
+            
+            const endDateInput = document.createElement('input');
+            endDateInput.type = 'date';
+            endDateInput.placeholder = 'วันสิ้นสุด (ถ้ามี)';
+            endDateInput.style.cssText = 'flex: 1; padding: 12px; font-size: 16px; border: 2px solid #667eea; border-radius: 8px; font-weight: bold;';
+            
+            // Parse existing value if any
             if (input.value) {
-                const parts = input.value.split('/');
-                if (parts.length === 3) {
-                    const day = parts[0];
-                    const month = parts[1];
-                    const year = parseInt(parts[2]) - 543; // Convert Buddhist to Christian year
-                    tempInput.value = `${year}-${month}-${day}`;
+                const parts = input.value.split(' - ');
+                if (parts.length > 0) {
+                    const startParts = parts[0].split('/');
+                    if (startParts.length === 3) {
+                        const year = parseInt(startParts[2]) - 543;
+                        startDateInput.value = `${year}-${startParts[1]}-${startParts[0]}`;
+                    }
+                }
+                if (parts.length > 1) {
+                    const endParts = parts[1].split('/');
+                    if (endParts.length === 3) {
+                        const year = parseInt(endParts[2]) - 543;
+                        endDateInput.value = `${year}-${endParts[1]}-${endParts[0]}`;
+                    }
                 }
             }
             
-            // Add close button
-            const closeBtn = document.createElement('button');
-            closeBtn.textContent = '✕';
-            closeBtn.style.cssText = 'position: absolute; top: 10px; right: 10px; background: #ef4444; color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 18px;';
-            closeBtn.onclick = () => document.body.removeChild(overlay);
+            datesContainer.appendChild(startDateInput);
+            datesContainer.appendChild(endDateInput);
             
-            pickerContainer.style.position = 'relative';
-            pickerContainer.appendChild(closeBtn);
-            pickerContainer.appendChild(tempInput);
+            // Buttons container
+            const buttonsContainer = document.createElement('div');
+            buttonsContainer.style.cssText = 'display: flex; gap: 10px; justify-content: flex-end;';
+            
+            const cancelBtn = document.createElement('button');
+            cancelBtn.textContent = 'ยกเลิก';
+            cancelBtn.style.cssText = 'padding: 10px 20px; background: #6b7280; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;';
+            cancelBtn.onclick = () => document.body.removeChild(overlay);
+            
+            const confirmBtn = document.createElement('button');
+            confirmBtn.textContent = 'ตกลง';
+            confirmBtn.style.cssText = 'padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;';
+            confirmBtn.onclick = () => {
+                if (!startDateInput.value) {
+                    alert('กรุณาเลือกวันที่เริ่มต้น');
+                    return;
+                }
+                
+                const startDate = new Date(startDateInput.value);
+                const startDay = String(startDate.getDate()).padStart(2, '0');
+                const startMonth = String(startDate.getMonth() + 1).padStart(2, '0');
+                const startYear = startDate.getFullYear() + 543;
+                
+                let dateText = `${startDay}/${startMonth}/${startYear}`;
+                
+                if (endDateInput.value) {
+                    const endDate = new Date(endDateInput.value);
+                    const endDay = String(endDate.getDate()).padStart(2, '0');
+                    const endMonth = String(endDate.getMonth() + 1).padStart(2, '0');
+                    const endYear = endDate.getFullYear() + 543;
+                    
+                    // Same month and year
+                    if (startMonth === endMonth && startYear === endYear) {
+                        dateText = `${startDay}-${endDay}/${startMonth}/${startYear}`;
+                    } 
+                    // Same year, different month
+                    else if (startYear === endYear) {
+                        const monthNames = ['', 'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 
+                                          'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+                        const startMonthName = monthNames[parseInt(startMonth)];
+                        const endMonthName = monthNames[parseInt(endMonth)];
+                        dateText = `${startDay} ${startMonthName} - ${endDay} ${endMonthName} ${startYear}`;
+                    }
+                    // Different year
+                    else {
+                        dateText = `${startDay}/${startMonth}/${startYear} - ${endDay}/${endMonth}/${endYear}`;
+                    }
+                }
+                
+                currentDateInput.value = dateText;
+                document.body.removeChild(overlay);
+            };
+            
+            buttonsContainer.appendChild(cancelBtn);
+            buttonsContainer.appendChild(confirmBtn);
+            
+            pickerContainer.appendChild(title);
+            pickerContainer.appendChild(datesContainer);
+            pickerContainer.appendChild(buttonsContainer);
             
             overlay.appendChild(pickerContainer);
             document.body.appendChild(overlay);
-            
-            // Auto focus and open picker
-            setTimeout(() => {
-                tempInput.focus();
-                try {
-                    tempInput.showPicker();
-                } catch (e) {
-                    // Fallback if showPicker not supported
-                }
-            }, 100);
-            
-            tempInput.addEventListener('change', function() {
-                if (this.value) {
-                    const date = new Date(this.value);
-                    const day = String(date.getDate()).padStart(2, '0');
-                    const month = String(date.getMonth() + 1).padStart(2, '0');
-                    const year = date.getFullYear() + 543;
-                    currentDateInput.value = `${day}/${month}/${year}`;
-                    document.body.removeChild(overlay);
-                }
-            });
             
             // Close on overlay click
             overlay.addEventListener('click', function(e) {
@@ -1640,6 +1707,9 @@
                     document.body.removeChild(overlay);
                 }
             });
+            
+            // Auto focus
+            setTimeout(() => startDateInput.focus(), 100);
         };
 
         // Open training table
@@ -1683,6 +1753,14 @@
             
             newRow.innerHTML = `
                 <td>
+                    <select class="training-round">
+                        <option value="รุ่น 1">รุ่น 1</option>
+                        <option value="รุ่น 2">รุ่น 2</option>
+                        <option value="รุ่น 3">รุ่น 3</option>
+                        <option value="รุ่น 4">รุ่น 4</option>
+                    </select>
+                </td>
+                <td>
                     <select class="shift-training">
                         <option value="Shift A">Shift A</option>
                         <option value="Shift B">Shift B</option>
@@ -1691,7 +1769,7 @@
                     </select>
                 </td>
                 <td>
-                    <input type="text" class="training-date" placeholder="DD/MM/YYYY" readonly onclick="openDatePicker(this)" value="${dateStr}">
+                    <input type="text" class="training-date" placeholder="เลือกวันที่" readonly onclick="openDateRangePicker(this)" value="${dateStr}">
                 </td>
                 <td>
                     <select class="working-shift">
@@ -1733,7 +1811,13 @@
             const controls = captureArea.querySelector('.training-controls');
             controls.style.display = 'none';
             
-            // Hide delete column
+            // Hide รุ่น column (first column)
+            const roundHeader = captureArea.querySelector('th:first-child');
+            const roundCells = captureArea.querySelectorAll('td:first-child');
+            roundHeader.style.display = 'none';
+            roundCells.forEach(cell => cell.style.display = 'none');
+            
+            // Hide delete column (last column)
             const deleteHeader = captureArea.querySelector('th:last-child');
             const deleteCells = captureArea.querySelectorAll('td:last-child');
             deleteHeader.style.display = 'none';
@@ -1751,6 +1835,10 @@
                 
                 // Show controls again
                 controls.style.display = 'flex';
+                
+                // Show รุ่น column again
+                roundHeader.style.display = '';
+                roundCells.forEach(cell => cell.style.display = '');
                 
                 // Show delete column again
                 deleteHeader.style.display = '';
@@ -1787,6 +1875,8 @@
                 hideLoading();
                 // Restore controls if error
                 controls.style.display = 'flex';
+                roundHeader.style.display = '';
+                roundCells.forEach(cell => cell.style.display = '');
                 deleteHeader.style.display = '';
                 deleteCells.forEach(cell => cell.style.display = '');
                 alert('❌ เกิดข้อผิดพลาดในการสร้างรูปภาพ: ' + error.message);
