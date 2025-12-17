@@ -822,6 +822,7 @@
                     <option value="10000">10 วินาที</option>
                     <option value="15000">15 วินาที</option>
                     <option value="30000">30 วินาที</option>
+                    <option value="60000">1 นาที</option>
                 </select>
             </div>
 
@@ -1283,8 +1284,19 @@
             }
         });
 
-        showBtn.addEventListener('click', function() {
+        showBtn.addEventListener('click', async function() {
             if (images.length > 0) {
+                // Auto-refresh: Reload data from Firebase before showing
+                showLoading('🔄 กำลังโหลดข้อมูลล่าสุด...');
+                try {
+                    await loadFromFirebase();
+                    hideLoading();
+                } catch (error) {
+                    console.error('Failed to refresh data:', error);
+                    hideLoading();
+                    // Continue anyway with existing data
+                }
+                
                 showSlideshow();
                 enterFullscreen();
             }
