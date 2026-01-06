@@ -1099,6 +1099,8 @@
         // ==========================================
         onValue(imagesRef, (snapshot) => {
             const data = snapshot.val();
+            const previousCount = images.length;
+            
             if (data) {
                 images = Object.keys(data).map(key => ({
                     id: key,
@@ -1110,6 +1112,23 @@
             }
             updateThumbnails();
             updateControls();
+            
+            // 🔄 CRITICAL: If slideshow is active and images changed, re-render slides
+            const isInSlideshow = slideshowContainer.classList.contains('active');
+            const imagesChanged = images.length !== previousCount;
+            
+            if (isInSlideshow && imagesChanged) {
+                console.log('🔄 Images changed during slideshow - re-rendering...');
+                const savedIndex = currentSlideIndex;
+                renderSlides();
+                // Try to stay on current slide, or go to first if index is out of range
+                if (savedIndex < images.length) {
+                    showSlide(savedIndex);
+                } else {
+                    currentSlideIndex = 0;
+                    showSlide(0);
+                }
+            }
             
             // Update sync indicator
             syncIndicator.classList.remove('syncing');
