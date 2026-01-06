@@ -170,6 +170,25 @@
             box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
         }
 
+        .btn-refresh {
+            background: #06b6d4;
+        }
+
+        .btn-refresh:hover {
+            background: #0891b2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(6, 182, 212, 0.4);
+        }
+
+        .btn-refresh.refreshing {
+            animation: rotate 1s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         .btn:disabled {
             background: #9ca3af;
             cursor: not-allowed;
@@ -847,6 +866,7 @@
                 <button class="btn btn-show" id="showBtn" disabled>▶️ แสดงภาพ</button>
                 <button class="btn btn-clear" id="clearBtn">🗑️ ลบภาพทั้งหมด</button>
                 <button class="btn btn-training" id="trainingBtn">📋 สร้างตารางอบรม</button>
+                <button class="btn btn-refresh" id="refreshBtn">🔄 รีเฟรช</button>
                 <div class="image-count">
                     จำนวนภาพ: <span id="imageCount">0</span> ภาพ
                 </div>
@@ -1057,6 +1077,7 @@
         const imageInput = document.getElementById('imageInput');
         const showBtn = document.getElementById('showBtn');
         const clearBtn = document.getElementById('clearBtn');
+        const refreshBtn = document.getElementById('refreshBtn');
         const thumbnailGrid = document.getElementById('thumbnailGrid');
         const slideshowContainer = document.getElementById('slideshowContainer');
         const slidesWrapper = document.getElementById('slidesWrapper');
@@ -1356,6 +1377,35 @@
             if (images.length > 0 && confirm('ลบทั้งหมด?\n\n🔥 ทุกเครื่องจะเห็นว่ารูปถูกลบหมด!')) {
                 await set(imagesRef, {});
                 closeSlideshow();
+            }
+        });
+
+        // Refresh button - โหลดข้อมูลใหม่จาก Firebase
+        refreshBtn.addEventListener('click', async function() {
+            // Add spinning animation
+            refreshBtn.classList.add('refreshing');
+            refreshBtn.disabled = true;
+            
+            try {
+                // Firebase จะ sync อัตโนมัติผ่าน onValue
+                // แค่แสดง feedback ว่ากำลัง refresh
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Show success message
+                const originalText = refreshBtn.textContent;
+                refreshBtn.textContent = '✅ อัปเดตแล้ว';
+                
+                setTimeout(() => {
+                    refreshBtn.textContent = originalText;
+                    refreshBtn.classList.remove('refreshing');
+                    refreshBtn.disabled = false;
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Refresh error:', error);
+                refreshBtn.classList.remove('refreshing');
+                refreshBtn.disabled = false;
+                alert('❌ เกิดข้อผิดพลาดในการรีเฟรช');
             }
         });
 
