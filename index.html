@@ -3,8 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>บอร์ดแจ้งข่าวสารกิจกรรม - Firebase Edition</title>
+    <title>บอร์ดแจ้งข่าวสารกิจกรรม - Activity Announcement Board</title>
+    
+    <!-- Google Fonts: Prompt & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+
     <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --success-hover: #059669;
+            --warning: #f59e0b;
+            --warning-hover: #d97706;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --info: #06b6d4;
+            --info-hover: #0891b2;
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --radius-sm: 6px;
+            --shadow-glow: 0 10px 30px -5px rgba(99, 102, 241, 0.3);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,56 +46,60 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Prompt', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
             min-height: 100vh;
-            padding: 20px;
+            padding: 24px;
+            color: var(--text-dark);
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1240px;
             margin: 0 auto;
         }
 
-        h1 {
+        /* App Title */
+        .app-header {
             text-align: center;
-            color: white;
-            margin-bottom: 30px;
-            font-size: 2.5em;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 28px;
         }
 
+        h1 {
+            color: #ffffff;
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            margin-top: 6px;
+            font-weight: 400;
+        }
+
+        /* Control Panel */
         .control-panel {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 28px;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
             margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
         }
 
-        .sync-indicator {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background: #10b981;
-            border-radius: 50%;
-            margin-left: 8px;
-            animation: pulse 2s infinite;
-            vertical-align: middle;
-        }
-
-        .sync-indicator.syncing {
-            background: #f59e0b;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
+        /* Section Layouts */
         .upload-section {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             flex-wrap: wrap;
             align-items: center;
             margin-bottom: 20px;
@@ -69,7 +107,7 @@
 
         .url-input-section {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             align-items: center;
             margin-bottom: 20px;
             flex-wrap: wrap;
@@ -77,20 +115,24 @@
 
         .url-input {
             flex: 1;
-            min-width: 300px;
-            padding: 12px 20px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 15px;
-            transition: all 0.3s;
+            min-width: 280px;
+            padding: 12px 18px;
+            border: 2px solid #e2e8f0;
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.25s ease;
+            background: #f8fafc;
         }
 
         .url-input:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: var(--primary);
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
         }
 
+        /* Custom File Input */
         .file-input-wrapper {
             position: relative;
             overflow: hidden;
@@ -103,85 +145,217 @@
         }
 
         .file-input-label {
-            background: #667eea;
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
             color: white;
-            padding: 12px 25px;
-            border-radius: 8px;
+            padding: 12px 22px;
+            border-radius: var(--radius-md);
             cursor: pointer;
-            transition: all 0.3s;
-            display: inline-block;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             font-weight: 600;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
         }
 
         .file-input-label:hover {
-            background: #5568d3;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 6px 18px rgba(99, 102, 241, 0.45);
         }
 
+        /* Sync Indicator */
+        .sync-indicator {
+            display: inline-block;
+            width: 9px;
+            height: 9px;
+            background: #10b981;
+            border-radius: 50%;
+            margin-left: 4px;
+            animation: pulse 2s infinite;
+            vertical-align: middle;
+        }
+
+        .sync-indicator.syncing {
+            background: var(--warning);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.5; }
+        }
+
+        /* Buttons */
         .btn {
-            padding: 12px 25px;
+            padding: 12px 22px;
             border: none;
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             cursor: pointer;
-            font-size: 16px;
+            font-size: 0.95rem;
             font-weight: 600;
-            transition: all 0.3s;
+            font-family: inherit;
+            transition: all 0.25s ease;
             color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .btn-show {
-            background: #10b981;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
         }
-
-        .btn-show:hover {
-            background: #059669;
+        .btn-show:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+            box-shadow: 0 6px 18px rgba(16, 185, 129, 0.45);
         }
 
         .btn-clear {
-            background: #ef4444;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
         }
-
         .btn-clear:hover {
-            background: #dc2626;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+            box-shadow: 0 6px 18px rgba(239, 68, 68, 0.45);
         }
 
         .btn-training {
-            background: #f59e0b;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
         }
-
         .btn-training:hover {
-            background: #d97706;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
+            box-shadow: 0 6px 18px rgba(245, 158, 11, 0.45);
         }
 
         .btn-add-url {
-            background: #8b5cf6;
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
         }
-
         .btn-add-url:hover {
-            background: #7c3aed;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+            box-shadow: 0 6px 18px rgba(139, 92, 246, 0.45);
         }
 
         .btn-refresh {
-            background: #06b6d4;
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
         }
-
-        .btn-refresh:hover {
-            background: #0891b2;
+        .btn-refresh:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(6, 182, 212, 0.4);
+            box-shadow: 0 6px 18px rgba(6, 182, 212, 0.45);
+        }
+        .btn-refresh.refreshing svg {
+            animation: rotate 1s linear infinite;
         }
 
-        .btn-refresh.refreshing {
-            animation: rotate 1s linear infinite;
+        .btn-multi-display {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+        }
+        .btn-multi-display:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(99, 102, 241, 0.45);
+        }
+
+        /* Modal Dialog Styling */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 10000 !important;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .modal-overlay.active {
+            display: flex !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+            width: 100%;
+            max-width: 960px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform: scale(0.95) translateY(10px);
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-header {
+            padding: 18px 24px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-close-btn {
+            background: #f1f5f9;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 1.1rem;
+            color: #64748b;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close-btn:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .modal-body {
+            padding: 20px 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 14px 24px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: flex-end;
         }
 
         @keyframes rotate {
@@ -190,113 +364,163 @@
         }
 
         .btn:disabled {
-            background: #9ca3af;
+            background: #cbd5e1;
+            color: #94a3b8;
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
         }
 
-        .image-count {
-            color: #4b5563;
-            font-size: 14px;
-            padding: 10px 15px;
-            background: #f3f4f6;
-            border-radius: 8px;
+        .image-count-badge {
+            color: #475569;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 10px 18px;
+            background: #f1f5f9;
+            border-radius: var(--radius-md);
+            border: 1px solid #e2e8f0;
+            margin-left: auto;
         }
 
+        /* Controls / Selectors */
         .effect-selector {
             display: flex;
-            gap: 10px;
+            gap: 16px;
             align-items: center;
-            padding: 15px;
-            background: #f9fafb;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            padding: 16px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-md);
+            margin-bottom: 24px;
+            flex-wrap: wrap;
         }
 
         .effect-selector label {
             font-weight: 600;
-            color: #374151;
+            color: #334155;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .effect-selector select {
-            padding: 8px 15px;
-            border: 2px solid #e5e7eb;
-            border-radius: 6px;
-            font-size: 14px;
+            padding: 8px 14px;
+            border: 2px solid #cbd5e1;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-family: inherit;
             cursor: pointer;
             background: white;
-            transition: all 0.3s;
+            transition: all 0.2s ease;
+            color: var(--text-dark);
+            font-weight: 500;
         }
 
+        .effect-selector select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        /* Thumbnails Grid */
         .thumbnail-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 16px;
             margin-top: 20px;
         }
 
         .thumbnail-item {
             position: relative;
             aspect-ratio: 1;
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            transition: all 0.25s ease;
             cursor: grab;
+            background: #f1f5f9;
+            border: 2px solid transparent;
         }
 
         .thumbnail-item:hover {
-            transform: scale(1.05);
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            border-color: var(--primary);
         }
 
         .thumbnail-item.dragging {
-            opacity: 0.5;
+            opacity: 0.4;
             cursor: grabbing;
+            border-color: var(--primary);
         }
 
         .thumbnail-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            background: #f3f4f6;
         }
 
-        .thumbnail-item img[src*="data:image/svg"] {
+        .thumbnail-item img[src*=".svg"] {
             object-fit: contain;
-            padding: 20px;
+            padding: 24px;
         }
 
         .thumbnail-remove {
             position: absolute;
-            top: 5px;
-            right: 5px;
+            top: 6px;
+            right: 6px;
             background: rgba(239, 68, 68, 0.9);
             color: white;
             border: none;
             border-radius: 50%;
-            width: 25px;
-            height: 25px;
+            width: 26px;
+            height: 26px;
             cursor: pointer;
             font-size: 16px;
+            line-height: 1;
             z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
         }
 
         .thumbnail-remove:hover {
             background: #dc2626;
-            transform: scale(1.1);
+            transform: scale(1.15);
         }
 
+        .thumbnail-badge {
+            position: absolute;
+            bottom: 6px;
+            left: 6px;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            pointer-events: none;
+        }
+
+        .badge-youtube { background: rgba(220, 38, 38, 0.95); }
+        .badge-webpage { background: rgba(99, 102, 241, 0.95); }
+
+        /* Slideshow View */
         .slideshow-container {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
+            width: 100vw;
+            height: 100vh;
+            background: #000000;
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            overflow: hidden;
         }
 
         .slideshow-container.active {
@@ -324,139 +548,103 @@
             display: block;
         }
 
-        .youtube-slide {
+        .youtube-slide, .webpage-slide {
             display: none !important;
-            background: black;
+            background: #000000;
         }
 
-        .youtube-slide.active {
+        .youtube-slide.active, .webpage-slide.active {
             display: flex !important;
             justify-content: center;
             align-items: center;
         }
 
-        .webpage-slide {
-            display: none !important;
-            background: white;
-        }
-
-        .webpage-slide.active {
-            display: flex !important;
-            justify-content: center;
-            align-items: center;
-        }
-
+        /* Animations */
         .slide.active.effect-zoom-fade:not(.youtube-slide) {
-            animation: zoomFade 1s ease-out;
+            animation: zoomFade 1s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         @keyframes zoomFade {
-            from { 
-                opacity: 0; 
-                transform: translate(-50%, -50%) scale(0.8); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translate(-50%, -50%) scale(1); 
-            }
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.85); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
         }
 
         .slide.active.effect-slide-fade:not(.youtube-slide) {
-            animation: slideFade 0.8s ease-out;
+            animation: slideFade 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         @keyframes slideFade {
-            from { 
-                opacity: 0; 
-                transform: translate(calc(-50% + 100px), -50%); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translate(-50%, -50%); 
-            }
+            from { opacity: 0; transform: translate(calc(-50% + 120px), -50%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
         }
 
         .slide.active.effect-ken-burns:not(.youtube-slide) {
-            animation: kenBurns 5s ease-out;
+            animation: kenBurns 6s linear;
         }
 
         @keyframes kenBurns {
-            from { 
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(1); 
-            }
-            50% {
-                opacity: 1;
-            }
-            to { 
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1.1); 
-            }
+            from { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+            15% { opacity: 1; }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1.12); }
         }
 
         .slide.active.effect-3d-flip:not(.youtube-slide) {
-            animation: flip3D 0.8s ease-out;
+            animation: flip3D 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         @keyframes flip3D {
-            from { 
-                opacity: 0;
-                transform: translate(-50%, -50%) perspective(1000px) rotateY(-90deg); 
-            }
-            to { 
-                opacity: 1;
-                transform: translate(-50%, -50%) perspective(1000px) rotateY(0deg); 
-            }
+            from { opacity: 0; transform: translate(-50%, -50%) perspective(1000px) rotateY(-90deg); }
+            to { opacity: 1; transform: translate(-50%, -50%) perspective(1000px) rotateY(0deg); }
         }
 
         .slide.active.effect-blur:not(.youtube-slide) {
-            animation: blurTransition 0.8s ease-out;
+            animation: blurTransition 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         @keyframes blurTransition {
-            0% { 
-                opacity: 0;
-                filter: blur(20px); 
-                transform: translate(-50%, -50%) scale(1.1);
-            }
-            100% { 
-                opacity: 1;
-                filter: blur(0px); 
-                transform: translate(-50%, -50%) scale(1);
-            }
+            0% { opacity: 0; filter: blur(24px); transform: translate(-50%, -50%) scale(1.08); }
+            100% { opacity: 1; filter: blur(0px); transform: translate(-50%, -50%) scale(1); }
         }
 
+        /* Progress Bar */
         .progress-bar {
             position: absolute;
             bottom: 0;
             left: 0;
             height: 4px;
-            background: #10b981;
+            background: linear-gradient(90deg, #10b981 0%, #6366f1 100%);
             width: 0%;
-            transition: width 0.1s linear;
+            transition: width 0.1s linear, opacity 0.3s ease;
+            z-index: 30;
         }
 
+        .slideshow-container:not(.show-controls) .progress-bar {
+            opacity: 0.35;
+        }
+
+        /* Navigation & Close Controls */
         .nav-button {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background: rgba(255, 255, 255, 0.3);
-            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
-            font-size: 50px;
-            width: 70px;
-            height: 70px;
+            font-size: 36px;
+            width: 64px;
+            height: 64px;
             border-radius: 50%;
             cursor: pointer;
-            transition: all 0.3s;
-            z-index: 20;
-            backdrop-filter: blur(10px);
-            font-weight: bold;
+            transition: all 0.25s ease;
+            z-index: 40;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             display: flex;
             align-items: center;
             justify-content: center;
             opacity: 0;
             pointer-events: none;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
         }
 
         .slideshow-container.show-controls .nav-button {
@@ -465,44 +653,35 @@
         }
 
         .nav-button:hover {
-            background: rgba(255, 255, 255, 0.5);
-            transform: translateY(-50%) scale(1.15);
+            background: rgba(255, 255, 255, 0.4);
+            transform: translateY(-50%) scale(1.12);
         }
 
-        .nav-button:active {
-            transform: translateY(-50%) scale(0.95);
-        }
+        .nav-prev { left: 24px; }
+        .nav-next { right: 24px; }
 
-        .nav-prev {
-            left: 20px;
-        }
-
-        .nav-next {
-            right: 20px;
-        }
-
-        /* Close button */
         .close-button {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(239, 68, 68, 0.8);
-            border: none;
+            top: 24px;
+            right: 24px;
+            background: rgba(239, 68, 68, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
-            font-size: 30px;
-            width: 50px;
-            height: 50px;
+            font-size: 22px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             cursor: pointer;
-            transition: all 0.3s;
-            z-index: 20;
-            backdrop-filter: blur(10px);
-            font-weight: bold;
+            transition: all 0.25s ease;
+            z-index: 40;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             display: flex;
             align-items: center;
             justify-content: center;
             opacity: 0;
             pointer-events: none;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
         }
 
         .slideshow-container.show-controls .close-button {
@@ -511,33 +690,78 @@
         }
 
         .close-button:hover {
-            background: rgba(220, 38, 38, 0.9);
-            transform: scale(1.15) rotate(90deg);
+            background: rgba(220, 38, 38, 0.95);
+            transform: scale(1.12) rotate(90deg);
         }
 
-        .close-button:active {
-            transform: scale(0.95) rotate(90deg);
+        /* Overlay Branding & Clock */
+        .slideshow-logo {
+            position: fixed;
+            top: 24px;
+            right: 88px;
+            z-index: 35;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
         }
 
-        /* Hide nav buttons when not in slideshow */
-        .slideshow-container:not(.active) .nav-button,
-        .slideshow-container:not(.active) .close-button {
-            display: none;
+        .slideshow-container.active .slideshow-logo {
+            opacity: 0.95;
         }
 
-        /* Also hide progress bar when controls hidden */
-        .progress-bar {
-            transition: opacity 0.3s;
+        .slideshow-logo img {
+            height: 44px;
+            width: auto;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
         }
 
-        .slideshow-container:not(.show-controls) .progress-bar {
-            opacity: 0.3;
+        .slideshow-clock {
+            position: fixed;
+            top: 24px;
+            left: 24px;
+            z-index: 25;
+            color: white;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.9);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            font-family: 'Prompt', sans-serif;
         }
 
-        .slideshow-container.show-controls .progress-bar {
-            opacity: 1;
+        .slideshow-container.active .slideshow-clock {
+            opacity: 0.95;
         }
 
+        .slideshow-clock .time {
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            line-height: 1;
+        }
+
+        .slideshow-clock .date {
+            font-size: 1.1rem;
+            margin-top: 6px;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        /* Watermark */
+        .page-watermark {
+            position: fixed;
+            bottom: 16px;
+            right: 16px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.45);
+            font-family: monospace;
+            z-index: 100;
+            pointer-events: none;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Loading Overlay */
         .loading-overlay {
             display: none;
             position: fixed;
@@ -545,7 +769,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
             z-index: 9999;
             justify-content: center;
             align-items: center;
@@ -558,12 +783,12 @@
         }
 
         .loading-spinner {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #667eea;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid var(--primary);
             border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
+            width: 56px;
+            height: 56px;
+            animation: spin 0.9s linear infinite;
         }
 
         @keyframes spin {
@@ -573,34 +798,19 @@
 
         .loading-text {
             color: white;
-            font-size: 18px;
-            font-weight: 600;
+            font-size: 1.1rem;
+            font-weight: 500;
         }
 
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 1.8em;
-            }
-            .upload-section, .url-input-section {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .url-input {
-                min-width: 100%;
-            }
-            .btn {
-                width: 100%;
-            }
-        }
-
-        /* Training Table Styles */
+        /* Training Table Modal */
         .training-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(8px);
             z-index: 2000;
             display: flex;
             justify-content: center;
@@ -609,276 +819,596 @@
         }
 
         .training-content {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            width: 900px;
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+            width: 920px;
             max-width: 95%;
             max-height: 90vh;
             overflow: auto;
-            padding: 30px;
+            padding: 32px;
         }
 
         .training-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #e5e7eb;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f1f5f9;
         }
 
         .training-header h3 {
-            color: #374151;
-            font-size: 24px;
+            color: #1e293b;
+            font-size: 1.4rem;
+            font-weight: 700;
         }
 
         .btn-close-training {
-            background: #ef4444;
-            color: white;
+            background: #fee2e2;
+            color: #ef4444;
             border: none;
-            width: 35px;
-            height: 35px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            font-size: 20px;
+            font-size: 18px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
         }
 
         .btn-close-training:hover {
-            background: #dc2626;
+            background: #ef4444;
+            color: white;
             transform: rotate(90deg);
         }
 
         .header-section {
             text-align: center;
-            margin-bottom: 30px;
-            padding: 0 10px;
+            margin-bottom: 28px;
         }
 
         .header-input {
-            font-size: 36px;
-            font-weight: bold;
+            font-size: 2.2rem;
+            font-weight: 700;
             text-align: center;
-            border: 3px solid #e0e0e0;
-            border-radius: 12px;
-            padding: 25px 30px;
+            border: 2px solid #cbd5e1;
+            border-radius: var(--radius-md);
+            padding: 16px 24px;
             width: 100%;
-            transition: all 0.3s;
-            line-height: 1.4;
-            display: block;
-            box-sizing: border-box;
+            transition: all 0.25s ease;
+            color: #1e293b;
+            font-family: inherit;
+            background: #f8fafc;
         }
 
         .header-input:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: var(--primary);
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
         }
 
         .table-container {
-            overflow: auto;
-            margin-bottom: 20px;
-        }
-
-        .page-watermark {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.5);
-            font-family: monospace;
-            z-index: 100;
-            pointer-events: none;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            overflow-x: auto;
+            margin-bottom: 24px;
+            border-radius: var(--radius-md);
+            border: 1px solid #e2e8f0;
         }
 
         .table-container table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 16px;
-            font-weight: bold;
+            font-size: 1rem;
         }
 
         .table-container th {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             color: white;
-            padding: 18px 15px;
+            padding: 16px 14px;
             text-align: center;
-            font-weight: bold;
-            font-size: 18px;
-            border: 2px solid #5568d3;
+            font-weight: 600;
+            font-size: 1.05rem;
+            border: 1px solid #4338ca;
         }
 
         .table-container td {
-            padding: 18px 15px;
+            padding: 14px;
             text-align: center;
-            border: 2px solid #ddd;
+            border: 1px solid #e2e8f0;
             background: white;
             vertical-align: middle;
-            height: 70px;
         }
 
         .table-container select,
-        .table-container input[type="date"],
         .table-container input[type="text"].training-date {
             width: 100%;
-            padding: 10px 8px;
-            font-size: 16px;
-            font-weight: bold;
-            border: none;
-            border-radius: 0;
-            background: transparent;
+            padding: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-sm);
+            background: #f8fafc;
             cursor: pointer;
-            transition: all 0.3s;
-            line-height: 1.5;
+            transition: all 0.2s ease;
             text-align: center;
+            font-family: inherit;
+            color: #1e293b;
         }
 
         .table-container select:focus,
         .table-container input[type="text"].training-date:focus {
             outline: none;
-            background: rgba(102, 126, 234, 0.05);
-        }
-
-        .training-round {
-            font-size: 15px;
-        }
-
-        .table-container select:hover,
-        .table-container input[type="date"]:hover {
-            border-color: #667eea;
-        }
-
-        .table-container select:focus,
-        .table-container input[type="date"]:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: var(--primary);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
         }
 
         .training-controls {
             display: flex;
-            gap: 15px;
+            gap: 16px;
             justify-content: center;
         }
 
         .btn-add-row {
-            background: #10b981;
-        }
-
-        .btn-add-row:hover {
-            background: #059669;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         }
 
         .btn-save-training {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .btn-save-training:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
         }
 
         .btn-delete-row {
-            background: #ef4444;
-            color: white;
+            background: #fee2e2;
+            color: #ef4444;
             border: none;
             padding: 8px 12px;
-            border-radius: 6px;
+            border-radius: var(--radius-sm);
             cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            font-weight: bold;
         }
 
         .btn-delete-row:hover {
-            background: #dc2626;
+            background: #ef4444;
+            color: white;
             transform: scale(1.1);
         }
 
-        /* Logo and Clock in Slideshow */
-        .slideshow-logo {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 25;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
+        /* Multi-Zone Layout Selector */
+        .layout-selector-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 24px;
         }
 
-        .slideshow-container.active .slideshow-logo {
-            opacity: 0.9;
+        .layout-header-title {
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 14px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .slideshow-logo img {
-            height: 60px;
-            width: auto;
-            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+        .layout-options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
         }
 
-        .slideshow-clock {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 25;
-            font-size: 36px;
-            font-weight: bold;
+        .layout-card {
+            background: white;
+            border: 2px solid #cbd5e1;
+            border-radius: var(--radius-sm);
+            padding: 12px 8px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .layout-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .layout-card.active {
+            border-color: var(--primary);
+            background: #eeeffe;
+            color: var(--primary);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+        }
+
+        .layout-icon-preview {
+            width: 44px;
+            height: 28px;
+            border: 2px solid #64748b;
+            border-radius: 4px;
+            background: #f1f5f9;
+            display: grid;
+            gap: 2px;
+            padding: 2px;
+            box-sizing: border-box;
+        }
+
+        .layout-card.active .layout-icon-preview {
+            border-color: var(--primary);
+            background: #e0e7ff;
+        }
+
+        .icon-mode-1 { grid-template-columns: 1fr; }
+        .icon-mode-2 { grid-template-columns: 1fr 1fr; }
+        .icon-mode-3 { grid-template-columns: 2fr 1fr; grid-template-rows: 1fr 1fr; }
+        .icon-mode-3 span:nth-child(1) { grid-row: 1 / span 2; }
+        .icon-mode-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+
+        .layout-icon-preview span {
+            background: #94a3b8;
+            border-radius: 2px;
+            display: block;
+        }
+
+        .layout-card.active .layout-icon-preview span {
+            background: var(--primary);
+        }
+
+        /* Zones Settings Grid */
+        .zones-config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .zone-config-item {
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 16px 18px;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .zone-config-item:hover {
+            border-color: #a5b4fc;
+            box-shadow: 0 8px 24px -4px rgba(99, 102, 241, 0.12);
+        }
+
+        .zone-config-item h4 {
+            font-size: 0.92rem;
+            color: #0f172a;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .zone-badge {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
             color: white;
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
-            font-family: 'Arial', sans-serif;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
         }
 
-        .slideshow-container.active .slideshow-clock {
-            opacity: 0.95;
+        .zone-type-select,
+        .zone-web-select,
+        .zone-config-item input[type="text"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-family: inherit;
+            color: #1e293b;
+            background-color: #f8fafc;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
         }
 
-        .slideshow-clock .time {
-            font-size: 48px;
+        .zone-type-select:focus,
+        .zone-web-select:focus,
+        .zone-config-item input[type="text"]:focus {
+            border-color: #6366f1;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+            outline: none;
+        }
+
+        /* Modern Item Checklist Box */
+        .zone-sub-config.slideshow-box {
+            background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-top: 4px;
+        }
+
+        .zone-item-chip {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            font-size: 0.83rem;
+            color: #334155;
+            font-weight: 500;
+            user-select: none;
+        }
+
+        .zone-item-chip:hover {
+            border-color: #818cf8;
+            background: #eef2ff;
+        }
+
+        .zone-item-chip.selected {
+            border-color: #6366f1;
+            background: #e0e7ff;
+            color: #3730a3;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(99, 102, 241, 0.1);
+        }
+
+        .zone-item-chip input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #6366f1;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .zone-item-chip .chip-icon {
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .zone-item-chip .chip-title {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Multi-Zone Fullscreen Overlay Grid */
+        .multi-zone-wrapper {
+            width: 100vw;
+            height: 100vh;
+            display: grid;
+            gap: 10px;
+            padding: 10px;
+            background: #090d16;
+            box-sizing: border-box;
+        }
+
+        .multi-zone-wrapper.mode-1 {
+            grid-template-columns: 1fr;
+            grid-template-rows: 1fr;
+            padding: 0;
+            gap: 0;
+        }
+
+        .multi-zone-wrapper.mode-2 {
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr;
+        }
+
+        .multi-zone-wrapper.mode-3 {
+            grid-template-columns: 60% calc(40% - 10px);
+            grid-template-rows: calc(50% - 5px) calc(50% - 5px);
+        }
+        .multi-zone-wrapper.mode-3 .zone-cell-0 {
+            grid-row: 1 / span 2;
+            grid-column: 1;
+        }
+
+        .multi-zone-wrapper.mode-4 {
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+        }
+
+        .zone-cell {
+            position: relative;
+            background: #0f172a;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            min-height: 0;
+            box-sizing: border-box;
+        }
+
+        .multi-zone-wrapper.mode-1 .zone-cell {
+            border-radius: 0;
+            border: none;
+            box-shadow: none;
+        }
+
+        .zone-header-bar {
+            display: none !important;
+        }
+
+        .zone-header-title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .zone-badge-tag {
+            background: #6366f1;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .zone-content-body {
+            flex: 1;
+            position: relative;
+            width: 100%;
+            height: 100%;
+            min-height: 0;
+            overflow: hidden;
+            background: #0f172a;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .multi-zone-wrapper.mode-1 .zone-header-bar {
+            display: none;
+        }
+
+        .multi-zone-wrapper.mode-1 .zone-content-body {
+            height: 100%;
+        }
+
+        .zone-content-body iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #ffffff;
+        }
+
+        /* Hide global floating overlays in multi-zone mode (2, 3, 4) */
+        .slideshow-container.multi-mode .slideshow-clock,
+        .slideshow-container.multi-mode .slideshow-logo,
+        .slideshow-container.multi-mode .nav-button,
+        .slideshow-container.multi-mode .progress-bar {
+            display: none !important;
+        }
+
+        .slideshow-container .close-button {
+            z-index: 100 !important;
+        }
+
+        .zone-clock-widget {
+            color: white;
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e1b4b 0%, #311042 100%);
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .zone-clock-widget .time {
+            font-size: 3rem;
+            font-weight: 700;
             letter-spacing: 2px;
+            color: #38bdf8;
+            text-shadow: 0 4px 12px rgba(56, 189, 248, 0.4);
         }
 
-        .slideshow-clock .date {
-            font-size: 20px;
-            margin-top: 5px;
-            opacity: 0.9;
+        .zone-clock-widget .date {
+            font-size: 1.2rem;
+            margin-top: 10px;
+            color: #e2e8f0;
+        }
+
+        .zone-clock-widget .summary-title {
+            margin-top: 20px;
+            font-size: 1rem;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: #a7f3d0;
+        }
+
+        /* Responsive Layout */
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8rem; }
+            .control-panel { padding: 20px; }
+            .upload-section, .url-input-section { flex-direction: column; align-items: stretch; }
+            .url-input { min-width: 100%; }
+            .btn { width: 100%; }
+            .image-count-badge { margin-left: 0; text-align: center; }
+            .slideshow-clock .time { font-size: 2rem; }
+            .slideshow-clock .date { font-size: 0.9rem; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>📢 บอร์ดแจ้งข่าวสารกิจกรรม</h1>
 
-        <div class="control-panel">
+    <div class="container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1>📢 บอร์ดแจ้งข่าวสารกิจกรรม</h1>
+            <p class="subtitle">ระบบจัดการข่าวสารและสไลด์โชว์แบบ Real-Time</p>
+        </header>
+
+        <!-- Main Control Panel -->
+        <main class="control-panel">
             <div class="upload-section">
                 <div class="file-input-wrapper">
                     <input type="file" id="imageInput" accept="image/*" multiple>
                     <label for="imageInput" class="file-input-label">
                         📁 เลือกรูปภาพ
-                        <span class="sync-indicator" id="syncIndicator"></span>
+                        <span class="sync-indicator" id="syncIndicator" title="สถานะเชื่อมต่อ"></span>
                     </label>
                 </div>
+                
                 <button class="btn btn-show" id="showBtn" disabled>▶️ แสดงภาพ</button>
                 <button class="btn btn-clear" id="clearBtn">🗑️ ลบภาพทั้งหมด</button>
                 <button class="btn btn-training" id="trainingBtn">📋 สร้างตารางอบรม</button>
-                <button class="btn btn-refresh" id="refreshBtn">🔄 รีเฟรช</button>
-                <div class="image-count">
+                <button class="btn btn-refresh" id="refreshBtn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M22 12.5a10 10 0 0 1-18.8 4.2L2.5 16"/></svg>
+                    <span>รีเฟรช</span>
+                </button>
+
+                <button class="btn btn-multi-display" id="multiDisplayBtn">
+                    🖥️ Multi Display
+                </button>
+
+                <div class="image-count-badge">
                     จำนวนภาพ: <span id="imageCount">0</span> ภาพ
                 </div>
             </div>
 
             <div class="url-input-section">
-                <input type="text" id="urlInput" placeholder="🔗 ใส่ลิงก์ (YouTube, Website, หรืออื่นๆ)" class="url-input">
+                <input type="text" id="urlInput" placeholder="🔗 ใส่ลิงก์ (YouTube, Website, หรือลิงก์รูปภาพ)" class="url-input">
                 <button class="btn btn-add-url" id="addUrlBtn">➕ เพิ่มลิงก์</button>
             </div>
 
             <div class="effect-selector">
-                <label for="effectSelect">🎨 เอฟเฟกต์การเปลี่ยนภาพ:</label>
+                <label for="effectSelect">🎨 เอฟเฟกต์เปลี่ยนภาพ:</label>
                 <select id="effectSelect">
                     <option value="zoom-fade">Zoom Fade - ซูมเข้าพร้อมเฟด</option>
                     <option value="slide-fade">Slide & Fade - เลื่อนข้างพร้อมเฟด</option>
@@ -887,7 +1417,7 @@
                     <option value="blur">Blur Transition - เบลอแล้วชัดขึ้น</option>
                 </select>
                 
-                <label for="durationSelect" style="margin-left: 20px;">⏱️ เวลาแสดงผล:</label>
+                <label for="durationSelect" style="margin-left: auto;">⏱️ เวลาแสดงผล:</label>
                 <select id="durationSelect">
                     <option value="5000">5 วินาที</option>
                     <option value="10000">10 วินาที</option>
@@ -897,116 +1427,160 @@
                 </select>
             </div>
 
-            <!-- Training Table Container -->
-            <div class="training-container" id="trainingContainer" style="display: none;">
-                <div class="training-content">
-                    <div class="training-header">
-                        <h3>📋 สร้างตารางอบรม</h3>
-                        <button class="btn-close-training" id="closeTrainingBtn">✕</button>
-                    </div>
-                    
-                    <div class="training-form">
-                        <div class="header-section">
-                            <input type="text" class="header-input" id="trainingHeaderText" value="อบรม" placeholder="ใส่หัวข้อ">
-                        </div>
-                        
-                        <div class="table-container">
-                            <table id="shiftTable">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 120px;">รุ่น</th>
-                                        <th>Shift training</th>
-                                        <th>Date</th>
-                                        <th>Working shift</th>
-                                        <th style="width: 80px;">ลบ</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="trainingTableBody">
-                                    <tr>
-                                        <td>
-                                            <select class="training-round">
-                                                <option value="รุ่น 1">รุ่น 1</option>
-                                                <option value="รุ่น 2">รุ่น 2</option>
-                                                <option value="รุ่น 3">รุ่น 3</option>
-                                                <option value="รุ่น 4">รุ่น 4</option>
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <select class="shift-training">
-                                                <option value="Shift A">Shift A</option>
-                                                <option value="Shift B">Shift B</option>
-                                                <option value="Shift C">Shift C</option>
-                                                <option value="Shift D">Shift D</option>
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <input type="text" class="training-date" placeholder="เลือกวันที่" readonly onclick="openDateRangePicker(this)">
-                                        </td>
-                                        <td>
-                                            <select class="working-shift">
-                                                <option value="Shift A">Shift A</option>
-                                                <option value="Shift B">Shift B</option>
-                                                <option value="Shift C">Shift C</option>
-                                                <option value="Shift D">Shift D</option>
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <button class="btn-delete-row" onclick="deleteTrainingRow(this)">🗑️</button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="training-controls">
-                            <button class="btn btn-add-row" id="addRowBtn">➕ เพิ่มแถว</button>
-                            <button class="btn btn-save-training" id="saveTrainingBtn">💾 บันทึก</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+            <!-- Thumbnail Grid -->
             <div class="thumbnail-grid" id="thumbnailGrid"></div>
-        </div>
+        </main>
 
         <!-- Watermark -->
         <div class="page-watermark">by490047</div>
     </div>
 
+    <!-- Training Table Generator Modal -->
+    <div class="training-container" id="trainingContainer" style="display: none;">
+        <div class="training-content">
+            <div class="training-header">
+                <h3>📋 สร้างตารางอบรม</h3>
+                <button class="btn-close-training" id="closeTrainingBtn" title="ปิด">✕</button>
+            </div>
+            
+            <div class="training-form">
+                <div class="header-section">
+                    <input type="text" class="header-input" id="trainingHeaderText" value="อบรม" placeholder="ใส่หัวข้อ">
+                </div>
+                
+                <div class="table-container">
+                    <table id="shiftTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 130px;">รุ่น</th>
+                                <th>Shift training</th>
+                                <th>Date</th>
+                                <th>Working shift</th>
+                                <th style="width: 70px;">ลบ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trainingTableBody">
+                            <tr>
+                                <td>
+                                    <select class="training-round">
+                                        <option value="รุ่น 1">รุ่น 1</option>
+                                        <option value="รุ่น 2">รุ่น 2</option>
+                                        <option value="รุ่น 3">รุ่น 3</option>
+                                        <option value="รุ่น 4">รุ่น 4</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select class="shift-training">
+                                        <option value="Shift A">Shift A</option>
+                                        <option value="Shift B">Shift B</option>
+                                        <option value="Shift C">Shift C</option>
+                                        <option value="Shift D">Shift D</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="text" class="training-date" placeholder="เลือกวันที่" readonly onclick="openDateRangePicker(this)">
+                                </td>
+                                <td>
+                                    <select class="working-shift">
+                                        <option value="Shift A">Shift A</option>
+                                        <option value="Shift B">Shift B</option>
+                                        <option value="Shift C">Shift C</option>
+                                        <option value="Shift D">Shift D</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <button class="btn-delete-row" onclick="deleteTrainingRow(this)">🗑️</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="training-controls">
+                    <button class="btn btn-add-row" id="addRowBtn">➕ เพิ่มแถว</button>
+                    <button class="btn btn-save-training" id="saveTrainingBtn">💾 บันทึกและนำเข้าบอร์ด</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Multi Display Config Modal Dialog -->
+    <div class="modal-overlay" id="multiDisplayModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    🖥️ ตั้งค่ารูปแบบหน้าจอ (Multi Display Layout)
+                </h3>
+                <button class="modal-close-btn" id="closeMultiDisplayModal">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="layout-selector-box" style="border:none; padding:0; background:transparent; margin-bottom:0;">
+                    <div class="layout-header-title" style="margin-bottom: 12px; font-weight: 700; color: #1e293b;">
+                        <span>เลือกรูปแบบการแบ่งช่องหน้าจอ</span>
+                    </div>
+                    <div class="layout-options-grid" id="layoutOptionsGrid">
+                        <div class="layout-card active" data-mode="1">
+                            <div class="layout-icon-preview icon-mode-1"><span></span></div>
+                            <span>1 ช่อง (เต็มจอ)</span>
+                        </div>
+                        <div class="layout-card" data-mode="2">
+                            <div class="layout-icon-preview icon-mode-2"><span></span><span></span></div>
+                            <span>2 ช่อง (ซ้าย-ขวา)</span>
+                        </div>
+                        <div class="layout-card" data-mode="3">
+                            <div class="layout-icon-preview icon-mode-3"><span></span><span></span><span></span></div>
+                            <span>3 ช่อง (1ใหญ่ 2เล็ก)</span>
+                        </div>
+                        <div class="layout-card" data-mode="4">
+                            <div class="layout-icon-preview icon-mode-4"><span></span><span></span><span></span><span></span></div>
+                            <span>4 ช่อง (2x2 Quad)</span>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Zone Content Configuration Container -->
+                    <div class="zones-config-grid" id="zonesConfigGrid"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-show" id="saveAndCloseModalBtn" style="padding: 10px 24px; font-size: 0.95rem;">✓ บันทึกการตั้งค่า</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fullscreen Slideshow Modal -->
     <div class="slideshow-container" id="slideshowContainer">
         <div id="slidesWrapper"></div>
         <div class="progress-bar" id="progressBar"></div>
         
-        <!-- Logo (Top Right) -->
+        <!-- PTT Logo Overlay (Top Right, Next to Close Button) -->
         <div class="slideshow-logo">
-            <img src="https://www.pttplc.com/uploads/About/logo_PTT_3.png" alt="PTT Logo">
+            <img src="images/logo_ptt_white.png" alt="PTT Logo" onerror="this.src='images/logo_ptt.png'">
         </div>
         
-        <!-- Clock (Top Left) -->
+        <!-- Digital Clock & Thai Date (Top Left) -->
         <div class="slideshow-clock" id="slideshowClock">
             <div class="time" id="clockTime">00:00:00</div>
             <div class="date" id="clockDate">1 มกราคม 2568</div>
         </div>
         
-        <!-- Close Button -->
-        <button class="close-button" id="closeBtn">✕</button>
-        
-        <!-- Navigation Buttons -->
-        <button class="nav-button nav-prev" id="navPrev">‹</button>
-        <button class="nav-button nav-next" id="navNext">›</button>
+        <!-- Navigation & Close Buttons -->
+        <button class="close-button" id="closeBtn" title="ปิดสไลด์ (Esc)">✕</button>
+        <button class="nav-button nav-prev" id="navPrev" title="ก่อนหน้า (←)">‹</button>
+        <button class="nav-button nav-next" id="navNext" title="ถัดไป (→)">›</button>
     </div>
 
+    <!-- Loading Spinner Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner"></div>
         <div class="loading-text" id="loadingText">⏳ กำลังโหลด...</div>
     </div>
 
-    <!-- Firebase Scripts -->
+    <!-- Main Firebase & App Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, onValue, push, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set, onValue, push, remove, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // Firebase Configuration
+        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyC4zskizb1Zsc_BCAaIB95n5XSY91CYgZI",
             authDomain: "ann-board.firebaseapp.com",
@@ -1022,56 +1596,335 @@
         const database = getDatabase(app);
         const imagesRef = ref(database, 'images');
 
-        // Cloudinary Configuration
+        // Cloudinary Config
         const CLOUDINARY_CONFIG = {
             cloudName: 'lik',
             uploadPreset: 'Ann-board',
             folder: 'Ann-board'
         };
 
-        // Main Variables
+        // Application State
         let images = [];
         let currentSlideIndex = 0;
-        let slideInterval;
-        let progressInterval;
-        let SLIDE_DURATION = 5000; // Default 5 seconds, will be updated by dropdown
+        let slideInterval = null;
+        let progressInterval = null;
+        let SLIDE_DURATION = 5000;
         let currentEffect = 'zoom-fade';
         let youtubePlayer = null;
         let isYouTubePlaying = false;
+        let draggedIndex = null;
+        let hideControlsTimer = null;
+        let zoneTimers = [];
+
+        // Multi-Zone Layout State
+        const layoutConfigRef = ref(database, 'layoutConfig');
+        let layoutConfig = {
+            mode: '1',
+            zones: [
+                { type: 'slideshow', url: '', selectedItemIds: ['all'] },
+                { type: 'dashboard', url: '', selectedItemIds: ['all'] },
+                { type: 'training', url: '', selectedItemIds: ['all'] },
+                { type: 'clock', url: '', selectedItemIds: ['all'] }
+            ]
+        };
+
+        const zonesConfigGrid = document.getElementById('zonesConfigGrid');
+        const layoutCards = document.querySelectorAll('.layout-card');
+
+        // Modal Control Listeners
+        const multiDisplayBtn = document.getElementById('multiDisplayBtn');
+        const multiDisplayModal = document.getElementById('multiDisplayModal');
+        const closeMultiDisplayModal = document.getElementById('closeMultiDisplayModal');
+        const saveAndCloseModalBtn = document.getElementById('saveAndCloseModalBtn');
+
+        function openMultiDisplayModal() {
+            updateLayoutUI();
+            if (multiDisplayModal) {
+                multiDisplayModal.classList.add('active');
+                multiDisplayModal.style.display = 'flex';
+                multiDisplayModal.style.opacity = '1';
+                multiDisplayModal.style.pointerEvents = 'auto';
+            }
+        }
+
+        function closeMultiDisplayModalFunc() {
+            if (multiDisplayModal) {
+                multiDisplayModal.classList.remove('active');
+                multiDisplayModal.style.display = 'none';
+                multiDisplayModal.style.opacity = '0';
+                multiDisplayModal.style.pointerEvents = 'none';
+            }
+        }
+
+        if (multiDisplayBtn) {
+            multiDisplayBtn.addEventListener('click', openMultiDisplayModal);
+        }
+
+        if (closeMultiDisplayModal) {
+            closeMultiDisplayModal.addEventListener('click', closeMultiDisplayModalFunc);
+        }
+
+        if (saveAndCloseModalBtn) {
+            saveAndCloseModalBtn.addEventListener('click', closeMultiDisplayModalFunc);
+        }
+
+        if (multiDisplayModal) {
+            multiDisplayModal.addEventListener('click', (e) => {
+                if (e.target === multiDisplayModal) {
+                    closeMultiDisplayModalFunc();
+                }
+            });
+        }
+
+        onValue(layoutConfigRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                layoutConfig = {
+                    mode: data.mode || '1',
+                    zones: data.zones || [
+                        { type: 'slideshow', url: '', selectedItemIds: ['all'] },
+                        { type: 'dashboard', url: '', selectedItemIds: ['all'] },
+                        { type: 'training', url: '', selectedItemIds: ['all'] },
+                        { type: 'clock', url: '', selectedItemIds: ['all'] }
+                    ]
+                };
+            }
+            updateLayoutUI();
+            if (slideshowContainer.classList.contains('active')) {
+                renderMultiZoneDisplay();
+            }
+        });
+
+        async function saveLayoutConfigToFirebase() {
+            syncIndicator.classList.add('syncing');
+            await set(layoutConfigRef, layoutConfig);
+        }
+
+        function updateLayoutUI() {
+            if (!zonesConfigGrid) return;
+            
+            layoutCards.forEach(card => {
+                const mode = card.dataset.mode;
+                if (mode === layoutConfig.mode) {
+                    card.classList.add('active');
+                } else {
+                    card.classList.remove('active');
+                }
+            });
+
+            const zoneCount = parseInt(layoutConfig.mode);
+            zonesConfigGrid.innerHTML = '';
+
+            const zoneNames = ['ช่องที่ 1 (หลัก/ซ้าย)', 'ช่องที่ 2 (ขวา/บน)', 'ช่องที่ 3 (ขวาล่าง)', 'ช่องที่ 4 (ล่างซ้าย)'];
+            const savedWebLinks = images.filter(img => img.type === 'webpage' || img.type === 'youtube');
+
+            for (let i = 0; i < zoneCount; i++) {
+                if (!layoutConfig.zones[i]) {
+                    layoutConfig.zones[i] = { type: i === 0 ? 'slideshow' : 'dashboard', url: '', selectedItemIds: ['all'] };
+                }
+                const zData = layoutConfig.zones[i];
+
+                const item = document.createElement('div');
+                item.className = 'zone-config-item';
+                
+                const h4 = document.createElement('h4');
+                h4.innerHTML = `<span>${zoneNames[i] || 'ช่องที่ ' + (i + 1)}</span> <span class="zone-badge">Zone ${i + 1}</span>`;
+                
+                // Select 1: Content Type
+                const selectType = document.createElement('select');
+                selectType.className = 'zone-type-select';
+                selectType.innerHTML = `
+                    <option value="slideshow" ${zData.type === 'slideshow' ? 'selected' : ''}>🖼️ สไลด์โชว์รูปภาพ/วิดีโอ (เลือกหลายรายการได้)</option>
+                    <option value="dashboard" ${zData.type === 'dashboard' ? 'selected' : ''}>📊 หน้าเว็บ / แดชบอร์ด (URL)</option>
+                    <option value="training" ${zData.type === 'training' ? 'selected' : ''}>📋 ตารางอบรม (Training Table)</option>
+                    <option value="clock" ${zData.type === 'clock' ? 'selected' : ''}>⏰ นาฬิกาและสรุปข่าวสาร</option>
+                `;
+
+                // Container for Dashboard options
+                const dashboardBox = document.createElement('div');
+                dashboardBox.className = 'zone-sub-config dashboard-box';
+                dashboardBox.style.display = zData.type === 'dashboard' ? 'block' : 'none';
+
+                const webSelect = document.createElement('select');
+                webSelect.className = 'zone-web-select';
+                webSelect.style.cssText = 'margin-top: 6px; margin-bottom: 6px; font-weight: 500; color: #1e293b;';
+                
+                let webOptionsHTML = '<option value="">-- 🌐 เลือกจากเว็บ/แดชบอร์ดที่บันทึกไว้ --</option>';
+                savedWebLinks.forEach((link) => {
+                    const label = link.type === 'youtube' ? `🎥 YouTube: ${link.url}` : `🌐 Web: ${link.url}`;
+                    const isSelected = zData.url === link.url ? 'selected' : '';
+                    webOptionsHTML += `<option value="${link.url}" ${isSelected}>${label}</option>`;
+                });
+                webSelect.innerHTML = webOptionsHTML;
+
+                const urlInp = document.createElement('input');
+                urlInp.type = 'text';
+                urlInp.placeholder = '🔗 หรือใส่ URL แดชบอร์ด (เช่น https://...)';
+                urlInp.value = zData.url || '';
+
+                webSelect.addEventListener('change', async (e) => {
+                    if (e.target.value) {
+                        urlInp.value = e.target.value;
+                        layoutConfig.zones[i].url = e.target.value;
+                        await saveLayoutConfigToFirebase();
+                    }
+                });
+
+                urlInp.addEventListener('change', async (e) => {
+                    layoutConfig.zones[i].url = e.target.value.trim();
+                    await saveLayoutConfigToFirebase();
+                });
+
+                dashboardBox.appendChild(webSelect);
+                dashboardBox.appendChild(urlInp);
+
+                // Container for Multi-Select Slideshow options
+                const slideshowBox = document.createElement('div');
+                slideshowBox.className = 'zone-sub-config slideshow-box';
+                slideshowBox.style.display = zData.type === 'slideshow' ? 'block' : 'none';
+
+                const currentSelectedIds = zData.selectedItemIds || (zData.selectedImageId ? [zData.selectedImageId] : ['all']);
+                const isAllSelected = currentSelectedIds.includes('all');
+
+                const multiHeader = document.createElement('div');
+                multiHeader.style.cssText = 'font-size: 0.83rem; font-weight: 700; color: #1e293b; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;';
+                multiHeader.innerHTML = `
+                    <span>📋 เลือกสื่อหมุนเวียนในช่องนี้:</span>
+                    <label style="font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.78rem; background: #e0e7ff; color: #4338ca; padding: 4px 10px; border-radius: 20px; transition: all 0.2s;">
+                        <input type="checkbox" class="chk-select-all" ${isAllSelected ? 'checked' : ''} style="accent-color: #4338ca; cursor: pointer;">
+                        <span>แสดงทั้งหมด</span>
+                    </label>
+                `;
+
+                const chkContainer = document.createElement('div');
+                chkContainer.style.cssText = 'max-height: 140px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding: 2px;';
+
+                if (images.length === 0) {
+                    chkContainer.innerHTML = '<div style="font-size: 0.78rem; color: #94a3b8; text-align: center; padding: 10px;">(ยังไม่มีรายการสื่อในระบบ)</div>';
+                } else {
+                    images.forEach((img, idx) => {
+                        const isChecked = isAllSelected || currentSelectedIds.includes(String(img.id));
+                        
+                        const chip = document.createElement('label');
+                        chip.className = `zone-item-chip ${isChecked ? 'selected' : ''}`;
+                        
+                        let typeIcon = '📷';
+                        if (img.type === 'youtube') typeIcon = '🎥';
+                        else if (img.type === 'webpage') typeIcon = '🌐';
+                        
+                        const title = img.name || (img.type === 'youtube' ? `YouTube: ${img.videoId}` : (img.type === 'webpage' ? `Web: ${img.url}` : `รูปภาพที่ ${idx + 1}`));
+                        
+                        chip.innerHTML = `
+                            <input type="checkbox" class="item-chk" value="${img.id}" ${isChecked ? 'checked' : ''}>
+                            <span class="chip-icon">${typeIcon}</span>
+                            <span class="chip-title">${title}</span>
+                        `;
+
+                        const itemChk = chip.querySelector('.item-chk');
+                        itemChk.addEventListener('change', async (e) => {
+                            e.stopPropagation();
+                            if (itemChk.checked) {
+                                chip.classList.add('selected');
+                            } else {
+                                chip.classList.remove('selected');
+                            }
+
+                            const checkedBoxes = chkContainer.querySelectorAll('.item-chk:checked');
+                            const ids = Array.from(checkedBoxes).map(c => c.value);
+                            const chkAll = multiHeader.querySelector('.chk-select-all');
+
+                            if (ids.length === images.length && images.length > 0) {
+                                layoutConfig.zones[i].selectedItemIds = ['all'];
+                                chkAll.checked = true;
+                            } else {
+                                layoutConfig.zones[i].selectedItemIds = ids;
+                                chkAll.checked = false;
+                            }
+                            await saveLayoutConfigToFirebase();
+                        });
+
+                        chkContainer.appendChild(chip);
+                    });
+                }
+
+                const chkAll = multiHeader.querySelector('.chk-select-all');
+                chkAll.addEventListener('change', async (e) => {
+                    e.stopPropagation();
+                    const isChecked = e.target.checked;
+                    
+                    if (isChecked) {
+                        layoutConfig.zones[i].selectedItemIds = ['all'];
+                    } else {
+                        layoutConfig.zones[i].selectedItemIds = [];
+                    }
+
+                    const allItemChks = chkContainer.querySelectorAll('.item-chk');
+                    const allChips = chkContainer.querySelectorAll('.zone-item-chip');
+
+                    allItemChks.forEach(c => { c.checked = isChecked; });
+                    allChips.forEach(c => {
+                        if (isChecked) c.classList.add('selected');
+                        else c.classList.remove('selected');
+                    });
+
+                    await saveLayoutConfigToFirebase();
+                });
+
+                slideshowBox.appendChild(multiHeader);
+                slideshowBox.appendChild(chkContainer);
+
+                selectType.addEventListener('change', async (e) => {
+                    const val = e.target.value;
+                    layoutConfig.zones[i].type = val;
+                    dashboardBox.style.display = val === 'dashboard' ? 'block' : 'none';
+                    slideshowBox.style.display = val === 'slideshow' ? 'block' : 'none';
+                    await saveLayoutConfigToFirebase();
+                });
+
+                item.appendChild(h4);
+                item.appendChild(selectType);
+                item.appendChild(dashboardBox);
+                item.appendChild(slideshowBox);
+                zonesConfigGrid.appendChild(item);
+            }
+        }
+
+        layoutCards.forEach(card => {
+            card.addEventListener('click', async () => {
+                const mode = card.dataset.mode;
+                layoutConfig.mode = mode;
+                updateLayoutUI();
+                await saveLayoutConfigToFirebase();
+            });
+        });
 
         // Clock Update Function
         function updateClock() {
             const now = new Date();
             
-            // Time (HH:MM:SS)
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const seconds = String(now.getSeconds()).padStart(2, '0');
             const timeString = `${hours}:${minutes}:${seconds}`;
             
-            // Date (Thai format)
             const thaiMonths = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
                               'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
             const thaiDays = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
             
             const day = now.getDate();
             const month = thaiMonths[now.getMonth()];
-            const year = now.getFullYear() + 543; // Buddhist year
+            const year = now.getFullYear() + 543;
             const dayName = thaiDays[now.getDay()];
             
             const dateString = `วัน${dayName}ที่ ${day} ${month} ${year}`;
             
-            // Update DOM
             const clockTime = document.getElementById('clockTime');
             const clockDate = document.getElementById('clockDate');
             if (clockTime) clockTime.textContent = timeString;
             if (clockDate) clockDate.textContent = dateString;
         }
-        
-        // Update clock every second
         setInterval(updateClock, 1000);
-        updateClock(); // Initial call
-        let draggedIndex = null;
+        updateClock();
 
         // DOM Elements
         const imageInput = document.getElementById('imageInput');
@@ -1095,7 +1948,7 @@
         const closeBtn = document.getElementById('closeBtn');
 
         // ==========================================
-        // 🔥 FIREBASE SYNC
+        // 🔥 FIREBASE SYNC & DATA FETCHING
         // ==========================================
         onValue(imagesRef, (snapshot) => {
             const data = snapshot.val();
@@ -1112,16 +1965,15 @@
             }
             updateThumbnails();
             updateControls();
+            updateLayoutUI();
             
-            // 🔄 CRITICAL: If slideshow is active and images changed, re-render slides
+            // Re-render slides if slideshow is active and image count changed
             const isInSlideshow = slideshowContainer.classList.contains('active');
             const imagesChanged = images.length !== previousCount;
             
             if (isInSlideshow && imagesChanged) {
-                console.log('🔄 Images changed during slideshow - re-rendering...');
                 const savedIndex = currentSlideIndex;
                 renderSlides();
-                // Try to stay on current slide, or go to first if index is out of range
                 if (savedIndex < images.length) {
                     showSlide(savedIndex);
                 } else {
@@ -1130,14 +1982,30 @@
                 }
             }
             
-            // Update sync indicator
             syncIndicator.classList.remove('syncing');
         });
 
-        async function saveToFirebase() {
-            // Show syncing state
+        // Fixed Bug: loadFromFirebase defined properly using Firebase get()
+        async function loadFromFirebase() {
             syncIndicator.classList.add('syncing');
-            
+            const snapshot = await get(imagesRef);
+            const data = snapshot.val();
+            if (data) {
+                images = Object.keys(data).map(key => ({
+                    id: key,
+                    ...data[key]
+                }));
+                images.sort((a, b) => (a.order || 0) - (b.order || 0));
+            } else {
+                images = [];
+            }
+            updateThumbnails();
+            updateControls();
+            syncIndicator.classList.remove('syncing');
+        }
+
+        async function saveToFirebase() {
+            syncIndicator.classList.add('syncing');
             const dataToSave = {};
             images.forEach((img, index) => {
                 const id = img.id || push(imagesRef).key;
@@ -1145,14 +2013,11 @@
                     type: img.type,
                     url: img.url,
                     thumbnail: img.thumbnail,
-                    createdAt: img.createdAt,
+                    createdAt: img.createdAt || Date.now(),
                     order: index
                 };
-                
-                // เพิ่มข้อมูลเฉพาะถ้ามี (ไม่ให้เป็น undefined)
                 if (img.publicId) itemData.publicId = img.publicId;
                 if (img.videoId) itemData.videoId = img.videoId;
-                
                 dataToSave[id] = itemData;
             });
             
@@ -1164,57 +2029,71 @@
         }
 
         // ==========================================
-        // ☁️ CLOUDINARY FUNCTIONS
+        // 🖼️ CLIENT-SIDE IMAGE COMPRESSION & STORAGE
         // ==========================================
-        async function uploadToCloudinary(file) {
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('upload_preset', CLOUDINARY_CONFIG.uploadPreset);
-            formData.append('folder', CLOUDINARY_CONFIG.folder);
+        function processAndCompressImage(file, maxDim = 1280, quality = 0.82) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
 
-            const response = await fetch(
-                `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/image/upload`,
-                { method: 'POST', body: formData }
-            );
+                        if (width > maxDim || height > maxDim) {
+                            if (width > height) {
+                                height = Math.round((height * maxDim) / width);
+                                width = maxDim;
+                            } else {
+                                width = Math.round((width * maxDim) / height);
+                                height = maxDim;
+                            }
+                        }
 
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(0, 0, width, height);
+                        ctx.drawImage(img, 0, 0, width, height);
 
-            const data = await response.json();
-            
-            // Create thumbnail URL with proper transformation
-            const thumbnailUrl = `https://res.cloudinary.com/${CLOUDINARY_CONFIG.cloudName}/image/upload/w_300,h_300,c_fill/${data.public_id}`;
-            
-            return {
-                type: 'image',
-                url: data.secure_url,
-                publicId: data.public_id,
-                thumbnail: thumbnailUrl,
-                createdAt: Date.now()
-            };
+                        const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                        resolve({
+                            type: 'image',
+                            url: compressedDataUrl,
+                            thumbnail: compressedDataUrl,
+                            createdAt: Date.now()
+                        });
+                    };
+                    img.onerror = () => reject(new Error('ไม่สามารถอ่านไฟล์รูปภาพได้'));
+                };
+                reader.onerror = () => reject(new Error('เกิดข้อผิดพลาดในการอ่านไฟล์'));
+            });
         }
 
-        // ==========================================
-        // 📤 UPLOAD HANDLERS
-        // ==========================================
+        // Upload Input Listener
         imageInput.addEventListener('change', async function(e) {
             const files = Array.from(e.target.files);
             if (files.length === 0) return;
 
-            showLoading(`📤 กำลังอัปโหลด ${files.length} รูป...`);
+            showLoading(`📤 กำลังประมวลผล ${files.length} รูป...`);
 
             try {
                 for (let i = 0; i < files.length; i++) {
                     const file = files[i];
                     if (file.type.startsWith('image/')) {
-                        loadingText.textContent = `📤 กำลังอัปโหลด ${i + 1}/${files.length}...`;
-                        const result = await uploadToCloudinary(file);
+                        loadingText.textContent = `📤 กำลังประมวลผลรูปที่ ${i + 1}/${files.length}...`;
+                        const result = await processAndCompressImage(file);
                         images.push(result);
                     }
                 }
                 
                 await saveToFirebase();
                 hideLoading();
-                alert(`✅ อัปโหลดสำเร็จ ${files.length} รูป!\n\n🔥 ทุกเครื่องจะเห็นรูปใหม่อัตโนมัติ!`);
+                alert(`✅ เพิ่มรูปภาพสำเร็จ ${files.length} รูป!\n\n🔥 ระบบซิงค์ข้อมูลไปยังทุกหน้าจอแล้ว`);
             } catch (error) {
                 hideLoading();
                 alert('❌ เกิดข้อผิดพลาด: ' + error.message);
@@ -1224,16 +2103,15 @@
         });
 
         // ==========================================
-        // 🔗 URL HANDLERS (Support all URLs)
+        // 🔗 URL ADDING
         // ==========================================
         addUrlBtn.addEventListener('click', async function() {
             const url = urlInput.value.trim();
             if (!url) {
-                alert('กรุณาใส่ลิงก์');
+                alert('กรุณากรอกลิงก์');
                 return;
             }
 
-            // Check if it's a YouTube URL
             if (isYouTubeUrl(url)) {
                 const videoId = getYouTubeVideoId(url);
                 if (videoId) {
@@ -1247,22 +2125,21 @@
                     
                     await saveToFirebase();
                     urlInput.value = '';
-                    alert('✅ เพิ่ม YouTube สำเร็จ!\n\n🔥 ทุกเครื่องจะเห็นวิดีโอนี้!');
+                    alert('✅ เพิ่มวิดีโอ YouTube สำเร็จ!');
                 } else {
                     alert('❌ ลิงก์ YouTube ไม่ถูกต้อง');
                 }
             } else {
-                // For other URLs, create iframe embed
                 images.push({
                     type: 'webpage',
                     url: url,
-                    thumbnail: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"%3E%3Crect fill="%234f46e5" width="300" height="300"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="48" fill="white"%3E🌐%3C/text%3E%3C/svg%3E',
+                    thumbnail: 'images/webpage_placeholder.svg',
                     createdAt: Date.now()
                 });
                 
                 await saveToFirebase();
                 urlInput.value = '';
-                alert('✅ เพิ่มลิงก์สำเร็จ!\n\n🔥 ทุกเครื่องจะเห็นหน้าเว็บนี้!');
+                alert('✅ เพิ่มลิงก์หน้าเว็บสำเร็จ!');
             }
         });
 
@@ -1287,7 +2164,7 @@
         }
 
         // ==========================================
-        // 🎨 THUMBNAIL FUNCTIONS
+        // 🎨 THUMBNAILS & DRAG/DROP
         // ==========================================
         function updateThumbnails() {
             thumbnailGrid.innerHTML = '';
@@ -1298,37 +2175,32 @@
                 item.dataset.index = index;
 
                 const img = document.createElement('img');
-                
-                // Use main URL if thumbnail fails or doesn't exist
                 const thumbnailUrl = imgObj.thumbnail || imgObj.url;
                 
                 img.src = thumbnailUrl;
                 img.alt = 'Image ' + (index + 1);
                 
-                // Handle image loading errors
                 img.onerror = function() {
-                    // If thumbnail fails, try main URL
                     if (this.src !== imgObj.url) {
                         this.src = imgObj.url;
                     } else {
-                        // If both fail, show placeholder
-                        this.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"%3E%3Crect fill="%23e5e7eb" width="300" height="300"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="48" fill="%239ca3af"%3E%3F%3C/text%3E%3C/svg%3E';
+                        this.src = 'images/error_placeholder.svg';
                     }
                 };
                 
-                // Add loading state
                 img.onload = function() {
                     this.style.opacity = '1';
                 };
                 img.style.opacity = '0';
-                img.style.transition = 'opacity 0.3s';
+                img.style.transition = 'opacity 0.25s ease';
 
                 const btn = document.createElement('button');
                 btn.className = 'thumbnail-remove';
                 btn.innerHTML = '×';
+                btn.title = 'ลบรายการนี้';
                 btn.onclick = async (e) => {
                     e.stopPropagation();
-                    if (confirm('ต้องการลบรูปนี้?\n\n🔥 ทุกเครื่องจะเห็นว่ารูปถูกลบ!')) {
+                    if (confirm('ต้องการลบรายการนี้ใช่หรือไม่?')) {
                         const id = imgObj.id;
                         images.splice(index, 1);
                         if (id) {
@@ -1340,15 +2212,15 @@
                 };
 
                 if (imgObj.type === 'youtube') {
-                    const icon = document.createElement('div');
-                    icon.style.cssText = 'position:absolute;bottom:5px;left:5px;background:rgba(255,0,0,0.9);color:white;padding:3px 8px;border-radius:3px;font-size:10px;font-weight:bold;';
-                    icon.textContent = '▶ YouTube';
-                    item.appendChild(icon);
+                    const badge = document.createElement('div');
+                    badge.className = 'thumbnail-badge badge-youtube';
+                    badge.textContent = '▶ YouTube';
+                    item.appendChild(badge);
                 } else if (imgObj.type === 'webpage') {
-                    const icon = document.createElement('div');
-                    icon.style.cssText = 'position:absolute;bottom:5px;left:5px;background:rgba(79,70,229,0.9);color:white;padding:3px 8px;border-radius:3px;font-size:10px;font-weight:bold;';
-                    icon.textContent = '🌐 Web';
-                    item.appendChild(icon);
+                    const badge = document.createElement('div');
+                    badge.className = 'thumbnail-badge badge-webpage';
+                    badge.textContent = '🌐 Web';
+                    item.appendChild(badge);
                 }
 
                 item.addEventListener('dragstart', handleDragStart);
@@ -1378,53 +2250,49 @@
             e.preventDefault();
             const dropIndex = parseInt(this.dataset.index);
             
-            if (draggedIndex !== dropIndex) {
+            if (draggedIndex !== null && draggedIndex !== dropIndex) {
                 const draggedItem = images[draggedIndex];
                 images.splice(draggedIndex, 1);
                 images.splice(dropIndex, 0, draggedItem);
+                updateThumbnails();
                 await saveToFirebase();
             }
             return false;
         }
 
-        function handleDragEnd(e) {
+        function handleDragEnd() {
             this.classList.remove('dragging');
             draggedIndex = null;
         }
 
         clearBtn.addEventListener('click', async function() {
-            if (images.length > 0 && confirm('ลบทั้งหมด?\n\n🔥 ทุกเครื่องจะเห็นว่ารูปถูกลบหมด!')) {
+            if (images.length > 0 && confirm('ต้องการลบรูปภาพทั้งหมดใช่หรือไม่?')) {
                 await set(imagesRef, {});
                 closeSlideshow();
             }
         });
 
-        // Refresh button - โหลดข้อมูลใหม่จาก Firebase
         refreshBtn.addEventListener('click', async function() {
-            // Add spinning animation
             refreshBtn.classList.add('refreshing');
             refreshBtn.disabled = true;
             
             try {
-                // Firebase จะ sync อัตโนมัติผ่าน onValue
-                // แค่แสดง feedback ว่ากำลัง refresh
-                await new Promise(resolve => setTimeout(resolve, 500));
+                await loadFromFirebase();
                 
-                // Show success message
-                const originalText = refreshBtn.textContent;
-                refreshBtn.textContent = '✅ อัปเดตแล้ว';
+                const span = refreshBtn.querySelector('span');
+                const oldText = span.textContent;
+                span.textContent = 'อัปเดตแล้ว!';
                 
                 setTimeout(() => {
-                    refreshBtn.textContent = originalText;
+                    span.textContent = oldText;
                     refreshBtn.classList.remove('refreshing');
                     refreshBtn.disabled = false;
-                }, 1500);
-                
+                }, 1200);
             } catch (error) {
                 console.error('Refresh error:', error);
                 refreshBtn.classList.remove('refreshing');
                 refreshBtn.disabled = false;
-                alert('❌ เกิดข้อผิดพลาดในการรีเฟรช');
+                alert('❌ ไม่สามารถเชื่อมต่อฐานข้อมูลได้');
             }
         });
 
@@ -1434,7 +2302,7 @@
         }
 
         // ==========================================
-        // 🎬 SLIDESHOW FUNCTIONS
+        // 🎬 SLIDESHOW LOGIC
         // ==========================================
         effectSelect.addEventListener('change', function() {
             currentEffect = this.value;
@@ -1442,7 +2310,6 @@
 
         durationSelect.addEventListener('change', function() {
             SLIDE_DURATION = parseInt(this.value);
-            // If slideshow is playing, restart with new duration
             if (slideshowContainer.classList.contains('active') && !isYouTubePlaying) {
                 startSlideshow();
             }
@@ -1450,15 +2317,13 @@
 
         showBtn.addEventListener('click', async function() {
             if (images.length > 0) {
-                // Auto-refresh: Reload data from Firebase before showing
                 showLoading('🔄 กำลังโหลดข้อมูลล่าสุด...');
                 try {
                     await loadFromFirebase();
-                    hideLoading();
                 } catch (error) {
-                    console.error('Failed to refresh data:', error);
+                    console.warn('Could not refresh before showing:', error);
+                } finally {
                     hideLoading();
-                    // Continue anyway with existing data
                 }
                 
                 showSlideshow();
@@ -1466,71 +2331,245 @@
             }
         });
 
-        // ==========================================
-        // 🎮 NAVIGATION CONTROLS
-        // ==========================================
-        
-        // Auto-hide controls
-        let hideControlsTimer;
-        
         function showControls() {
             slideshowContainer.classList.add('show-controls');
             clearTimeout(hideControlsTimer);
             hideControlsTimer = setTimeout(() => {
                 slideshowContainer.classList.remove('show-controls');
-            }, 3000); // Hide after 3 seconds
+            }, 3000);
         }
         
-        // Show controls on mouse move or touch
         slideshowContainer.addEventListener('mousemove', showControls);
         slideshowContainer.addEventListener('touchstart', showControls);
-        
-        // Show controls initially when slideshow starts
+
         function showSlideshow() {
             slideshowContainer.classList.add('active');
-            currentSlideIndex = 0;
-            renderSlides();
-            showSlide(0);
-            startSlideshow();
+            renderMultiZoneDisplay();
             document.body.style.overflow = 'hidden';
-            showControls(); // Show controls initially
+            showControls();
         }
-        
-        // Close button
+
+        function renderSingleSlideIntoContainer(container, itemObj) {
+            if (!container || !itemObj) return;
+            container.innerHTML = '';
+            
+            if (itemObj.type === 'youtube' && itemObj.videoId) {
+                const iframe = document.createElement('iframe');
+                iframe.src = `https://www.youtube.com/embed/${itemObj.videoId}?autoplay=1&mute=1&controls=1&loop=1&playlist=${itemObj.videoId}`;
+                iframe.style.cssText = 'width:100%;height:100%;border:none;';
+                iframe.allow = 'autoplay; fullscreen';
+                container.appendChild(iframe);
+            } else if (itemObj.type === 'webpage' && itemObj.url) {
+                const iframe = document.createElement('iframe');
+                iframe.src = itemObj.url;
+                iframe.style.cssText = 'width:100%;height:100%;border:none;background:#fff;';
+                iframe.allow = 'autoplay; fullscreen';
+                container.appendChild(iframe);
+            } else if (itemObj.url) {
+                const img = document.createElement('img');
+                img.src = itemObj.url;
+                img.style.cssText = 'width:100%;height:100%;object-fit:contain;background:#090d16;';
+                container.appendChild(img);
+            }
+        }
+
+        function renderMultiZoneDisplay() {
+            destroyYouTubePlayer();
+            stopSlideshow();
+
+            zoneTimers.forEach(t => clearInterval(t));
+            zoneTimers = [];
+
+            const isMulti = String(layoutConfig.mode) !== '1';
+            let wrapper = document.getElementById('multiZoneWrapper');
+
+            if (!isMulti) {
+                // ==========================================
+                // 🖥️ MODE 1: SINGLE FULLSCREEN SLIDESHOW
+                // ==========================================
+                slideshowContainer.classList.remove('multi-mode');
+                if (wrapper) wrapper.remove();
+
+                let slidesWrapper = document.getElementById('slidesWrapper');
+                if (!slidesWrapper) {
+                    slidesWrapper = document.createElement('div');
+                    slidesWrapper.id = 'slidesWrapper';
+                    slideshowContainer.insertBefore(slidesWrapper, slideshowContainer.firstChild);
+                }
+                slidesWrapper.style.display = 'block';
+
+                renderSlides();
+                showSlide(0);
+                startSlideshow();
+                return;
+            }
+
+            // ==========================================
+            // 🍱 MULTI-ZONE MODE (2, 3, 4 ZONES)
+            // ==========================================
+            slideshowContainer.classList.add('multi-mode');
+
+            let slidesWrapper = document.getElementById('slidesWrapper');
+            if (slidesWrapper && slidesWrapper.parentNode === slideshowContainer) {
+                slidesWrapper.style.display = 'none';
+            }
+
+            if (!wrapper) {
+                wrapper = document.createElement('div');
+                wrapper.id = 'multiZoneWrapper';
+                slideshowContainer.insertBefore(wrapper, slideshowContainer.firstChild);
+            }
+
+            wrapper.className = `multi-zone-wrapper mode-${layoutConfig.mode}`;
+            wrapper.innerHTML = '';
+
+            const zoneCount = parseInt(layoutConfig.mode || '2');
+
+            for (let i = 0; i < zoneCount; i++) {
+                const zData = (layoutConfig.zones && layoutConfig.zones[i]) ? layoutConfig.zones[i] : { type: i === 0 ? 'slideshow' : 'dashboard', url: '' };
+                const cell = document.createElement('div');
+                cell.className = `zone-cell zone-cell-${i}`;
+
+                // Content Body
+                const body = document.createElement('div');
+                body.className = 'zone-content-body';
+
+                if (zData.type === 'dashboard') {
+                    if (zData.url) {
+                        const iframe = document.createElement('iframe');
+                        iframe.src = zData.url;
+                        iframe.allow = 'autoplay; fullscreen';
+                        body.appendChild(iframe);
+                    } else {
+                        const empty = document.createElement('div');
+                        empty.style.cssText = 'color: #94a3b8; text-align: center; padding: 40px 20px; font-size: 0.9rem; font-weight: 500; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px;';
+                        empty.innerHTML = `
+                            <div style="font-size: 2rem;">📊</div>
+                            <div>กรุณาใส่ URL แดชบอร์ดในแผงควบคุมหน้าหลัก</div>
+                        `;
+                        body.appendChild(empty);
+                    }
+                } else if (zData.type === 'training') {
+                    const tableClone = document.getElementById('shiftTable').cloneNode(true);
+                    tableClone.querySelectorAll('.btn-delete-row, th:last-child, td:last-child').forEach(el => el.remove());
+                    tableClone.querySelectorAll('input, select').forEach(el => {
+                        const txt = el.tagName === 'SELECT' ? (el.options[el.selectedIndex]?.text || el.value) : el.value;
+                        const span = document.createElement('span');
+                        span.textContent = txt;
+                        span.style.fontWeight = 'bold';
+                        el.parentNode.replaceChild(span, el);
+                    });
+                    const container = document.createElement('div');
+                    container.style.cssText = 'padding: 16px; background: white; width: 100%; height: 100%; overflow: auto; color: #1e293b; box-sizing: border-box;';
+                    const h2 = document.createElement('h2');
+                    h2.textContent = document.getElementById('trainingHeaderText').value || 'ตารางอบรม';
+                    h2.style.cssText = 'text-align: center; margin-bottom: 12px; color: #1e293b; font-size: 1.2rem; font-weight: 700;';
+                    container.appendChild(h2);
+                    container.appendChild(tableClone);
+                    body.appendChild(container);
+                } else if (zData.type === 'clock') {
+                    const widget = document.createElement('div');
+                    widget.className = 'zone-clock-widget';
+
+                    function updateZoneClockTime() {
+                        const now = new Date();
+                        const hours = String(now.getHours()).padStart(2, '0');
+                        const minutes = String(now.getMinutes()).padStart(2, '0');
+                        const seconds = String(now.getSeconds()).padStart(2, '0');
+                        const thaiMonths = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+                        const thaiDays = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
+                        const dateStr = `วัน${thaiDays[now.getDay()]}ที่ ${now.getDate()} ${thaiMonths[now.getMonth()]} ${now.getFullYear() + 543}`;
+                        
+                        const timeEl = widget.querySelector('.time');
+                        const dateEl = widget.querySelector('.date');
+                        if (timeEl) timeEl.textContent = `${hours}:${minutes}:${seconds}`;
+                        if (dateEl) dateEl.textContent = dateStr;
+                    }
+
+                    widget.innerHTML = `
+                        <div class="time" style="font-size: ${zoneCount > 2 ? '2.5rem' : '3.8rem'}; font-weight: 800; text-shadow: 0 0 20px rgba(99,102,241,0.5);">00:00:00</div>
+                        <div class="date" style="font-size: 1.1rem; margin-top: 6px; opacity: 0.9;">...</div>
+                        <div class="summary-title" style="margin-top: 14px; font-size: 0.85rem; background: rgba(255,255,255,0.1); padding: 6px 14px; border-radius: 20px;">📢 บอร์ดแจ้งข่าวสารกิจกรรมประจำวัน</div>
+                    `;
+                    body.appendChild(widget);
+
+                    updateZoneClockTime();
+                    const clockTimer = setInterval(updateZoneClockTime, 1000);
+                    zoneTimers.push(clockTimer);
+                } else {
+                    // Slideshow Zone inside Multi-Zone (Multi-Selection slideshow engine)
+                    let zoneItems = [];
+                    const selectedIds = zData.selectedItemIds || (zData.selectedImageId ? [zData.selectedImageId] : ['all']);
+
+                    if (selectedIds.includes('all')) {
+                        zoneItems = images;
+                    } else if (selectedIds.length > 0) {
+                        zoneItems = images.filter(img => selectedIds.includes(String(img.id)));
+                    } else {
+                        zoneItems = [];
+                    }
+
+                    if (zoneItems.length === 0) {
+                        const empty = document.createElement('div');
+                        empty.style.cssText = 'color: #94a3b8; text-align: center; padding: 40px 20px; font-size: 0.9rem; font-weight: 500; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px;';
+                        empty.innerHTML = `
+                            <div style="font-size: 2rem;">🖼️</div>
+                            <div>ยังไม่มีรายการรูปภาพในระบบ</div>
+                        `;
+                        body.appendChild(empty);
+                    } else if (zoneItems.length === 1) {
+                        const slideContainer = document.createElement('div');
+                        slideContainer.style.cssText = 'width:100%;height:100%;position:relative;';
+                        renderSingleSlideIntoContainer(slideContainer, zoneItems[0]);
+                        body.appendChild(slideContainer);
+                    } else {
+                        const slideContainer = document.createElement('div');
+                        slideContainer.style.cssText = 'width:100%;height:100%;position:relative;';
+                        body.appendChild(slideContainer);
+
+                        let zSlideIndex = 0;
+                        renderSingleSlideIntoContainer(slideContainer, zoneItems[0]);
+
+                        const zTimer = setInterval(() => {
+                            zSlideIndex = (zSlideIndex + 1) % zoneItems.length;
+                            renderSingleSlideIntoContainer(slideContainer, zoneItems[zSlideIndex]);
+                        }, SLIDE_DURATION);
+
+                        zoneTimers.push(zTimer);
+                    }
+                }
+
+                cell.appendChild(body);
+                wrapper.appendChild(cell);
+            }
+        }
+
         closeBtn.addEventListener('click', function(e) {
             e.stopPropagation();
-            exitFullscreen();
+            closeSlideshow();
         });
-        
-        // Previous button
+
         navPrev.addEventListener('click', function(e) {
             e.stopPropagation();
-            if (youtubePlayer) {
-                youtubePlayer.destroy();
-                youtubePlayer = null;
-            }
+            destroyYouTubePlayer();
             stopSlideshow();
             currentSlideIndex = (currentSlideIndex - 1 + images.length) % images.length;
             showSlide(currentSlideIndex);
             startSlideshow();
-            showControls(); // Show controls when clicked
+            showControls();
         });
 
-        // Next button
         navNext.addEventListener('click', function(e) {
             e.stopPropagation();
-            if (youtubePlayer) {
-                youtubePlayer.destroy();
-                youtubePlayer = null;
-            }
+            destroyYouTubePlayer();
             stopSlideshow();
             currentSlideIndex = (currentSlideIndex + 1) % images.length;
             showSlide(currentSlideIndex);
             startSlideshow();
-            showControls(); // Show controls when clicked
+            showControls();
         });
 
-        // Touch/Swipe support
+        // Touch Swipe
         let touchStartX = 0;
         let touchEndX = 0;
 
@@ -1544,21 +2583,14 @@
         }, { passive: true });
 
         function handleSwipe() {
-            const swipeThreshold = 50;
             const diff = touchStartX - touchEndX;
-
-            if (Math.abs(diff) > swipeThreshold) {
-                if (diff > 0) {
-                    // Swipe left - next
-                    navNext.click();
-                } else {
-                    // Swipe right - previous
-                    navPrev.click();
-                }
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) navNext.click();
+                else navPrev.click();
             }
         }
 
-        // Keyboard navigation
+        // Unified Keydown Listener (Fixes duplicate/conflicting handlers)
         document.addEventListener('keydown', function(e) {
             if (!slideshowContainer.classList.contains('active')) return;
 
@@ -1567,11 +2599,23 @@
             } else if (e.key === 'ArrowRight') {
                 navNext.click();
             } else if (e.key === 'Escape') {
-                exitFullscreen();
+                closeSlideshow();
             }
         });
 
+        function destroyYouTubePlayer() {
+            if (youtubePlayer && typeof youtubePlayer.destroy === 'function') {
+                try {
+                    youtubePlayer.destroy();
+                } catch (err) {
+                    console.warn('Error destroying YouTube player:', err);
+                }
+                youtubePlayer = null;
+            }
+        }
+
         function renderSlides() {
+            destroyYouTubePlayer();
             slidesWrapper.innerHTML = '';
             
             images.forEach((imgObj) => {
@@ -1579,13 +2623,11 @@
                     const div = document.createElement('div');
                     div.className = 'slide youtube-slide';
                     div.setAttribute('data-video-id', imgObj.videoId);
-                    div.style.cssText = 'position:relative;width:100vw;height:100vh;display:flex;justify-content:center;align-items:center;background:black;';
                     slidesWrapper.appendChild(div);
                 } else if (imgObj.type === 'webpage') {
                     const div = document.createElement('div');
                     div.className = 'slide webpage-slide';
                     div.setAttribute('data-url', imgObj.url);
-                    div.style.cssText = 'position:relative;width:100vw;height:100vh;display:flex;justify-content:center;align-items:center;background:black;';
                     slidesWrapper.appendChild(div);
                 } else {
                     const img = document.createElement('img');
@@ -1597,16 +2639,18 @@
         }
 
         window.onYouTubeIframeAPIReady = function() {
-            console.log('YouTube API Ready');
+            console.log('YouTube Iframe API Ready');
         };
 
         function showSlide(index) {
+            destroyYouTubePlayer();
+
             const slides = document.querySelectorAll('.slide');
             slides.forEach(s => {
                 s.classList.remove('active', 'effect-zoom-fade', 'effect-slide-fade', 'effect-ken-burns', 'effect-3d-flip', 'effect-blur');
             });
             
-            if (slides.length > 0) {
+            if (slides.length > 0 && index < slides.length) {
                 const slide = slides[index];
                 slide.classList.add('active');
                 
@@ -1625,35 +2669,26 @@
                             videoId: videoId,
                             playerVars: { 
                                 autoplay: 1,
-                                mute: 1,  // CRITICAL: Must mute for autoplay to work in modern browsers
+                                mute: 1,
                                 controls: 1, 
                                 rel: 0, 
                                 modestbranding: 1,
                                 playsinline: 1,
-                                loop: 1,  // Enable loop
-                                playlist: videoId  // Required for loop to work
+                                loop: 1,
+                                playlist: videoId
                             },
                             events: {
                                 'onReady': (e) => {
-                                    // Unmute after playback starts (autoplay requires mute)
                                     e.target.playVideo();
                                     setTimeout(() => {
-                                        try {
-                                            e.target.unMute();
-                                        } catch(err) {
-                                            console.log('Could not unmute, user interaction may be required');
-                                        }
+                                        try { e.target.unMute(); } catch(err) {}
                                     }, 1000);
                                     isYouTubePlaying = true;
                                     stopSlideshow();
                                 },
                                 'onStateChange': (e) => {
                                     if (e.data === YT.PlayerState.ENDED) {
-                                        // Video ended, restart it (loop)
                                         e.target.playVideo();
-                                    } else if (e.data === YT.PlayerState.PAUSED) {
-                                        // If user paused, respect that
-                                        // Do nothing, let them control
                                     }
                                 }
                             }
@@ -1678,13 +2713,13 @@
         function startSlideshow() {
             stopSlideshow();
             
-            if (!isYouTubePlaying) {
+            if (!isYouTubePlaying && images.length > 0) {
                 animateProgress();
                 slideInterval = setInterval(() => {
                     currentSlideIndex = (currentSlideIndex + 1) % images.length;
                     showSlide(currentSlideIndex);
                     const imgObj = images[currentSlideIndex];
-                    if (imgObj.type !== 'youtube') {
+                    if (imgObj && imgObj.type !== 'youtube') {
                         animateProgress();
                     }
                 }, SLIDE_DURATION);
@@ -1695,7 +2730,7 @@
             progressBar.style.width = '0%';
             clearInterval(progressInterval);
             let progress = 0;
-            const step = 100 / (SLIDE_DURATION / 100); // Calculate step based on duration
+            const step = 100 / (SLIDE_DURATION / 100);
             progressInterval = setInterval(() => {
                 progress += step;
                 if (progress >= 100) {
@@ -1713,25 +2748,24 @@
 
         function enterFullscreen() {
             const elem = document.documentElement;
-            if (elem.requestFullscreen) elem.requestFullscreen();
+            if (elem.requestFullscreen) elem.requestFullscreen().catch(() => {});
             else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
         }
 
         function exitFullscreen() {
-            if (document.exitFullscreen) document.exitFullscreen();
-            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            }
         }
 
         function closeSlideshow() {
             slideshowContainer.classList.remove('active');
             stopSlideshow();
+            destroyYouTubePlayer();
             progressBar.style.width = '0%';
             document.body.style.overflow = '';
             exitFullscreen();
-            if (youtubePlayer) {
-                youtubePlayer.destroy();
-                youtubePlayer = null;
-            }
             isYouTubePlaying = false;
         }
 
@@ -1739,14 +2773,8 @@
             if (e.target === slideshowContainer) closeSlideshow();
         });
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && slideshowContainer.classList.contains('active')) {
-                closeSlideshow();
-            }
-        });
-
         document.addEventListener('fullscreenchange', () => {
-            if (!document.fullscreenElement && slideshowContainer.classList.contains('active')) {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && slideshowContainer.classList.contains('active')) {
                 closeSlideshow();
             }
         });
@@ -1760,11 +2788,8 @@
             loadingOverlay.classList.remove('active');
         }
 
-        console.log('🔥 Firebase + Cloudinary Edition Ready!');
-        console.log('✅ Real-time sync enabled');
-
         // ==========================================
-        // 📋 TRAINING TABLE FUNCTIONS
+        // 📋 TRAINING TABLE GENERATOR
         // ==========================================
         const trainingBtn = document.getElementById('trainingBtn');
         const trainingContainer = document.getElementById('trainingContainer');
@@ -1773,53 +2798,48 @@
         const saveTrainingBtn = document.getElementById('saveTrainingBtn');
         const trainingTableBody = document.getElementById('trainingTableBody');
 
-        // Date range picker function (supports single or multiple dates)
+        // Fixed Bug: Date picker parsing using string split instead of UTC Date object
         let currentDateInput = null;
         
         window.openDateRangePicker = function(input) {
             currentDateInput = input;
             
-            // Create modal overlay
             const overlay = document.createElement('div');
-            overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; display: flex; justify-content: center; align-items: center;';
+            overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 3000; display: flex; justify-content: center; align-items: center;';
             
-            // Create date picker container
             const pickerContainer = document.createElement('div');
-            pickerContainer.style.cssText = 'background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); min-width: 400px;';
+            pickerContainer.style.cssText = 'background: white; padding: 28px; border-radius: 14px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); min-width: 380px; max-width: 90%; font-family: inherit;';
             
             const title = document.createElement('h3');
-            title.textContent = 'เลือกวันที่';
-            title.style.cssText = 'margin: 0 0 20px 0; color: #374151;';
+            title.textContent = '📅 เลือกช่วงวันที่';
+            title.style.cssText = 'margin: 0 0 18px 0; color: #1e293b; font-size: 1.2rem; font-weight: 700;';
             
-            // Date inputs container
             const datesContainer = document.createElement('div');
-            datesContainer.style.cssText = 'display: flex; gap: 10px; margin-bottom: 20px;';
+            datesContainer.style.cssText = 'display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;';
             
             const startDateInput = document.createElement('input');
             startDateInput.type = 'date';
-            startDateInput.placeholder = 'วันเริ่มต้น';
-            startDateInput.style.cssText = 'flex: 1; padding: 12px; font-size: 16px; border: 2px solid #667eea; border-radius: 8px; font-weight: bold;';
+            startDateInput.style.cssText = 'flex: 1; padding: 10px; font-size: 0.95rem; border: 2px solid #6366f1; border-radius: 8px; font-weight: bold; font-family: inherit;';
             
             const endDateInput = document.createElement('input');
             endDateInput.type = 'date';
-            endDateInput.placeholder = 'วันสิ้นสุด (ถ้ามี)';
-            endDateInput.style.cssText = 'flex: 1; padding: 12px; font-size: 16px; border: 2px solid #667eea; border-radius: 8px; font-weight: bold;';
+            endDateInput.style.cssText = 'flex: 1; padding: 10px; font-size: 0.95rem; border: 2px solid #6366f1; border-radius: 8px; font-weight: bold; font-family: inherit;';
             
-            // Parse existing value if any
+            // Existing value prefill
             if (input.value) {
                 const parts = input.value.split(' - ');
                 if (parts.length > 0) {
                     const startParts = parts[0].split('/');
                     if (startParts.length === 3) {
                         const year = parseInt(startParts[2]) - 543;
-                        startDateInput.value = `${year}-${startParts[1]}-${startParts[0]}`;
+                        startDateInput.value = `${year}-${startParts[1].padStart(2, '0')}-${startParts[0].padStart(2, '0')}`;
                     }
                 }
                 if (parts.length > 1) {
                     const endParts = parts[1].split('/');
                     if (endParts.length === 3) {
                         const year = parseInt(endParts[2]) - 543;
-                        endDateInput.value = `${year}-${endParts[1]}-${endParts[0]}`;
+                        endDateInput.value = `${year}-${endParts[1].padStart(2, '0')}-${endParts[0].padStart(2, '0')}`;
                     }
                 }
             }
@@ -1827,51 +2847,47 @@
             datesContainer.appendChild(startDateInput);
             datesContainer.appendChild(endDateInput);
             
-            // Buttons container
             const buttonsContainer = document.createElement('div');
             buttonsContainer.style.cssText = 'display: flex; gap: 10px; justify-content: flex-end;';
             
             const cancelBtn = document.createElement('button');
             cancelBtn.textContent = 'ยกเลิก';
-            cancelBtn.style.cssText = 'padding: 10px 20px; background: #6b7280; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;';
+            cancelBtn.style.cssText = 'padding: 10px 18px; background: #94a3b8; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-family: inherit;';
             cancelBtn.onclick = () => document.body.removeChild(overlay);
             
             const confirmBtn = document.createElement('button');
             confirmBtn.textContent = 'ตกลง';
-            confirmBtn.style.cssText = 'padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;';
+            confirmBtn.style.cssText = 'padding: 10px 18px; background: #6366f1; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-family: inherit;';
+            
             confirmBtn.onclick = () => {
                 if (!startDateInput.value) {
                     alert('กรุณาเลือกวันที่เริ่มต้น');
                     return;
                 }
                 
-                const startDate = new Date(startDateInput.value);
-                const startDay = String(startDate.getDate()).padStart(2, '0');
-                const startMonth = String(startDate.getMonth() + 1).padStart(2, '0');
-                const startYear = startDate.getFullYear() + 543;
+                // Parse date strings directly without UTC timezone shift
+                const [startYearNum, startMonthNum, startDayNum] = startDateInput.value.split('-').map(Number);
+                const startDay = String(startDayNum).padStart(2, '0');
+                const startMonth = String(startMonthNum).padStart(2, '0');
+                const startYear = startYearNum + 543;
                 
                 let dateText = `${startDay}/${startMonth}/${startYear}`;
                 
                 if (endDateInput.value) {
-                    const endDate = new Date(endDateInput.value);
-                    const endDay = String(endDate.getDate()).padStart(2, '0');
-                    const endMonth = String(endDate.getMonth() + 1).padStart(2, '0');
-                    const endYear = endDate.getFullYear() + 543;
+                    const [endYearNum, endMonthNum, endDayNum] = endDateInput.value.split('-').map(Number);
+                    const endDay = String(endDayNum).padStart(2, '0');
+                    const endMonth = String(endMonthNum).padStart(2, '0');
+                    const endYear = endYearNum + 543;
                     
-                    // Same month and year
                     if (startMonth === endMonth && startYear === endYear) {
                         dateText = `${startDay}-${endDay}/${startMonth}/${startYear}`;
-                    } 
-                    // Same year, different month
-                    else if (startYear === endYear) {
+                    } else if (startYear === endYear) {
                         const monthNames = ['', 'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 
                                           'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
-                        const startMonthName = monthNames[parseInt(startMonth)];
-                        const endMonthName = monthNames[parseInt(endMonth)];
+                        const startMonthName = monthNames[startMonthNum];
+                        const endMonthName = monthNames[endMonthNum];
                         dateText = `${startDay} ${startMonthName} - ${endDay} ${endMonthName} ${startYear}`;
-                    }
-                    // Different year
-                    else {
+                    } else {
                         dateText = `${startDay}/${startMonth}/${startYear} - ${endDay}/${endMonth}/${endYear}`;
                     }
                 }
@@ -1890,21 +2906,14 @@
             overlay.appendChild(pickerContainer);
             document.body.appendChild(overlay);
             
-            // Close on overlay click
             overlay.addEventListener('click', function(e) {
-                if (e.target === overlay) {
-                    document.body.removeChild(overlay);
-                }
+                if (e.target === overlay) document.body.removeChild(overlay);
             });
-            
-            // Auto focus
-            setTimeout(() => startDateInput.focus(), 100);
         };
 
-        // Open training table
+        // Open Modal
         trainingBtn.addEventListener('click', function() {
             trainingContainer.style.display = 'flex';
-            // Set default date to today in DD/MM/YYYY format
             document.querySelectorAll('.training-date').forEach((input, index) => {
                 if (!input.value) {
                     const date = new Date();
@@ -1917,19 +2926,15 @@
             });
         });
 
-        // Close training table
         closeTrainingBtn.addEventListener('click', function() {
             trainingContainer.style.display = 'none';
         });
 
-        // Close when clicking outside
         trainingContainer.addEventListener('click', function(e) {
-            if (e.target === trainingContainer) {
-                trainingContainer.style.display = 'none';
-            }
+            if (e.target === trainingContainer) trainingContainer.style.display = 'none';
         });
 
-        // Add new row
+        // Add Table Row
         addRowBtn.addEventListener('click', function() {
             const newRow = document.createElement('tr');
             const today = new Date();
@@ -1975,52 +2980,53 @@
             trainingTableBody.appendChild(newRow);
         });
 
-        // Delete row function
         window.deleteTrainingRow = function(button) {
             const row = button.closest('tr');
             const tbody = document.getElementById('trainingTableBody');
             
-            // Don't allow deleting if it's the last row
             if (tbody.children.length <= 1) {
                 alert('⚠️ ต้องมีอย่างน้อย 1 แถว');
                 return;
             }
             
-            if (confirm('ต้องการลบแถวนี้?')) {
+            if (confirm('ต้องการลบแถวนี้ใช่หรือไม่?')) {
                 row.remove();
             }
         };
 
-        // Save training table - Download to device AND upload to Firebase
+        // Save & Export Training Table to Canvas + Cloudinary + Firebase
         saveTrainingBtn.addEventListener('click', async function() {
             const captureArea = document.querySelector('.training-form');
             const headerText = document.getElementById('trainingHeaderText').value || 'อบรม';
             
-            // Hide controls before capturing
             const controls = captureArea.querySelector('.training-controls');
             controls.style.display = 'none';
             
-            // Hide ONLY delete column (last column)
             const deleteHeader = captureArea.querySelector('th:last-child');
             const deleteCells = captureArea.querySelectorAll('td:last-child');
             deleteHeader.style.display = 'none';
             deleteCells.forEach(cell => cell.style.display = 'none');
             
-            // CRITICAL FIX: Replace ALL inputs/selects with plain text divs
+            // Replace form elements with text divs for html2canvas rendering
             const allInputsSelects = captureArea.querySelectorAll('input, select');
             const replacements = [];
             
             allInputsSelects.forEach(element => {
                 const textDiv = document.createElement('div');
-                textDiv.textContent = element.value || element.options?.[element.selectedIndex]?.text || '';
+                const valText = element.tagName === 'SELECT' 
+                    ? (element.options[element.selectedIndex]?.text || element.value)
+                    : element.value;
+                    
+                textDiv.textContent = valText || '';
                 textDiv.style.cssText = `
-                    font-size: ${element.classList.contains('header-input') ? '36px' : '16px'};
+                    font-size: ${element.classList.contains('header-input') ? '32px' : '16px'};
                     font-weight: bold;
                     text-align: center;
-                    padding: ${element.classList.contains('header-input') ? '25px 30px' : '10px'};
+                    padding: ${element.classList.contains('header-input') ? '20px 24px' : '10px'};
                     line-height: 1.4;
                     width: 100%;
                     box-sizing: border-box;
+                    color: #1e293b;
                 `;
                 
                 replacements.push({
@@ -2032,34 +3038,26 @@
                 element.parentNode.replaceChild(textDiv, element);
             });
             
-            // Add extra padding
             const originalPadding = captureArea.style.padding;
-            captureArea.style.padding = '50px';
+            captureArea.style.padding = '40px';
             
-            // Make table container visible
             const tableContainer = captureArea.querySelector('.table-container');
             const originalOverflow = tableContainer.style.overflow;
             tableContainer.style.overflow = 'visible';
             
             showLoading('📸 กำลังสร้างรูปภาพ...');
-            
-            // Wait for DOM to update
             await new Promise(resolve => setTimeout(resolve, 200));
             
             try {
                 const canvas = await html2canvas(captureArea, {
                     backgroundColor: '#ffffff',
-                    scale: 1,  // Use scale 1 for better control
+                    scale: 2,
                     logging: false,
                     useCORS: true,
-                    allowTaint: true,
-                    scrollY: 0,
-                    scrollX: 0,
-                    width: captureArea.scrollWidth,
-                    height: captureArea.scrollHeight
+                    allowTaint: true
                 });
                 
-                // Create 16:9 canvas (1920x1080 for Full HD)
+                // Create 16:9 Canvas (1920x1080)
                 const finalCanvas = document.createElement('canvas');
                 const targetWidth = 1920;
                 const targetHeight = 1080;
@@ -2067,83 +3065,67 @@
                 finalCanvas.height = targetHeight;
                 const ctx = finalCanvas.getContext('2d');
                 
-                // Fill with white background
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, targetWidth, targetHeight);
                 
-                // Calculate margins (3% on each side for better fit)
-                const marginPercent = 0.03;
+                const marginPercent = 0.04;
                 const marginX = targetWidth * marginPercent;
                 const marginY = targetHeight * marginPercent;
-                
-                // Available space after margins
                 const availableWidth = targetWidth - (marginX * 2);
                 const availableHeight = targetHeight - (marginY * 2);
                 
-                // Calculate scale to fill available space
-                const scaleX = availableWidth / canvas.width;
-                const scaleY = availableHeight / canvas.height;
-                
-                // Use the LARGER scale to fill more space (instead of smaller)
-                const scale = Math.max(scaleX, scaleY) * 0.95; // 95% to leave some breathing room
-                
+                const scale = Math.min(availableWidth / canvas.width, availableHeight / canvas.height) * 0.95;
                 const scaledWidth = canvas.width * scale;
                 const scaledHeight = canvas.height * scale;
                 
-                // Center in canvas
                 const x = (targetWidth - scaledWidth) / 2;
                 const y = (targetHeight - scaledHeight) / 2;
                 
-                // Enable high quality rendering
                 ctx.imageSmoothingEnabled = true;
                 ctx.imageSmoothingQuality = 'high';
-                
-                // Draw scaled image
                 ctx.drawImage(canvas, x, y, scaledWidth, scaledHeight);
                 
-                // Restore ALL original inputs/selects
+                // Restore form elements
                 replacements.forEach(({original, replacement, parent}) => {
                     parent.replaceChild(original, replacement);
                 });
                 
-                // Restore original state
                 controls.style.display = 'flex';
                 captureArea.style.padding = originalPadding;
                 tableContainer.style.overflow = originalOverflow;
                 deleteHeader.style.display = '';
                 deleteCells.forEach(cell => cell.style.display = '');
                 
-                // Step 1: Download to device
+                // Step 1: Local File Download
                 loadingText.textContent = '💾 กำลังบันทึกลงเครื่อง...';
                 const link = document.createElement('a');
-                const timestamp = new Date().toISOString().slice(0,10);
+                const timestamp = new Date().toISOString().slice(0, 10);
                 link.download = `${headerText}_${timestamp}.png`;
                 link.href = finalCanvas.toDataURL('image/png', 0.95);
                 link.click();
                 
-                // Step 2: Upload to Cloudinary + Firebase
-                loadingText.textContent = '☁️ กำลังอัปโหลดไปยัง Cloudinary...';
+                // Step 2: Cloudinary & Firebase Upload
+                loadingText.textContent = '☁️ กำลังนำเข้าบอร์ด...';
                 
                 finalCanvas.toBlob(async (blob) => {
                     try {
                         const file = new File([blob], `${headerText}_${Date.now()}.png`, { type: 'image/png' });
-                        const result = await uploadToCloudinary(file);
+                        const result = await processAndCompressImage(file);
                         images.push(result);
                         await saveToFirebase();
                         
                         hideLoading();
                         trainingContainer.style.display = 'none';
-                        alert(`✅ บันทึกสำเร็จ!\n\n💾 ไฟล์ถูกดาวน์โหลดลงเครื่องแล้ว (1920x1080)\n🔥 ตารางถูกเพิ่มไปยังบอร์ดแล้ว\n\nทุกเครื่องจะเห็นตารางนี้!`);
+                        alert(`✅ บันทึกสำเร็จ!\n\n💾 ดาวน์โหลดลงเครื่องแล้ว (1920x1080)\n🔥 นำเข้าบอร์ดแจ้งข่าวสารเรียบร้อยแล้ว`);
                     } catch (error) {
                         hideLoading();
-                        alert('⚠️ บันทึกลงเครื่องสำเร็จ\nแต่อัปโหลดขึ้นบอร์ดล้มเหลว\n\nข้อผิดพลาด: ' + error.message);
+                        alert('⚠️ บันทึกลงเครื่องสำเร็จ แต่อัปโหลดขึ้นบอร์ดล้มเหลว: ' + error.message);
                     }
                 }, 'image/png', 0.95);
                 
             } catch (error) {
                 hideLoading();
                 
-                // Restore on error
                 replacements.forEach(({original, replacement, parent}) => {
                     if (parent.contains(replacement)) {
                         parent.replaceChild(original, replacement);
@@ -2159,7 +3141,5 @@
             }
         });
     </script>
-    <script src="https://www.youtube.com/iframe_api"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </body>
 </html>
