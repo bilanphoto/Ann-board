@@ -2411,12 +2411,18 @@
                 videoId = getYouTubeVideoId(targetUrl);
             }
 
+            if (videoId) {
+                targetUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=1&enablejsapi=1&playsinline=1&rel=0`;
+            }
+
             const existingIframe = container.querySelector('iframe');
-            if (existingIframe && videoId && existingIframe.src.includes(videoId)) {
-                if (typeof onSlideEnded === 'function') {
-                    youtubeEndCallbacks.set(existingIframe, onSlideEnded);
+            if (existingIframe) {
+                if (existingIframe.src === targetUrl || (videoId && existingIframe.src.includes(videoId))) {
+                    if (typeof onSlideEnded === 'function') {
+                        youtubeEndCallbacks.set(existingIframe, onSlideEnded);
+                    }
+                    return;
                 }
-                return;
             }
 
             container.innerHTML = '';
