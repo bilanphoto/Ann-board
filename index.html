@@ -1554,7 +1554,7 @@
         
         <!-- PTT Logo Overlay (Top Right, Next to Close Button) -->
         <div class="slideshow-logo">
-            <img src="images/logo_ptt_white.png" alt="PTT Logo" onerror="this.src='images/logo_ptt.png'">
+            <img src="images/logo_ptt_white.png" alt="PTT Logo" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'120\' height=\'40\' viewBox=\'0 0 120 40\'><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%23ffffff\' font-weight=\'bold\' font-size=\'20\'>ptt</text></svg>';">
         </div>
         
         <!-- Digital Clock & Thai Date (Top Left) -->
@@ -2205,10 +2205,13 @@
                 img.alt = 'Image ' + (index + 1);
                 
                 img.onerror = function() {
-                    if (this.src !== imgObj.url) {
-                        this.src = imgObj.url;
+                    this.onerror = null;
+                    if (imgObj.type === 'webpage') {
+                        this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="150" viewBox="0 0 200 150"><rect width="100%" height="100%" fill="%231e293b"/><text x="50%" y="45%" dominant-baseline="middle" text-anchor="middle" fill="%236366f1" font-size="42">🌐</text><text x="50%" y="78%" dominant-baseline="middle" text-anchor="middle" fill="%2394a3b8" font-size="14" font-family="sans-serif" font-weight="bold">Web Link</text></svg>';
+                    } else if (imgObj.type === 'youtube') {
+                        this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="150" viewBox="0 0 200 150"><rect width="100%" height="100%" fill="%231e293b"/><text x="50%" y="45%" dominant-baseline="middle" text-anchor="middle" fill="%23ef4444" font-size="42">🎥</text><text x="50%" y="78%" dominant-baseline="middle" text-anchor="middle" fill="%2394a3b8" font-size="14" font-family="sans-serif" font-weight="bold">YouTube Video</text></svg>';
                     } else {
-                        this.src = 'images/error_placeholder.svg';
+                        this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="150" viewBox="0 0 200 150"><rect width="100%" height="100%" fill="%231e293b"/><text x="50%" y="45%" dominant-baseline="middle" text-anchor="middle" fill="%23f59e0b" font-size="42">🖼️</text><text x="50%" y="78%" dominant-baseline="middle" text-anchor="middle" fill="%2394a3b8" font-size="14" font-family="sans-serif" font-weight="bold">Image Error</text></svg>';
                     }
                 };
                 
