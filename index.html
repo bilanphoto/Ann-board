@@ -1554,7 +1554,12 @@
         
         <!-- PTT Logo Overlay (Top Right, Next to Close Button) -->
         <div class="slideshow-logo">
-            <img src="images/logo_ptt_white.png" alt="PTT Logo" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'120\' height=\'40\' viewBox=\'0 0 120 40\'><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%23ffffff\' font-weight=\'bold\' font-size=\'20\'>ptt</text></svg>';">
+            <svg width="110" height="34" viewBox="0 0 110 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="110" height="34" rx="6" fill="#004D9C"/>
+                <circle cx="20" cy="17" r="8" fill="#E11D48"/>
+                <path d="M17 13L24 17L17 21V13Z" fill="white"/>
+                <text x="60" y="23" fill="#FFFFFF" font-family="sans-serif" font-weight="800" font-size="17" letter-spacing="1">PTT</text>
+            </svg>
         </div>
         
         <!-- Digital Clock & Thai Date (Top Left) -->
@@ -2827,12 +2832,17 @@
                     }
                 } else if (slide.classList.contains('webpage-slide')) {
                     const url = slide.getAttribute('data-url');
-                    slide.innerHTML = '';
-                    const iframe = document.createElement('iframe');
-                    iframe.src = url;
-                    iframe.style.cssText = 'width:100%;height:100%;border:none;';
-                    iframe.allow = 'autoplay; fullscreen';
-                    slide.appendChild(iframe);
+                    let iframe = slide.querySelector('iframe');
+                    if (!iframe) {
+                        slide.innerHTML = '';
+                        iframe = document.createElement('iframe');
+                        iframe.src = url;
+                        iframe.style.cssText = 'width:100%;height:100%;border:none;background:#fff;';
+                        iframe.allow = 'autoplay; fullscreen';
+                        slide.appendChild(iframe);
+                    } else if (iframe.src !== url) {
+                        iframe.src = url;
+                    }
                     isYouTubePlaying = false;
                 } else {
                     slide.classList.add('effect-' + currentEffect);
