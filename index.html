@@ -1637,6 +1637,19 @@
         const closeMultiDisplayModal = document.getElementById('closeMultiDisplayModal');
         const saveAndCloseModalBtn = document.getElementById('saveAndCloseModalBtn');
 
+        // ==========================================
+        // 🌐 PROTOCOL & WEB SERVER DETECTOR
+        // ==========================================
+        if (window.location.protocol === 'file:') {
+            const warningBanner = document.createElement('div');
+            warningBanner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:999999;background:linear-gradient(135deg, #ef4444 0%, #dc2626 100%);color:white;text-align:center;padding:12px 18px;font-size:0.95rem;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;gap:12px;';
+            warningBanner.innerHTML = `
+                <span>⚠️ คุณกำลังเปิดไฟล์ผ่าน file:/// (ดับเบิลคลิกเปิดไฟล์จากเครื่อง) ซึ่งนโยบายใหม่ของ YouTube จะบล็อกการเล่น (ข้อผิดพลาด 153) <u>กรุณาคลิกเปิดผ่าน Web Server</u> ➔ <a href="http://localhost:8888" style="color:#fef08a;text-decoration:underline;font-weight:bold;font-size:1.05rem;">http://localhost:8888</a> เพื่อเล่น YouTube ได้ลื่นไหล 100%</span>
+                <button onclick="this.parentNode.remove()" style="background:rgba(255,255,255,0.25);border:none;color:white;border-radius:6px;padding:4px 10px;cursor:pointer;font-weight:bold;">✕ ปิด</button>
+            `;
+            document.body.appendChild(warningBanner);
+        }
+
         function openMultiDisplayModal() {
             updateLayoutUI();
             if (multiDisplayModal) {
@@ -2155,18 +2168,22 @@
         });
 
         function isYouTubeUrl(url) {
-            return url.includes('youtube.com') || url.includes('youtu.be');
+            if (!url) return false;
+            return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('ytimg.com');
         }
 
         function getYouTubeVideoId(url) {
+            if (!url) return null;
             const patterns = [
-                /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/,
-                /youtube\.com\/embed\/([^&\n?#]+)/
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/|youtube\.com\/vi\/|ytimg\.com\/vi\/)([^&\n?#\/]+)/,
+                /^([a-zA-Z0-9_-]{11})$/
             ];
             for (const pattern of patterns) {
                 const match = url.match(pattern);
-                if (match && match[1]) return match[1];
+                if (match && match[1] && match[1].length === 11) return match[1];
             }
+            const match = url.match(/([a-zA-Z0-9_-]{11})/);
+            if (match && match[1]) return match[1];
             return null;
         }
 
@@ -2356,44 +2373,65 @@
             showControls();
         }
 
+        const youtubeEndCallbacks = new WeakMap();
+
+        window.addEventListener('message', function(event) {
+            if (typeof event.origin === 'string' && event.origin.includes('youtube.com')) {
+                try {
+                    const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+                    const isEnded = data && (data.info === 0 || (data.info && data.info.playerState === 0));
+                    const isError = data && (data.event === 'onError' || (typeof data.info === 'number' && [100, 101, 150, 153].includes(data.info)));
+
+                    if (isEnded || isError) {
+                        const iframes = document.querySelectorAll('iframe');
+                        iframes.forEach(iframe => {
+                            if (iframe.contentWindow === event.source) {
+                                const cb = youtubeEndCallbacks.get(iframe);
+                                if (typeof cb === 'function') {
+                                    cb();
+                                } else if (isEnded) {
+                                    try {
+                                        iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                                    } catch(e) {}
+                                }
+                            }
+                        });
+                    }
+                } catch(e) {}
+            }
+        });
+
         function renderSingleSlideIntoContainer(container, itemObj, onSlideEnded) {
             if (!container || !itemObj) return;
 
             let targetUrl = itemObj.url || '';
-            if (itemObj.type === 'webpage' && isYouTubeUrl(targetUrl)) {
-                const vId = getYouTubeVideoId(targetUrl);
-                if (vId) targetUrl = `https://www.youtube.com/embed/${vId}?autoplay=1&mute=1&controls=1&enablejsapi=1&playsinline=1`;
+            let videoId = itemObj.videoId;
+
+            if ((itemObj.type === 'webpage' || !videoId) && isYouTubeUrl(targetUrl)) {
+                videoId = getYouTubeVideoId(targetUrl);
             }
 
             const existingIframe = container.querySelector('iframe');
-            if (existingIframe && existingIframe.src === targetUrl && itemObj.type !== 'youtube') {
+            if (existingIframe && videoId && existingIframe.src.includes(videoId)) {
+                if (typeof onSlideEnded === 'function') {
+                    youtubeEndCallbacks.set(existingIframe, onSlideEnded);
+                }
                 return;
             }
 
             container.innerHTML = '';
             
-            if (itemObj.type === 'youtube' && itemObj.videoId) {
-                const iframe = document.createElement('iframe');
-                iframe.src = `https://www.youtube.com/embed/${itemObj.videoId}?autoplay=1&mute=1&controls=1&enablejsapi=1&playsinline=1&rel=0`;
-                iframe.style.cssText = 'width:100%;height:100%;border:none;';
-                iframe.allow = 'autoplay; encrypted-media; fullscreen; picture-in-picture';
-                container.appendChild(iframe);
+            if (videoId || itemObj.type === 'youtube') {
+                const actualId = videoId || (itemObj.type === 'youtube' ? itemObj.videoId : null);
+                if (actualId) {
+                    const iframe = document.createElement('iframe');
+                    iframe.src = `https://www.youtube.com/embed/${actualId}?autoplay=1&mute=1&controls=1&enablejsapi=1&playsinline=1&rel=0`;
+                    iframe.style.cssText = 'width:100%;height:100%;border:none;';
+                    iframe.allow = 'autoplay; encrypted-media; fullscreen; picture-in-picture';
+                    container.appendChild(iframe);
 
-                if (typeof YT !== 'undefined' && YT.Player) {
-                    try {
-                        new YT.Player(iframe, {
-                            events: {
-                                'onStateChange': (e) => {
-                                    if (e.data === YT.PlayerState.ENDED) {
-                                        if (typeof onSlideEnded === 'function') {
-                                            onSlideEnded();
-                                        }
-                                    }
-                                }
-                            }
-                        });
-                    } catch(err) {
-                        console.warn('YouTube YT.Player listener error:', err);
+                    if (typeof onSlideEnded === 'function') {
+                        youtubeEndCallbacks.set(iframe, onSlideEnded);
                     }
                 }
             } else if (itemObj.type === 'webpage' && itemObj.url) {
@@ -2503,7 +2541,7 @@
                         let finalUrl = zData.url;
                         if (isYouTubeUrl(finalUrl)) {
                             const vId = getYouTubeVideoId(finalUrl);
-                            if (vId) finalUrl = `https://www.youtube.com/embed/${vId}?autoplay=1&mute=1&controls=1&enablejsapi=1&playsinline=1`;
+                            if (vId) finalUrl = `https://www.youtube.com/embed/${vId}?autoplay=1&mute=1&controls=1&enablejsapi=1&playsinline=1&rel=0`;
                         }
                         iframe.src = finalUrl;
                         iframe.allow = 'autoplay; encrypted-media; fullscreen; picture-in-picture';
@@ -2589,7 +2627,12 @@
                     } else if (zoneItems.length === 1) {
                         const slideContainer = document.createElement('div');
                         slideContainer.style.cssText = 'width:100%;height:100%;position:relative;';
-                        renderSingleSlideIntoContainer(slideContainer, zoneItems[0]);
+                        
+                        const replaySingle = () => {
+                            renderSingleSlideIntoContainer(slideContainer, zoneItems[0], replaySingle);
+                        };
+
+                        renderSingleSlideIntoContainer(slideContainer, zoneItems[0], replaySingle);
                         body.appendChild(slideContainer);
                     } else {
                         const slideContainer = document.createElement('div');
