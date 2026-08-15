@@ -1950,9 +1950,18 @@
         // ==========================================
         // 🔥 FIREBASE SYNC & DATA FETCHING
         // ==========================================
+        let lastImagesJSON = '';
+
         onValue(imagesRef, (snapshot) => {
             const data = snapshot.val();
-            const previousCount = images.length;
+            const currentJSON = JSON.stringify(data || {});
+            
+            // Skip re-rendering if data hasn't changed to prevent GitHub Pages Rate Limit!
+            if (currentJSON === lastImagesJSON) {
+                syncIndicator.classList.remove('syncing');
+                return;
+            }
+            lastImagesJSON = currentJSON;
             
             if (data) {
                 images = Object.keys(data).map(key => ({
@@ -1967,19 +1976,10 @@
             updateControls();
             updateLayoutUI();
             
-            // Re-render slides if slideshow is active and image count changed
+            // Real-Time Central Screen Auto-Update
             const isInSlideshow = slideshowContainer.classList.contains('active');
-            const imagesChanged = images.length !== previousCount;
-            
-            if (isInSlideshow && imagesChanged) {
-                const savedIndex = currentSlideIndex;
-                renderSlides();
-                if (savedIndex < images.length) {
-                    showSlide(savedIndex);
-                } else {
-                    currentSlideIndex = 0;
-                    showSlide(0);
-                }
+            if (isInSlideshow) {
+                renderMultiZoneDisplay();
             }
             
             syncIndicator.classList.remove('syncing');
@@ -2349,21 +2349,79 @@
             showControls();
         }
 
-        function renderSingleSlideIntoContainer(container, itemObj) {
+        function renderSingleSlideIntoContainer(container, itemObj, onSlideEnded) {
             if (!container || !itemObj) return;
+
+            let targetUrl = itemObj.url || '';
+            if (itemObj.type === 'webpage' && isYouTubeUrl(targetUrl)) {
+                const vId = getYouTubeVideoId(targetUrl);
+                if (vId) targetUrl = `https://www.youtube.com/embed/${vId}?autoplay=1&mute=1&controls=1&enablejsapi=1`;
+            }
+
+            const existingIframe = container.querySelector('iframe');
+            if (existingIframe && existingIframe.src === targetUrl && itemObj.type !== 'youtube') {
+                return;
+            }
+
             container.innerHTML = '';
             
             if (itemObj.type === 'youtube' && itemObj.videoId) {
-                const iframe = document.createElement('iframe');
-                iframe.src = `https://www.youtube.com/embed/${itemObj.videoId}?autoplay=1&mute=1&controls=1&loop=1&playlist=${itemObj.videoId}`;
-                iframe.style.cssText = 'width:100%;height:100%;border:none;';
-                iframe.allow = 'autoplay; fullscreen';
-                container.appendChild(iframe);
+                const ytDiv = document.createElement('div');
+                const ytId = 'yt-zone-' + Math.random().toString(36).substr(2, 9);
+                ytDiv.id = ytId;
+                ytDiv.style.cssText = 'width:100%;height:100%;';
+                container.appendChild(ytDiv);
+
+                const initPlayer = () => {
+                    new YT.Player(ytId, {
+                        width: '100%',
+                        height: '100%',
+                        videoId: itemObj.videoId,
+                        playerVars: { 
+                            autoplay: 1,
+                            mute: 1,
+                            controls: 1, 
+                            rel: 0, 
+                            modestbranding: 1,
+                            playsinline: 1,
+                            enablejsapi: 1,
+                            origin: window.location.origin,
+                            loop: 0
+                        },
+                        events: {
+                            'onReady': (e) => {
+                                try {
+                                    e.target.mute();
+                                    e.target.playVideo();
+                                } catch(err) {
+                                    console.warn('YouTube playVideo error:', err);
+                                }
+                            },
+                            'onStateChange': (e) => {
+                                if (e.data === YT.PlayerState.ENDED) {
+                                    if (typeof onSlideEnded === 'function') {
+                                        onSlideEnded();
+                                    }
+                                }
+                            }
+                        }
+                    });
+                };
+
+                if (typeof YT !== 'undefined' && YT.Player) {
+                    initPlayer();
+                } else {
+                    const iframe = document.createElement('iframe');
+                    iframe.src = `https://www.youtube.com/embed/${itemObj.videoId}?autoplay=1&mute=1&controls=1&enablejsapi=1`;
+                    iframe.style.cssText = 'width:100%;height:100%;border:none;';
+                    iframe.allow = 'autoplay; encrypted-media; fullscreen';
+                    container.appendChild(iframe);
+                }
             } else if (itemObj.type === 'webpage' && itemObj.url) {
                 const iframe = document.createElement('iframe');
-                iframe.src = itemObj.url;
+                iframe.src = targetUrl;
                 iframe.style.cssText = 'width:100%;height:100%;border:none;background:#fff;';
-                iframe.allow = 'autoplay; fullscreen';
+                iframe.allow = 'autoplay; encrypted-media; fullscreen';
                 container.appendChild(iframe);
             } else if (itemObj.url) {
                 const img = document.createElement('img');
@@ -2437,8 +2495,14 @@
                 if (zData.type === 'dashboard') {
                     if (zData.url) {
                         const iframe = document.createElement('iframe');
-                        iframe.src = zData.url;
-                        iframe.allow = 'autoplay; fullscreen';
+                        let finalUrl = zData.url;
+                        if (isYouTubeUrl(finalUrl)) {
+                            const vId = getYouTubeVideoId(finalUrl);
+                            if (vId) finalUrl = `https://www.youtube.com/embed/${vId}?autoplay=1&mute=1&controls=1&enablejsapi=1`;
+                        }
+                        iframe.src = finalUrl;
+                        iframe.allow = 'autoplay; encrypted-media; fullscreen';
+                        iframe.style.cssText = 'width:100%;height:100%;border:none;background:#fff;';
                         body.appendChild(iframe);
                     } else {
                         const empty = document.createElement('div');
@@ -2528,11 +2592,20 @@
                         body.appendChild(slideContainer);
 
                         let zSlideIndex = 0;
-                        renderSingleSlideIntoContainer(slideContainer, zoneItems[0]);
+
+                        function advanceZoneSlide() {
+                            zSlideIndex = (zSlideIndex + 1) % zoneItems.length;
+                            const nextItem = zoneItems[zSlideIndex];
+                            renderSingleSlideIntoContainer(slideContainer, nextItem, advanceZoneSlide);
+                        }
+
+                        renderSingleSlideIntoContainer(slideContainer, zoneItems[0], advanceZoneSlide);
 
                         const zTimer = setInterval(() => {
-                            zSlideIndex = (zSlideIndex + 1) % zoneItems.length;
-                            renderSingleSlideIntoContainer(slideContainer, zoneItems[zSlideIndex]);
+                            const currentItem = zoneItems[zSlideIndex];
+                            if (!currentItem || currentItem.type !== 'youtube') {
+                                advanceZoneSlide();
+                            }
                         }, SLIDE_DURATION);
 
                         zoneTimers.push(zTimer);
@@ -2674,21 +2747,25 @@
                                 rel: 0, 
                                 modestbranding: 1,
                                 playsinline: 1,
-                                loop: 1,
-                                playlist: videoId
+                                loop: 0
                             },
                             events: {
                                 'onReady': (e) => {
                                     e.target.playVideo();
                                     setTimeout(() => {
                                         try { e.target.unMute(); } catch(err) {}
-                                    }, 1000);
+                                    }, 800);
                                     isYouTubePlaying = true;
                                     stopSlideshow();
                                 },
                                 'onStateChange': (e) => {
                                     if (e.data === YT.PlayerState.ENDED) {
-                                        e.target.playVideo();
+                                        isYouTubePlaying = false;
+                                        destroyYouTubePlayer();
+                                        // Auto advance to next slide or link when video finishes!
+                                        currentSlideIndex = (currentSlideIndex + 1) % images.length;
+                                        showSlide(currentSlideIndex);
+                                        startSlideshow();
                                     }
                                 }
                             }
